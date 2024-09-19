@@ -1,0 +1,26 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Cocos2-launch",
+            "type": "lua",
+            "request": "launch",
+            "runtimeType": "Cocos2",
+            "localRoot": "D:/Work/Client/Cocos2dx/cocos2dx_lua",
+            "commandLine": "-workdir D:/Work/Client/Cocos2dx/cocos2dx_lua/ -file src/main.lua",
+            "port": 7003,
+            "exePath": "D:/Work/Client/Cocos2dx/cocos2dx_lua/simulator/win32/cocos2dx_lua.exe",
+            "fileExtNames": [
+                ".lua",
+                ".txt",
+                ".lua.txt",
+                ".bytes"
+            ],
+            "isFoxGloryProject": false,
+            "printType": 1
+        },
+    ]
+}
