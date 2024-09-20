@@ -44,7 +44,7 @@ function SceneMain:onExit()
 end
 
 function SceneMain:onEventData(INdata)
-    dump(INdata)
+    --dump(INdata)
 end
 
 function SceneMain:onKeyEventPressed(INkey,INrender)
@@ -72,9 +72,6 @@ function SceneMain:onKeyEventPressed(INkey,INrender)
         dump(dataInfo)
         self.tcp:send(pData)
     end
-end
-
-function SceneMain:onEnterTransitionFinish()
 end
 
 return SceneMain
