@@ -11,9 +11,10 @@ cc.FileUtils:getInstance():setPopupNotify(false)
 cc.exports.StateMachine = require "app.tools.StateMachine"
 cc.exports.EventProtocol = require "app.tools.EventProtocol"
 cc.exports.SocketTCP = require "app.tools.SocketTCP"
+cc.exports.Scheduler = require "app.tools.Scheduler"
 
 cc.load('pb')
-local buffer = read_protobuf_file_c("src/app/pbfiles/ServerModuleProto.pb")
+local buffer = read_protobuf_file_c("src/app/pbfiles/pb_common.pb")
 protobuf.register(buffer)
 
 local function main()

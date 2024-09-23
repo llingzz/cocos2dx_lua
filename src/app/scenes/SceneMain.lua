@@ -29,6 +29,7 @@ function SceneMain:ctor()
     keyBoardListener:registerScriptHandler(handler(self,self.onKeyEventPressed), cc.Handler.EVENT_KEYBOARD_PRESSED)
     local eventDispatcher = self:getEventDispatcher()
     eventDispatcher:addEventListenerWithSceneGraphPriority(keyBoardListener, self)
+    self.recvStr = ""
 end
 
 function SceneMain:onEnter()
@@ -44,7 +45,18 @@ function SceneMain:onExit()
 end
 
 function SceneMain:onEventData(INdata)
-    --dump(INdata)
+    self.recvStr = self.recvStr .. INdata.data
+    local strlen = string.len(self.recvStr)
+    if strlen > 8 then
+        local datalen = tonumber(string.sub(self.recvStr,1,8))
+        if strlen >= 8 + datalen then
+            local data = string.sub(self.recvStr,8+1,8 + datalen)
+            local dataInfo = protobuf.decode("pb_common.req_test", data)
+            protobuf.extract(dataInfo)
+            dump(dataInfo)
+            self.recvStr = string.sub(self.recvStr,8 + datalen+1,datalen)
+        end
+    end
 end
 
 function SceneMain:onKeyEventPressed(INkey,INrender)
@@ -64,13 +76,22 @@ function SceneMain:onKeyEventPressed(INkey,INrender)
         self.tcp:send(tostring(os.time()))
     end
     if INkey == cc.KeyCode.KEY_P then
-        local pData = protobuf.encode('ServerModule.SERVER_TIME_REQ', {
-            nUserID = 606224,
+        local pData = protobuf.encode('pb_common.req_test', {
+            n1 = 606224,
         })
-        local dataInfo = protobuf.decode("ServerModule.SERVER_TIME_REQ", pData)
-        protobuf.extract(dataInfo)
-        dump(dataInfo)
-        self.tcp:send(pData)
+        local str = string.format("%08d",string.len(pData))
+        -- local scheduler = cc.Director:getInstance():getScheduler()
+        -- self.scheduleScriptEntryID = scheduler:scheduleScriptFunc(function(dt)
+        --     self.tcp:send(str .. pData)
+        -- end,2,false)
+        if self.scheduleId then
+            Scheduler:unscheduleGlobal(self.scheduleId)
+            self.scheduleId = nil
+        end
+        Scheduler:scheduleGlobal(function(dt)
+            --self.tcp:send(str .. pData)
+            self.tcp:send("000000011")
+        end,0.5)
     end
 end
 

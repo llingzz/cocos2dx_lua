@@ -1,0 +1,13 @@
+syntax = "proto2";
+package pb_common;
+
+message req_head
+{
+	optional int32 protocol_code = 1;
+	optional int32 data_len = 2;
+}
+
+message req_test
+{
+	optional int32 n1 = 1;
+}

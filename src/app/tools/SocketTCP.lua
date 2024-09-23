@@ -103,7 +103,7 @@ function SocketTCP:connect(__host, __port, __retryConnectWhenFailure)
 			end
 			__checkConnect()
 		end
-		self.connectTimeTickScheduler = scheduler.scheduleGlobal(__connectTimeTick, SOCKET_TICK_TIME)
+		self.connectTimeTickScheduler = scheduler:scheduleGlobal(__connectTimeTick, SOCKET_TICK_TIME)
 	end
 end
 
@@ -115,8 +115,8 @@ end
 function SocketTCP:close( ... )
 	--printInfo("%s.close", self.name)
 	self.tcp:close();
-	if self.connectTimeTickScheduler then scheduler.unscheduleGlobal(self.connectTimeTickScheduler) end
-	if self.tickScheduler then scheduler.unscheduleGlobal(self.tickScheduler) end
+	if self.connectTimeTickScheduler then scheduler:unscheduleGlobal(self.connectTimeTickScheduler) end
+	if self.tickScheduler then scheduler:unscheduleGlobal(self.tickScheduler) end
 	if self.eventProtocol then self.eventProtocol:dispatchEvent({name=SocketTCP.EVENT_CLOSE}) end
 end
 
@@ -156,7 +156,7 @@ function SocketTCP:_onConnected()
 	--printInfo("%s._onConnectd", self.name)
 	self.isConnected = true
 	if self.eventProtocol then self.eventProtocol:dispatchEvent({name=SocketTCP.EVENT_CONNECTED}) end
-	if self.connectTimeTickScheduler then scheduler.unscheduleGlobal(self.connectTimeTickScheduler) end
+	if self.connectTimeTickScheduler then scheduler:unscheduleGlobal(self.connectTimeTickScheduler) end
 
 	local __tick = function()
 		while true do
@@ -181,7 +181,7 @@ function SocketTCP:_onConnected()
 	end
 
 	-- start to read TCP data
-	self.tickScheduler = scheduler.scheduleGlobal(__tick, SOCKET_TICK_TIME)
+	self.tickScheduler = scheduler:scheduleGlobal(__tick, SOCKET_TICK_TIME)
 end
 
 function SocketTCP:_connectFailure(status)
@@ -195,11 +195,11 @@ function SocketTCP:_reconnect(__immediately)
 	if not self.isRetryConnect then return end
 	printInfo("%s._reconnect", self.name)
 	if __immediately then self:connect() return end
-	if self.reconnectScheduler then scheduler.unscheduleGlobal(self.reconnectScheduler) end
+	if self.reconnectScheduler then scheduler:unscheduleGlobal(self.reconnectScheduler) end
 	local __doReConnect = function ()
 		self:connect()
 	end
-	self.reconnectScheduler = scheduler.performWithDelayGlobal(__doReConnect, SOCKET_RECONNECT_TIME)
+	self.reconnectScheduler = scheduler:performWithDelayGlobal(__doReConnect, SOCKET_RECONNECT_TIME)
 end
 
 return SocketTCP

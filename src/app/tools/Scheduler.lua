@@ -31,7 +31,7 @@ THE SOFTWARE.
 ]]
 local scheduler = {}
 
-local sharedScheduler = CCDirector:sharedDirector():getScheduler()
+local sharedScheduler = cc.Director:getInstance():getScheduler()
 
 --[[--
 
@@ -46,7 +46,7 @@ local sharedScheduler = CCDirector:sharedDirector():getScheduler()
 @return mixed schedule句柄
 
 ]]
-function scheduler.scheduleUpdateGlobal(listener)
+function scheduler:scheduleUpdateGlobal(listener)
     return sharedScheduler:scheduleScriptFunc(listener, 0, false)
 end
 
@@ -70,7 +70,7 @@ local handle = scheduler.scheduleGlobal(onInterval, 0.5)
 @return mixed schedule句柄
 
 ]]
-function scheduler.scheduleGlobal(listener, interval)
+function scheduler:scheduleGlobal(listener, interval)
     return sharedScheduler:scheduleScriptFunc(listener, interval, false)
 end
 
@@ -83,7 +83,7 @@ scheduler.unscheduleGlobal() 的参数就是 scheduler.scheduleUpdateGlobal() �
 @param mixed schedule句柄
 
 ]]
-function scheduler.unscheduleGlobal(handle)
+function scheduler:unscheduleGlobal(handle)
     sharedScheduler:unscheduleScriptEntry(handle)
 end
 
@@ -99,7 +99,7 @@ scheduler.performWithDelayGlobal() 会在等待指定时间后执行一次回调
 @return mixed schedule句柄
 
 ]]
-function scheduler.performWithDelayGlobal(listener, time)
+function scheduler:performWithDelayGlobal(listener, time)
     local handle
     handle = sharedScheduler:scheduleScriptFunc(function()
         scheduler.unscheduleGlobal(handle)
