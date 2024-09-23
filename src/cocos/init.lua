@@ -28,6 +28,9 @@ require "cocos.cocos2d.functions"
 
 __G__TRACKBACK__ = function(msg)
     local msg = debug.traceback(msg, 3)
+    if DEBUG > 0 then
+        if debugXpCall then debugXpCall() end
+    end
     print(msg)
     return msg
 end

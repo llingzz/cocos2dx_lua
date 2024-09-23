@@ -2,7 +2,8 @@
 1. cd cocos2d-x-3.1.x/tools/cocos2d-console/bin
 2. cocos new cocos2dx_lua -p com.lling.org -l lua -d xxx/xxx
 
-添加LuaDebugjit.lua在vscode中开启调试，插件选用luaide
+添加LuaDebugjit.lua在vscode中开启调试，插件选用luaide，调试目录cocos2dx_lua/src
+注意：调试时请删除simulator\win32/resource文件夹，否则无法正常进入断点
 
 pbc支持
 1. https://github.com/cloudwu/pbc下载源码，解压放入frameworks\cocos2d-x\external下
