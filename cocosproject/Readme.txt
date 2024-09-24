@@ -1,0 +1,1 @@
+cocosstudio版本使用2.3.0.1(CocosForWin-v2.3.0.exe)

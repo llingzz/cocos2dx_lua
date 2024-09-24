@@ -5,6 +5,15 @@ local SceneMain = class("SceneMain", function()
 end)
 
 function SceneMain:ctor()
+    local uiloader = cc.load('uiloader')
+    local layer = uiloader:load("res/modules/LayerTest.csb")
+    local width = display.width
+    local height = display.height
+    layer:setContentSize(width, height)
+    layer:enableNodeEvents()
+    ccui.Helper:doLayout(layer)
+    layer:addTo(self)
+
     self.fsm = StateMachine:new()
     self.fsm:setupState({
         initial = "idle",
