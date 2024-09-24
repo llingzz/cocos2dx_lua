@@ -102,7 +102,7 @@ scheduler.performWithDelayGlobal() 会在等待指定时间后执行一次回调
 function scheduler:performWithDelayGlobal(listener, time)
     local handle
     handle = sharedScheduler:scheduleScriptFunc(function()
-        scheduler.unscheduleGlobal(handle)
+        scheduler:unscheduleGlobal(handle)
         listener()
     end, time, false)
     return handle
