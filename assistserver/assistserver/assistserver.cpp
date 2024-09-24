@@ -13,15 +13,16 @@
 
 using asio::ip::tcp;
 
+class server;
 class session : public std::enable_shared_from_this<session>
 {
 public:
-    session(std::shared_ptr<asio::ip::tcp::socket> socket, asio::io_service::strand strand, LONG token) :
+    session(std::shared_ptr<asio::ip::tcp::socket> socket, asio::io_service::strand strand, LONG token, std::function<void(LONG)> cbRemove) :
         socket_(socket),
         strand_(strand),
-        tokenid(token)
+        tokenid(token),
+        m_cbRemove(cbRemove)
     {
-        count = 0;
         memset(data_, 0, sizeof(data_));
     }
 
@@ -29,22 +30,52 @@ public:
         do_read();
     }
 
+    void close() {
+        asio::error_code ignored_ec;
+        (*socket_).shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
+        (*socket_).close();
+        if (m_cbRemove) {
+            m_cbRemove(tokenid);
+        }
+    }
+
+    void send(int protocol, const std::string& data) {
+        pb_common::data_head pb_head;
+        pb_head.set_protocol_code(protocol);
+        pb_head.set_data_len(data.size());
+        pb_head.set_data_str(data);
+        char head[12] = { 0 };
+        sprintf_s(head, sizeof(head), "%08d", pb_head.ByteSizeLong());
+        write(std::string(head) + pb_head.SerializeAsString());
+    }
+
 private:
     void hander_data(const std::string& data) {
-        if (count++ > 1000) {
-            asio::error_code ignored_ec;
-            (*socket_).shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
-            (*socket_).close();
+        pb_common::data_head head;
+        auto ret = head.ParseFromString(data);
+        if (!ret) {
             return;
         }
-        write(data);
-        //pb_common::req_test req;
-        //auto ret = req.ParseFromString(data);
-        //if (ret) {
-        //    auto strRet = req.SerializeAsString();
-        //    printf("%s %d %d\n", data.c_str(), req.n1(), std::this_thread::get_id());
-        //    //write(strRet);
-        //}
+        int idx = data.size() - head.data_len();
+        std::string real_data = data.substr(idx, data.size() - 1);
+        switch (head.protocol_code()) {
+        case 0:
+        {
+            pb_common::req_test test;
+            ret = test.ParseFromString(real_data);
+            if (!ret) {
+                break;
+            }
+            printf("%s n1 %d s1 %s arr %d|%d|%d|%d\n", __FUNCTION__, test.n1(), test.s1().c_str(),
+                test.arr().at(0), test.arr().at(1), test.arr().at(2), test.arr().at(3));
+            pb_common::res_test res;
+            res.set_r1(test.n1());
+            res.set_s1(test.s1());
+            send(1, res.SerializeAsString());
+        }
+        default:
+            break;
+        }
     }
 
     void do_read() {
@@ -66,18 +97,14 @@ private:
                                         do_read();
                                     }
                                     else {
-                                        asio::error_code ignored_ec;
-                                        (*socket_).shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
-                                        (*socket_).close();
+                                        close();
                                     }
                                 }
                             )
                         );
                     }
                     else {
-                        asio::error_code ignored_ec;
-                        (*socket_).shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
-                        (*socket_).close();
+                        close();
                     }
                 }
             )
@@ -106,16 +133,13 @@ private:
                         }
                     }
                     else {
-                        asio::error_code ignored_ec;
-                        (*socket_).shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
-                        (*socket_).close();
+                        close();
                     }
                 }
             )
         );
     }
 
-    int count;
     LONG tokenid;
     std::shared_ptr<asio::ip::tcp::socket> socket_;
     asio::io_service::strand strand_;
@@ -123,8 +147,10 @@ private:
     char data_[max_length];
     std::mutex lock;
     std::deque<std::string> write_msgs_;
+    std::function<void(LONG)> m_cbRemove;
 };
 
+/*协议格式：数据长度(8字符)|数据*/
 class server
 {
 public:
@@ -166,6 +192,12 @@ public:
         }
     }
 
+    void remove_session(LONG token) {
+        if (m_mapSessions.find(token) != m_mapSessions.end()) {
+            m_mapSessions.erase(token);
+        }
+    }
+
 private:
     void do_accept()
     {
@@ -176,7 +208,13 @@ private:
                 if (!ec) {
                     auto token = m_lTokenId++;
                     const auto& strand = m_pStrands[token % m_pStrands.size()];
-                    m_mapSessions[token] = std::make_shared<session>(socket_, *strand, token);
+                    m_mapSessions[token] = std::make_shared<session>(socket_, *strand, token,
+                        [this](LONG token) {
+                            if (m_mapSessions.find(token) != m_mapSessions.end()) {
+                                m_mapSessions.erase(token);
+                            }
+                        }
+                    );
                     m_mapSessions[token]->start();
                 }
                 do_accept();
@@ -192,12 +230,20 @@ private:
     std::map<LONG, std::shared_ptr<session>> m_mapSessions;
 };
 
+class gameserver : public server {
+public:
+    gameserver(std::string strIp, int port) :
+        server(strIp, port) {
+
+    }
+};
+
 int main()
 {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
     try {
-        server s("127.0.0.1", 8888);
+        gameserver s("127.0.0.1", 8888);
         auto ch = getchar();
     }
     catch (std::exception& e) {

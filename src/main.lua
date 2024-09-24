@@ -4,6 +4,7 @@ if DEBUG > 0 then
     breakSocketHandle,debugXpCall = require("LuaDebugjit")("LocalHost", 7003)
     print(breakSocketHandle, debugXpCall)
     cc.Director:getInstance():getScheduler():scheduleScriptFunc(breakSocketHandle, 0.3, false)
+    cc.Director:getInstance():setDisplayStats(CC_SHOW_FPS)
 end
 
 require "cocos.init"

@@ -1,13 +1,23 @@
 syntax = "proto2";
 package pb_common;
 
-message req_head
+message data_head
 {
 	optional int32 protocol_code = 1;
-	optional int32 data_len = 2;
+	reserved 2 to 8;
+	optional int32 data_len = 9;
+	optional bytes data_str = 10;
 }
 
 message req_test
 {
 	optional int32 n1 = 1;
+	optional bytes s1 = 2;
+	repeated int32 arr = 3;
+}
+
+message res_test
+{
+	optional int32 r1 = 1;
+	optional bytes s1 = 2;
 }

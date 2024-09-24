@@ -29,34 +29,52 @@ function SceneMain:ctor()
     keyBoardListener:registerScriptHandler(handler(self,self.onKeyEventPressed), cc.Handler.EVENT_KEYBOARD_PRESSED)
     local eventDispatcher = self:getEventDispatcher()
     eventDispatcher:addEventListenerWithSceneGraphPriority(keyBoardListener, self)
-    self.recvStr = ""
 end
 
 function SceneMain:onEnter()
-    cc.Director:getInstance():setDisplayStats(CC_SHOW_FPS)
+    self.recvStr = ""
     self.eventProtocol = EventProtocol:new()
     self.eventProtocol:addEventListener(SocketTCP.EVENT_DATA, handler(self,self.onEventData), "TCP_DATA")
     self.tcp = SocketTCP:create()
     self.tcp:setEventProtocol(self.eventProtocol)
     self.tcp:connect("127.0.0.1",8888,true)
+    self.co = coroutine.create(function()
+        while true do
+            local idx,yieldRet = coroutine.yield()
+            dump(yieldRet, tostring(idx))
+        end
+    end)
+    coroutine.resume(self.co, nil)
 end
 
 function SceneMain:onExit()
 end
 
 function SceneMain:onEventData(INdata)
+    if not self.index then self.index = 0 end
     self.recvStr = self.recvStr .. INdata.data
     local strlen = string.len(self.recvStr)
     if strlen > 8 then
         local datalen = tonumber(string.sub(self.recvStr,1,8))
         if strlen >= 8 + datalen then
             local data = string.sub(self.recvStr,8+1,8 + datalen)
-            local dataInfo = protobuf.decode("pb_common.req_test", data)
+            local dataInfo = protobuf.decode("pb_common.data_head", data)
             protobuf.extract(dataInfo)
-            dump(dataInfo)
+            self.index = self.index + 1
+            coroutine.resume(self.co, self.index, dataInfo)
             self.recvStr = string.sub(self.recvStr,8 + datalen+1,datalen)
         end
     end
+end
+
+function SceneMain:sendData(INprotocal,INdata)
+    local pData = protobuf.encode('pb_common.data_head', {
+        protocol_code = INprotocal,
+        data_len = string.len(INdata),
+        data_str = INdata
+    })
+    local str = string.format("%08d",string.len(pData))
+    self.tcp:send(str .. pData)
 end
 
 function SceneMain:onKeyEventPressed(INkey,INrender)
@@ -76,22 +94,12 @@ function SceneMain:onKeyEventPressed(INkey,INrender)
         self.tcp:send(tostring(os.time()))
     end
     if INkey == cc.KeyCode.KEY_P then
-        local pData = protobuf.encode('pb_common.req_test', {
+        local data = protobuf.encode('pb_common.req_test', {
             n1 = 606224,
+            s1 = "hello world!",
+            arr = {1,2,3,3}
         })
-        local str = string.format("%08d",string.len(pData))
-        -- local scheduler = cc.Director:getInstance():getScheduler()
-        -- self.scheduleScriptEntryID = scheduler:scheduleScriptFunc(function(dt)
-        --     self.tcp:send(str .. pData)
-        -- end,2,false)
-        if self.scheduleId then
-            Scheduler:unscheduleGlobal(self.scheduleId)
-            self.scheduleId = nil
-        end
-        Scheduler:scheduleGlobal(function(dt)
-            --self.tcp:send(str .. pData)
-            self.tcp:send("000000011")
-        end,0.5)
+        self:sendData(0,data)
     end
 end
 
