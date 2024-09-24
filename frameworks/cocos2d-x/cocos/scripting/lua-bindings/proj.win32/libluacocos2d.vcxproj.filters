@@ -82,6 +82,9 @@
     <Filter Include="manual\pbc">
       <UniqueIdentifier>{6d441379-2a36-4594-a0eb-b108aeda49ae}</UniqueIdentifier>
     </Filter>
+    <Filter Include="manual\lpack">
+      <UniqueIdentifier>{2bfbcd2d-89f3-4163-8b81-fd2284d8b581}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\auto\lua_cocos2dx_auto.cpp">
@@ -311,6 +314,9 @@
     </ClCompile>
     <ClCompile Include="..\manual\pbc\lua_cocos2dx_pbc_manual.cpp">
       <Filter>manual\pbc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\manual\lpack\lpack.c">
+      <Filter>manual\lpack</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -550,6 +556,9 @@
     </ClInclude>
     <ClInclude Include="..\manual\pbc\pbc-lua.h">
       <Filter>manual\pbc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\manual\lpack\lpack.h">
+      <Filter>manual\lpack</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
