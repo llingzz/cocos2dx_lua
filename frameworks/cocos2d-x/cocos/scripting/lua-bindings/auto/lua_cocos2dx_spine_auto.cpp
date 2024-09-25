@@ -1638,6 +1638,54 @@ int lua_cocos2dx_spine_SkeletonAnimation_findAnimation(lua_State* tolua_S)
 
     return 0;
 }
+int lua_cocos2dx_spine_SkeletonAnimation_getAnimations(lua_State* tolua_S)
+{
+    int argc = 0;
+    spine::SkeletonAnimation* cobj = nullptr;
+    bool ok = true;
+
+#if COCOS2D_DEBUG >= 1
+    tolua_Error tolua_err;
+#endif
+
+
+#if COCOS2D_DEBUG >= 1
+    if (!tolua_isusertype(tolua_S, 1, "sp.SkeletonAnimation", 0, &tolua_err)) goto tolua_lerror;
+#endif
+
+    cobj = (spine::SkeletonAnimation*)tolua_tousertype(tolua_S, 1, 0);
+
+#if COCOS2D_DEBUG >= 1
+    if (!cobj)
+    {
+        tolua_error(tolua_S, "invalid 'cobj' in function 'lua_cocos2dx_spine_SkeletonAnimation_getAnimations'", nullptr);
+        return 0;
+    }
+    argc = lua_gettop(tolua_S) - 1;
+    if (argc == 0)
+    {
+        if (!ok)
+        {
+            tolua_error(tolua_S, "invalid arguments in function 'lua_cocos2dx_spine_SkeletonAnimation_findAnimation'", nullptr);
+            return 0;
+        }
+        std::string strAnis = cobj->getAnimations();
+        tolua_pushstring(tolua_S, strAnis.c_str());
+        #pragma warning NO CONVERSION FROM NATIVE FOR std::string;
+        return 1;
+    }
+    luaL_error(tolua_S, "%s has wrong number of arguments: %d, was expecting %d \n", "sp.SkeletonAnimation:findAnimation", argc, 1);
+    return 0;
+
+#endif
+
+#if COCOS2D_DEBUG >= 1
+    tolua_lerror:
+    tolua_error(tolua_S, "#ferror in function 'lua_cocos2dx_spine_SkeletonAnimation_getAnimations'.", &tolua_err);
+#endif
+
+    return 0;
+}
 int lua_cocos2dx_spine_SkeletonAnimation_setCompleteListener(lua_State* tolua_S)
 {
     int argc = 0;
@@ -2828,6 +2876,7 @@ int lua_register_cocos2dx_spine_SkeletonAnimation(lua_State* tolua_S)
     tolua_beginmodule(tolua_S,"SkeletonAnimation");
         tolua_function(tolua_S,"setTrackCompleteListener",lua_cocos2dx_spine_SkeletonAnimation_setTrackCompleteListener);
         tolua_function(tolua_S,"findAnimation",lua_cocos2dx_spine_SkeletonAnimation_findAnimation);
+        tolua_function(tolua_S,"getAnimations", lua_cocos2dx_spine_SkeletonAnimation_getAnimations);
         tolua_function(tolua_S,"setCompleteListener",lua_cocos2dx_spine_SkeletonAnimation_setCompleteListener);
         tolua_function(tolua_S,"setMix",lua_cocos2dx_spine_SkeletonAnimation_setMix);
         tolua_function(tolua_S,"setTrackStartListener",lua_cocos2dx_spine_SkeletonAnimation_setTrackStartListener);

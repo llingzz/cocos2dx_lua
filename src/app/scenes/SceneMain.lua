@@ -5,14 +5,29 @@ local SceneMain = class("SceneMain", function()
 end)
 
 function SceneMain:ctor()
-    local uiloader = cc.load('uiloader')
-    local layer = uiloader:load("res/modules/LayerTest.csb")
-    local width = display.width
-    local height = display.height
-    layer:setContentSize(width, height)
-    layer:enableNodeEvents()
-    ccui.Helper:doLayout(layer)
-    layer:addTo(self)
+    -- local uiloader = cc.load('uiloader')
+    -- local layer = uiloader:load("res/modules/LayerTest.csb")
+    -- local width = display.width
+    -- local height = display.height
+    -- layer:setContentSize(width, height)
+    -- layer:enableNodeEvents()
+    -- ccui.Helper:doLayout(layer)
+    -- layer:addTo(self)
+
+    -- local touchLayer = require "src.app.modules.joysticks.TouchLayer"
+    -- touchLayer:new():addTo(self)
+
+    local spine = sp.SkeletonAnimation:createWithBinaryFile("res/spineboy-pro.skel","res/spineboy.atlas")
+    local anis = spine:getAnimations()
+    local tblAni = string.split(anis,"#")
+    dump(tblAni)
+    spine:setToSetupPose()
+    spine:setAnimation(0,"run",true)
+    spine:update(0)
+    spine:setTimeScale(1)
+    spine:addTo(self)
+    spine:setScale(0.5)
+    spine:setPosition(cc.p(display.cx,display.cy))
 
     self.fsm = StateMachine:new()
     self.fsm:setupState({

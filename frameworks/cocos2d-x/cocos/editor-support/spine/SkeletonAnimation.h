@@ -77,6 +77,7 @@ public:
 	void setEmptyAnimations (float mixDuration);
 	spTrackEntry* addEmptyAnimation (int trackIndex, float mixDuration, float delay = 0);
 	spAnimation* findAnimation(const std::string& name) const;
+	std::string getAnimations() const;
 	spTrackEntry* getCurrent (int trackIndex = 0);
 	void clearTracks ();
 	void clearTrack (int trackIndex = 0);

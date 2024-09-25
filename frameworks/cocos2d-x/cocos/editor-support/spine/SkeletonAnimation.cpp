@@ -184,6 +184,16 @@ spAnimation* SkeletonAnimation::findAnimation(const std::string& name) const {
 	return spSkeletonData_findAnimation(_skeleton->data, name.c_str());
 }
 
+std::string SkeletonAnimation::getAnimations() const {
+	std::string strAnis = "";
+	int i;
+	for (i = 0; i < _skeleton->data->animationsCount; ++i) {
+		strAnis += std::string(_skeleton->data->animations[i]->name);
+		strAnis += "#";
+	}
+	return strAnis.substr(0, strAnis.size()-1);
+}
+
 spTrackEntry* SkeletonAnimation::getCurrent (int trackIndex) { 
 	return spAnimationState_getCurrent(_state, trackIndex);
 }
