@@ -103,3 +103,24 @@ local pData = protobuf.encode('Module.MESSAGE1', {
 })
 local dataInfo = protobuf.decode("Module.MESSAGE1", pData)
 protobuf.extract(dataInfo)
+
+fairy-gui支持
+1.https://github.com/fairygui/FairyGUI-cocos2dx获取源码
+2.将libfairygui下文件加放入到D:\Work\Client\Cocos2dx\cocos2dx_lua\frameworks\cocos2d-x\cocos\editor-support\下
+3.调整libfairygui.vcxproj
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\..\..\cocos\2d\cocos2dx.props" />
+    <Import Project="..\..\..\..\..\cocos\2d\cocos2d_headers.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\..\..\cocos\2d\cocos2dx.props" />
+    <Import Project="..\..\..\..\..\cocos\2d\cocos2d_headers.props" />
+  </ImportGroup>
+4.解决方案属性页\项目依赖项勾选libfairygui
+5.CLabel.h修改virtual void updateBMFontScale();
+6.注释GLoaer3D.cpp中onChangeSpine方法
+7.项目引入c++目录libfairygui\Classes
+8.添加链接附加依赖项libfairygui.lib
+9.编译即可，测试可使用fairygui-cocos2dx自带测试用例，需要稍作修改，这里不再赘述
