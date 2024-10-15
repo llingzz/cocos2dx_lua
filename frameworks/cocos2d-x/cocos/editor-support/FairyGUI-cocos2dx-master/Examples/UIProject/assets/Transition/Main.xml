@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="1136,640">
+  <displayList>
+    <component id="n6_e3bc" name="btn0" src="gkq0b" fileName="Button1.xml" xy="85,64" size="121,42" group="n12_e3bc">
+      <Button title="Play1"/>
+    </component>
+    <component id="n7_e3bc" name="btn1" src="gkq0b" fileName="Button1.xml" xy="246,64" size="121,42" group="n12_e3bc">
+      <Button title="Play2"/>
+    </component>
+    <component id="n8_e3bc" name="btn2" src="gkq0b" fileName="Button1.xml" xy="407,64" size="121,42" group="n12_e3bc">
+      <Button title="Play3"/>
+    </component>
+    <component id="n9_e3bc" name="btn3" src="gkq0b" fileName="Button1.xml" xy="568,64" size="121,42" group="n12_e3bc">
+      <Button title="Play4"/>
+    </component>
+    <component id="n10_e3bc" name="btn4" src="gkq0b" fileName="Button1.xml" xy="729,64" size="121,42" group="n12_e3bc">
+      <Button title="Play5"/>
+    </component>
+    <component id="n11_e3bc" name="btn5" src="gkq0b" fileName="Button1.xml" xy="890,64" size="121,42" group="n12_e3bc">
+      <Button title="Play6"/>
+    </component>
+    <group id="n12_e3bc" name="g0" xy="85,64" size="926,42" advanced="true"/>
+  </displayList>
+</component>

@@ -45,6 +45,11 @@ using namespace CocosDenshion;
 USING_NS_CC;
 using namespace std;
 
+#define FairyGUI_TEST 1
+#ifdef FairyGUI_TEST
+#include "FairyGUI-Examples/MenuScene.h"
+#endif
+
 AppDelegate::AppDelegate()
 {
 }
@@ -94,6 +99,44 @@ bool AppDelegate::applicationDidFinishLaunching()
 
     register_all_packages();
 
+#ifdef FairyGUI_TEST
+    auto director = Director::getInstance();
+    auto glview = director->getOpenGLView();
+    if (!glview) {
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
+        glview = GLViewImpl::createWithRect("Examples", cocos2d::Rect(0, 0, 1280, 720));
+#else
+        glview = GLViewImpl::create("Examples");
+#endif
+        director->setOpenGLView(glview);
+    }
+
+    // turn on display FPS
+    director->setDisplayStats(true);
+
+    // set FPS. the default value is 1.0/60 if you don't call this
+    director->setAnimationInterval(1.0f / 60);
+
+    director->setClearColor(Color4F(Color4B(0x36, 0x3B, 0x44, 0xFF)));
+
+    FileUtils::getInstance()->addSearchPath("src");
+    FileUtils::getInstance()->addSearchPath("res");
+
+    static cocos2d::Size designResolutionSize = cocos2d::Size(1136, 640);
+    // Set the design resolution
+    glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height, ResolutionPolicy::SHOW_ALL);
+    //showing how to regsiter a ttf font
+#ifdef CC_PLATFORM_PC
+    UIConfig::registerFont(UIConfig::defaultFont, "fairy-gui/fonts/DroidSansFallback.ttf");
+#endif
+
+    // create a scene. it's an autorelease object
+    auto scene = MenuScene::create();
+
+    // run
+    director->runWithScene(scene);
+#else
+
     LuaStack* stack = engine->getLuaStack();
     stack->setXXTEAKeyAndSign("2dxLua", strlen("2dxLua"), "XXTEA", strlen("XXTEA"));
 
@@ -110,6 +153,7 @@ bool AppDelegate::applicationDidFinishLaunching()
     {
         return false;
     }
+#endif
 
     return true;
 }

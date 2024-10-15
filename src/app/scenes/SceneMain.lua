@@ -17,42 +17,59 @@ function SceneMain:ctor()
     -- local touchLayer = require "src.app.modules.joysticks.TouchLayer"
     -- touchLayer:new():addTo(self)
 
-    local spine = sp.SkeletonAnimation:createWithBinaryFile("res/spineboy-pro.skel","res/spineboy.atlas")
-    local anis = spine:getAnimations()
-    local tblAni = string.split(anis,"#")
-    dump(tblAni)
-    spine:setToSetupPose()
-    spine:setAnimation(0,"run",true)
-    spine:update(0)
-    spine:setTimeScale(1)
-    spine:addTo(self)
-    spine:setScale(0.5)
-    spine:setPosition(cc.p(display.cx,display.cy))
+    -- local spine = sp.SkeletonAnimation:createWithBinaryFile("res/spine/spineboy-pro.skel","res/spine/spineboy.atlas")
+    -- local anis = spine:getAnimations()
+    -- local tblAni = string.split(anis,"#")
+    -- dump(tblAni)
+    -- spine:setToSetupPose()
+    -- spine:setAnimation(0,"run",true)
+    -- spine:update(0)
+    -- spine:setTimeScale(1)
+    -- spine:addTo(self)
+    -- spine:setScale(0.5)
+    -- spine:setPosition(cc.p(display.cx,display.cy))
 
-    self.fsm = StateMachine:new()
-    self.fsm:setupState({
-        initial = "idle",
-        events = {
-            {name = "move", from = {"idle", "jump"}, to = "walk"},
-            {name = "attack", from = {"idle", "walk"}, to = "jump"},
-            {name = "normal", from = {"walk", "jump"}, to = "idle"},
-        },
-        callbacks = {
-            onenteridle = function ()
-                print("onenteridle")
-            end,
-            onenterwalk = function ()
-                print("onenterwalk")
-            end,
-            onenterjump = function ()
-                print("onenterjump")
-            end,
-        },
-    })
+    local tmx = cc.TMXTiledMap:create("res/tilemap/tilemap.tmx")
+    tmx:addTo(self)
+    self.borderLayer = tmx:getLayer("border")
+    local s = tmx:getMapOrientation()
+    local size = tmx:getMapSize()
+    self.tileSize = tmx:getTileSize()
+
+    self.entity = display.newSprite("res/entity.png")
+    self.entity:addTo(self)
+    self.entity:setPosition(cc.p(display.cx,display.cy))
+    self.rotation = 0
+    self.ahead = 0
+
+    -- self.fsm = StateMachine:new()
+    -- self.fsm:setupState({
+    --     initial = "idle",
+    --     events = {
+    --         {name = "move", from = {"idle", "jump"}, to = "walk"},
+    --         {name = "attack", from = {"idle", "walk"}, to = "jump"},
+    --         {name = "normal", from = {"walk", "jump"}, to = "idle"},
+    --     },
+    --     callbacks = {
+    --         onenteridle = function ()
+    --             print("onenteridle")
+    --         end,
+    --         onenterwalk = function ()
+    --             print("onenterwalk")
+    --         end,
+    --         onenterjump = function ()
+    --             print("onenterjump")
+    --         end,
+    --     },
+    -- })
+
     local keyBoardListener = cc.EventListenerKeyboard:create()
     keyBoardListener:registerScriptHandler(handler(self,self.onKeyEventPressed), cc.Handler.EVENT_KEYBOARD_PRESSED)
+    keyBoardListener:registerScriptHandler(handler(self,self.onKeyEventReleased), cc.Handler.EVENT_KEYBOARD_RELEASED)
     local eventDispatcher = self:getEventDispatcher()
     eventDispatcher:addEventListenerWithSceneGraphPriority(keyBoardListener, self)
+
+    self:scheduleUpdate(handler(self,self.update))
 end
 
 function SceneMain:onEnter()
@@ -103,16 +120,24 @@ end
 
 function SceneMain:onKeyEventPressed(INkey,INrender)
     if INkey == cc.KeyCode.KEY_W then
-        local ret = self.fsm:doEvent("move")
-        print("press W "..tostring(ret))
+        -- local ret = self.fsm:doEvent("move")
+        -- print("press W "..tostring(ret))
+        self.ahead = self.ahead + 1
+    end
+    if INkey == cc.KeyCode.KEY_S then
+        -- local ret = self.fsm:doEvent("move")
+        -- print("press W "..tostring(ret))
+        self.ahead = self.ahead - 1
     end
     if INkey == cc.KeyCode.KEY_A then
-        local ret = self.fsm:doEvent("attack")
-        print("press A "..tostring(ret))
+        -- local ret = self.fsm:doEvent("attack")
+        -- print("press A "..tostring(ret))
+        self.rotation = self.rotation - 1
     end
     if INkey == cc.KeyCode.KEY_D then
-        local ret = self.fsm:doEvent("normal")
-        print("press D "..tostring(ret))
+        -- local ret = self.fsm:doEvent("normal")
+        -- print("press D "..tostring(ret))
+        self.rotation = self.rotation + 1
     end
     if INkey == cc.KeyCode.KEY_F then
         self.tcp:send(tostring(os.time()))
@@ -124,6 +149,35 @@ function SceneMain:onKeyEventPressed(INkey,INrender)
             arr = {1,2,3,3}
         })
         self:sendData(0,data)
+    end
+end
+
+function SceneMain:onKeyEventReleased(INkey,INrender)
+    if INkey == cc.KeyCode.KEY_W then
+        self.ahead = self.ahead - 1
+    end
+    if INkey == cc.KeyCode.KEY_S then
+        self.ahead = self.ahead + 1
+    end
+    if INkey == cc.KeyCode.KEY_A then
+        self.rotation = self.rotation + 1
+    end
+    if INkey == cc.KeyCode.KEY_D then
+        self.rotation = self.rotation - 1
+    end
+end
+
+function SceneMain:update(dt)
+    if self.rotation ~= 0 then
+        local rotation = self.entity:getRotation()
+        self.entity:setRotation(rotation+self.rotation*dt*200)
+    end
+    local pos = cc.p(self.entity:getPosition())
+    local col,row = math.floor(pos.x/self.tileSize.width),math.floor(pos.x/self.tileSize.height)
+    if self.ahead ~= 0 then
+        local rotation = self.entity:getRotation() % 360
+        local dir = cc.p(math.sin(rotation*math.pi/180),math.cos(rotation*math.pi/180))
+        self.entity:setPosition(cc.pAdd(pos,cc.pMul(dir,self.ahead*dt*200)))
     end
 end
 

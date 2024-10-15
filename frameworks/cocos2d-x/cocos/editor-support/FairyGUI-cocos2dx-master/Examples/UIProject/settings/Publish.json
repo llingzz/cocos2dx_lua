@@ -1,0 +1,21 @@
+{
+	"atlasSetting":{
+		"allowRotation":true,
+		"paging":true,
+		"sizeOption":"pot",
+		"trimImage":true
+	},
+	"binaryFormat":true,
+	"codeGeneration":{
+		"classNamePrefix":"",
+		"codePath":"../Classes",
+		"codeType":"",
+		"getMemberByName":false,
+		"ignoreNoname":true,
+		"memberNamePrefix":"",
+		"packageName":""
+	},
+	"compressDesc":true,
+	"packageCount":2,
+	"path":"../Resources/UI"
+}
