@@ -5,6 +5,7 @@
 #include "FairyGUIMacros.h"
 #include "TextFormat.h"
 #include "utils/html/HtmlParser.h"
+#include "utils/html/HtmlObject.h"
 
 NS_FGUI_BEGIN
 

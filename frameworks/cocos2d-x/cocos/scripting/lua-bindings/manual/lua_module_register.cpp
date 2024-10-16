@@ -38,6 +38,8 @@
 #include "scripting/lua-bindings/manual/pbc/lua_cocos2dx_pbc_manual.h"
 #include "scripting/lua-bindings/manual/lpack/lpack.h"
 
+#include "scripting/lua-bindings/auto/lua_cocos2dx_fairygui_auto.hpp"
+
 
 int lua_module_register(lua_State* L)
 {
@@ -60,6 +62,8 @@ int lua_module_register(lua_State* L)
 
     register_pbc_module(L);
     register_lpack_module(L);
+
+    register_all_cocos2dx_fairygui(L);
 
     return 1;
 }

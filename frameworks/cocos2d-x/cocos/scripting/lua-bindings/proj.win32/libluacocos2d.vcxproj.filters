@@ -318,6 +318,9 @@
     <ClCompile Include="..\manual\lpack\lpack.c">
       <Filter>manual\lpack</Filter>
     </ClCompile>
+    <ClCompile Include="..\auto\lua_cocos2dx_fairygui_auto.cpp">
+      <Filter>auto</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\auto\lua_cocos2dx_auto.hpp">
@@ -559,6 +562,9 @@
     </ClInclude>
     <ClInclude Include="..\manual\lpack\lpack.h">
       <Filter>manual\lpack</Filter>
+    </ClInclude>
+    <ClInclude Include="..\auto\lua_cocos2dx_fairygui_auto.hpp">
+      <Filter>auto</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

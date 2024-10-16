@@ -42,6 +42,7 @@
     <ClCompile Include="..\auto\lua_cocos2dx_experimental_video_auto.cpp" />
     <ClCompile Include="..\auto\lua_cocos2dx_experimental_webview_auto.cpp" />
     <ClCompile Include="..\auto\lua_cocos2dx_extension_auto.cpp" />
+    <ClCompile Include="..\auto\lua_cocos2dx_fairygui_auto.cpp" />
     <ClCompile Include="..\auto\lua_cocos2dx_navmesh_auto.cpp" />
     <ClCompile Include="..\auto\lua_cocos2dx_physics3d_auto.cpp" />
     <ClCompile Include="..\auto\lua_cocos2dx_physics_auto.cpp" />
@@ -122,6 +123,7 @@
     <ClInclude Include="..\auto\lua_cocos2dx_experimental_video_auto.hpp" />
     <ClInclude Include="..\auto\lua_cocos2dx_experimental_webview_auto.hpp" />
     <ClInclude Include="..\auto\lua_cocos2dx_extension_auto.hpp" />
+    <ClInclude Include="..\auto\lua_cocos2dx_fairygui_auto.hpp" />
     <ClInclude Include="..\auto\lua_cocos2dx_navmesh_auto.hpp" />
     <ClInclude Include="..\auto\lua_cocos2dx_physics3d_auto.hpp" />
     <ClInclude Include="..\auto\lua_cocos2dx_physics_auto.hpp" />
