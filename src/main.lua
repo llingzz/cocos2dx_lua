@@ -24,8 +24,10 @@ local function main()
     cc.FileUtils:getInstance():purgeCachedEntries()
     local list = cc.FileUtils:getInstance():getSearchPaths()
     dump (list, "list")
-    local HandlerSceneMain = require("src.app.scenes.SceneMain")
-    display.runScene(HandlerSceneMain.new())
+    -- local HandlerSceneMain = require("src.app.scenes.SceneMain")
+    -- display.runScene(HandlerSceneMain.new())
+    local HandlerSceneFairyGUI = require("src.app.scenes.SceneFairyGUI")
+    display.runScene(HandlerSceneFairyGUI.new())
 end
 
 local status, msg = xpcall(main, __G__TRACKBACK__)

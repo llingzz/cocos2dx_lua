@@ -45,7 +45,7 @@ using namespace CocosDenshion;
 USING_NS_CC;
 using namespace std;
 
-//#define FairyGUI_TEST 1
+//#define FairyGUI_TEST
 #ifdef FairyGUI_TEST
 #include "FairyGUI-Examples/MenuScene.h"
 #endif

@@ -667,5 +667,4 @@ int register_all_cocos2dx_fairygui(lua_State* tolua_S);
 
 
 
-
 #endif // __cocos2dx_fairygui_h__
