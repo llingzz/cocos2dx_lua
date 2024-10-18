@@ -11,6 +11,9 @@ CC_SHOW_FPS = true
 -- disable create unexpected global variable
 CC_DISABLE_GLOBAL = true
 
+-- self:getPhysicsWorld():setDebugDrawMask(cc.PhysicsWorld.DEBUGDRAW_ALL)
+CC_SHOW_PHYSIC_MASK = false
+
 -- for module display
 CC_DESIGN_RESOLUTION = {
     width = 1280,

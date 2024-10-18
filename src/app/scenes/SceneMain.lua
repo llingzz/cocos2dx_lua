@@ -31,27 +31,6 @@ function SceneMain:ctor()
     -- spine:setScale(0.5)
     -- spine:setPosition(cc.p(display.cx,display.cy))
 
-    -- self.fsm = StateMachine:new()
-    -- self.fsm:setupState({
-    --     initial = "idle",
-    --     events = {
-    --         {name = "move", from = {"idle", "jump"}, to = "walk"},
-    --         {name = "attack", from = {"idle", "walk"}, to = "jump"},
-    --         {name = "normal", from = {"walk", "jump"}, to = "idle"},
-    --     },
-    --     callbacks = {
-    --         onenteridle = function ()
-    --             print("onenteridle")
-    --         end,
-    --         onenterwalk = function ()
-    --             print("onenterwalk")
-    --         end,
-    --         onenterjump = function ()
-    --             print("onenterjump")
-    --         end,
-    --     },
-    -- })
-
     local tmx = cc.TMXTiledMap:create("res/tilemap/tilemap.tmx")
     tmx:addTo(self)
     self.borderLayer = tmx:getLayer("border")
@@ -59,8 +38,12 @@ function SceneMain:ctor()
     local size = tmx:getMapSize()
     self.tileSize = tmx:getTileSize()
 
+    local mapLayer = require("src.app.modules.map.LayerMap")
+    self.layerMap = mapLayer:create()
+    self.layerMap:addTo(self,-1)
+
     local HandlerEntity = require "src.app.modules.map.NodeEntity"
-    self.entity = HandlerEntity.new()
+    self.entity = HandlerEntity.new(self)
     self.entity:addTo(self)
     self.entity:setPosition(cc.p(display.cx,display.cy))
     self.rotation = 0
@@ -76,11 +59,8 @@ function SceneMain:ctor()
     contactListener:registerScriptHandler(handler(self,self.onContactEnd), cc.Handler.EVENT_PHYSICS_CONTACT_SEPARATE)
     eventDispatcher:addEventListenerWithSceneGraphPriority(contactListener, self)
 
-    local mapLayer = require("src.app.modules.map.LayerMap")
-    self.layerMap = mapLayer:create()
-    self.layerMap:addTo(self,-1)
     self:getPhysicsWorld():setAutoStep(false)
-    if DEBUG > 0 then self:getPhysicsWorld():setDebugDrawMask(cc.PhysicsWorld.DEBUGDRAW_ALL) end
+    if CC_SHOW_PHYSIC_MASK then self:getPhysicsWorld():setDebugDrawMask(cc.PhysicsWorld.DEBUGDRAW_ALL) end
     self.tickPhysicWorld = Scheduler:scheduleGlobal(handler(self, self.tickUpdate), 0.02)
     self:scheduleUpdate(handler(self,self.update))
 end
@@ -136,26 +116,6 @@ function SceneMain:sendData(INprotocal,INdata)
 end
 
 function SceneMain:onKeyEventPressed(INkey,INrender)
-    if INkey == cc.KeyCode.KEY_W then
-        -- local ret = self.fsm:doEvent("move")
-        -- print("press W "..tostring(ret))
-        self.ahead = self.ahead + 1
-    end
-    if INkey == cc.KeyCode.KEY_S then
-        -- local ret = self.fsm:doEvent("move")
-        -- print("press W "..tostring(ret))
-        self.ahead = self.ahead - 1
-    end
-    if INkey == cc.KeyCode.KEY_A then
-        -- local ret = self.fsm:doEvent("attack")
-        -- print("press A "..tostring(ret))
-        self.rotation = self.rotation - 1
-    end
-    if INkey == cc.KeyCode.KEY_D then
-        -- local ret = self.fsm:doEvent("normal")
-        -- print("press D "..tostring(ret))
-        self.rotation = self.rotation + 1
-    end
     if INkey == cc.KeyCode.KEY_F then
         self.tcp:send(tostring(os.time()))
     end
@@ -167,35 +127,15 @@ function SceneMain:onKeyEventPressed(INkey,INrender)
         })
         self:sendData(0,data)
     end
+    if self.entity then self.entity:getKeyboardEvent("onKeyEventPressed",INkey) end
 end
 
 function SceneMain:onKeyEventReleased(INkey,INrender)
-    if INkey == cc.KeyCode.KEY_W then
-        self.ahead = self.ahead - 1
-    end
-    if INkey == cc.KeyCode.KEY_S then
-        self.ahead = self.ahead + 1
-    end
-    if INkey == cc.KeyCode.KEY_A then
-        self.rotation = self.rotation + 1
-    end
-    if INkey == cc.KeyCode.KEY_D then
-        self.rotation = self.rotation - 1
-    end
+    if self.entity then self.entity:getKeyboardEvent("onKeyEventReleased",INkey) end
 end
 
 function SceneMain:update(dt)
-    if self.rotation ~= 0 then
-        local rotation = self.entity:getRotation()
-        self.entity:setRotation(rotation+self.rotation*dt*200)
-    end
-    local pos = cc.p(self.entity:getPosition())
-    local col,row = math.floor(pos.x/self.tileSize.width),math.floor(pos.x/self.tileSize.height)
-    if self.ahead ~= 0 then
-        local rotation = self.entity:getRotation() % 360
-        local dir = cc.p(math.sin(rotation*math.pi/180),math.cos(rotation*math.pi/180))
-        self.entity:setPosition(cc.pAdd(pos,cc.pMul(dir,self.ahead*dt*200)))
-    end
+    if self.entity then self.entity:updateEntity(dt) end
 end
 
 function SceneMain:tickUpdate(dt)

@@ -326,3 +326,30 @@ function StateMachine:onError_(event, error, message)
 end
 
 return StateMachine
+
+-- sample usage:
+--[[
+    -- self.fsm = StateMachine:new()
+    -- self.fsm:setupState({
+    --     initial = "idle",
+    --     events = {
+    --         {name = "move", from = {"idle", "jump"}, to = "walk"},
+    --         {name = "attack", from = {"idle", "walk"}, to = "jump"},
+    --         {name = "normal", from = {"walk", "jump"}, to = "idle"},
+    --     },
+    --     callbacks = {
+    --         onenteridle = function ()
+    --             print("onenteridle")
+    --         end,
+    --         onenterwalk = function ()
+    --             print("onenterwalk")
+    --         end,
+    --         onenterjump = function ()
+    --             print("onenterjump")
+    --         end,
+    --     },
+    -- })
+    -- local ret = self.fsm:doEvent("attack")
+    -- local ret = self.fsm:doEvent("normal")
+    -- local ret = self.fsm:doEvent("move")
+]]
