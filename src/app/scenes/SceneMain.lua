@@ -1,5 +1,7 @@
 local SceneMain = class("SceneMain", function()
     local scene = display.newScene("SceneMain")
+    scene:initWithPhysics()
+    scene:getPhysicsWorld():setGravity(cc.p(0, 0))
     scene:enableNodeEvents()
     return scene
 end)
@@ -29,19 +31,6 @@ function SceneMain:ctor()
     -- spine:setScale(0.5)
     -- spine:setPosition(cc.p(display.cx,display.cy))
 
-    local tmx = cc.TMXTiledMap:create("res/tilemap/tilemap.tmx")
-    tmx:addTo(self)
-    self.borderLayer = tmx:getLayer("border")
-    local s = tmx:getMapOrientation()
-    local size = tmx:getMapSize()
-    self.tileSize = tmx:getTileSize()
-
-    self.entity = display.newSprite("res/entity.png")
-    self.entity:addTo(self)
-    self.entity:setPosition(cc.p(display.cx,display.cy))
-    self.rotation = 0
-    self.ahead = 0
-
     -- self.fsm = StateMachine:new()
     -- self.fsm:setupState({
     --     initial = "idle",
@@ -63,12 +52,36 @@ function SceneMain:ctor()
     --     },
     -- })
 
+    local tmx = cc.TMXTiledMap:create("res/tilemap/tilemap.tmx")
+    tmx:addTo(self)
+    self.borderLayer = tmx:getLayer("border")
+    local s = tmx:getMapOrientation()
+    local size = tmx:getMapSize()
+    self.tileSize = tmx:getTileSize()
+
+    local HandlerEntity = require "src.app.modules.map.NodeEntity"
+    self.entity = HandlerEntity.new()
+    self.entity:addTo(self)
+    self.entity:setPosition(cc.p(display.cx,display.cy))
+    self.rotation = 0
+    self.ahead = 0
+
     local keyBoardListener = cc.EventListenerKeyboard:create()
     keyBoardListener:registerScriptHandler(handler(self,self.onKeyEventPressed), cc.Handler.EVENT_KEYBOARD_PRESSED)
     keyBoardListener:registerScriptHandler(handler(self,self.onKeyEventReleased), cc.Handler.EVENT_KEYBOARD_RELEASED)
     local eventDispatcher = self:getEventDispatcher()
     eventDispatcher:addEventListenerWithSceneGraphPriority(keyBoardListener, self)
+    local contactListener = cc.EventListenerPhysicsContact:create()
+    contactListener:registerScriptHandler(handler(self,self.onContactBegin), cc.Handler.EVENT_PHYSICS_CONTACT_BEGIN)
+    contactListener:registerScriptHandler(handler(self,self.onContactEnd), cc.Handler.EVENT_PHYSICS_CONTACT_SEPARATE)
+    eventDispatcher:addEventListenerWithSceneGraphPriority(contactListener, self)
 
+    local mapLayer = require("src.app.modules.map.LayerMap")
+    self.layerMap = mapLayer:create()
+    self.layerMap:addTo(self,-1)
+    self:getPhysicsWorld():setAutoStep(false)
+    if DEBUG > 0 then self:getPhysicsWorld():setDebugDrawMask(cc.PhysicsWorld.DEBUGDRAW_ALL) end
+    self.tickPhysicWorld = Scheduler:scheduleGlobal(handler(self, self.tickUpdate), 0.02)
     self:scheduleUpdate(handler(self,self.update))
 end
 
@@ -89,6 +102,10 @@ function SceneMain:onEnter()
 end
 
 function SceneMain:onExit()
+    if self.tickPhysicWorld then
+        Scheduler:unscheduleGlobal(self.tickPhysicWorld)
+        self.tickPhysicWorld = nil
+    end
 end
 
 function SceneMain:onEventData(INdata)
@@ -179,6 +196,31 @@ function SceneMain:update(dt)
         local dir = cc.p(math.sin(rotation*math.pi/180),math.cos(rotation*math.pi/180))
         self.entity:setPosition(cc.pAdd(pos,cc.pMul(dir,self.ahead*dt*200)))
     end
+end
+
+function SceneMain:tickUpdate(dt)
+    -- use fixed time and calculate 3 times per frame makes physics simulate more precisely
+    for i=1,3 do
+        self:getPhysicsWorld():step(1/90.0)
+    end
+end
+
+function SceneMain:onContactBegin(INcontact)
+    local nodeA = INcontact:getShapeA():getBody():getNode()
+    local nodeB = INcontact:getShapeB():getBody():getNode()
+    if not nodeA or not nodeB then return end
+    if nodeA.onContactBegin then nodeA:onContactBegin(nodeB) end
+    if nodeB.onContactBegin then nodeB:onContactBegin(nodeA) end
+    return true
+end
+
+function SceneMain:onContactEnd(INcontact)
+    local nodeA = INcontact:getShapeA():getBody():getNode()
+    local nodeB = INcontact:getShapeB():getBody():getNode()
+    if not nodeA or not nodeB then return end
+    if nodeA.onContactEnd then nodeA:onContactEnd(nodeB) end
+    if nodeB.onContactEnd then nodeB:onContactEnd(nodeA) end
+    return true
 end
 
 return SceneMain

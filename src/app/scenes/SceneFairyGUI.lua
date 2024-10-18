@@ -4,13 +4,13 @@ local SceneFairyGUI = class("SceneFairyGUI", function()
     return scene
 end)
 
+-- 1136*640
 function SceneFairyGUI:ctor()
     local groot = fgui.GRoot:create(self)
     groot:retain()
     fgui.UIPackage:addPackage("fairy-gui/UI/MainMenu")
     local view = fgui.UIPackage:createObject("MainMenu", "Main")
     groot:addChild(view)
-    -- TODO
 end
 
 return SceneFairyGUI
