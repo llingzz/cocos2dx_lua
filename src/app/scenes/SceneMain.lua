@@ -42,12 +42,7 @@ function SceneMain:ctor()
     self.layerMap = mapLayer:create()
     self.layerMap:addTo(self,-1)
 
-    local HandlerEntity = require "src.app.modules.map.NodeEntity"
-    self.entity = HandlerEntity.new(self)
-    self.entity:addTo(self)
-    self.entity:setPosition(cc.p(display.cx,display.cy))
-    self.rotation = 0
-    self.ahead = 0
+    self.entity = nil
 
     local keyBoardListener = cc.EventListenerKeyboard:create()
     keyBoardListener:registerScriptHandler(handler(self,self.onKeyEventPressed), cc.Handler.EVENT_KEYBOARD_PRESSED)
@@ -66,16 +61,21 @@ function SceneMain:ctor()
 end
 
 function SceneMain:onEnter()
+    self.index = 0
     self.recvStr = ""
     self.eventProtocol = EventProtocol:new()
-    self.eventProtocol:addEventListener(SocketTCP.EVENT_DATA, handler(self,self.onEventData), "TCP_DATA")
+    self.eventProtocol:addEventListener(SocketTCP.EVENT_CONNECTED, handler(self,self.onEventConnected), "SOCKET_TCP_CONNECTED")
+    self.eventProtocol:addEventListener(SocketTCP.EVENT_DATA, handler(self,self.onEventTcpData), "TCP_DATA")
     self.tcp = SocketTCP:create()
     self.tcp:setEventProtocol(self.eventProtocol)
     self.tcp:connect("127.0.0.1",8888,true)
+    self.eventProtocol:addEventListener(SocketUDP.EVENT_DATA, handler(self,self.onEventUdpData), "UDP_DATA")
+    self.udp = SocketUDP:create("127.0.0.1",8889,self.eventProtocol)
     self.co = coroutine.create(function()
         while true do
             local idx,yieldRet = coroutine.yield()
-            dump(yieldRet, tostring(idx))
+            --dump(yieldRet, tostring(idx))
+            self:onEventData(yieldRet)
         end
     end)
     coroutine.resume(self.co, nil)
@@ -86,22 +86,54 @@ function SceneMain:onExit()
         Scheduler:unscheduleGlobal(self.tickPhysicWorld)
         self.tickPhysicWorld = nil
     end
+    self.tcp:disconnect()
+    self.tcp:close()
+    self.udp:close()
 end
 
-function SceneMain:onEventData(INdata)
-    if not self.index then self.index = 0 end
+function SceneMain:onEventConnected()
+    local HandlerEntity = require "src.app.modules.map.NodeEntity"
+    self:sendData(1,protobuf.encode('pb_common.data_ope', {
+        frameid = 0,
+        opecode = 0
+    }))
+    self.entity = HandlerEntity.new(self)
+    self.entity:addTo(self)
+    self.entity:setPosition(cc.p(display.cx,display.cy))
+end
+
+function SceneMain:onEventUdpData(INdata)
+    if not INdata then return end
+    self.index = self.index + 1
+    coroutine.resume(self.co, self.index, {type="udp",data=INdata.data})
+end
+
+function SceneMain:onEventTcpData(INdata)
     self.recvStr = self.recvStr .. INdata.data
+    local head_len = 4
     local strlen = string.len(self.recvStr)
-    if strlen > 8 then
-        local datalen = tonumber(string.sub(self.recvStr,1,8))
-        if strlen >= 8 + datalen then
-            local data = string.sub(self.recvStr,8+1,8 + datalen)
+    if strlen > head_len then
+        local _,datalen = string.unpack(string.sub(self.recvStr,1,head_len),"<I")
+        if strlen >= head_len + datalen then
+            local data = string.sub(self.recvStr,head_len + 1,head_len + datalen)
             local dataInfo = protobuf.decode("pb_common.data_head", data)
             protobuf.extract(dataInfo)
             self.index = self.index + 1
-            coroutine.resume(self.co, self.index, dataInfo)
-            self.recvStr = string.sub(self.recvStr,8 + datalen+1,datalen)
+            coroutine.resume(self.co, self.index, {type="tcp",data=dataInfo})
+            self.recvStr = string.sub(self.recvStr,head_len + datalen + 1,datalen)
         end
+    end
+end
+
+function SceneMain:onEventData(INdata)
+    if "tcp" == INdata.type then
+        if 2 == yieldRet.protocol_code then
+            local dataInfo = protobuf.decode("pb_common.data_all_ope", yieldRet.data_str)
+            protobuf.extract(dataInfo)
+            dump(dataInfo)
+        end
+    elseif "udp" == INdata.type then
+        dump(INdata.data)
     end
 end
 
@@ -111,7 +143,7 @@ function SceneMain:sendData(INprotocal,INdata)
         data_len = string.len(INdata),
         data_str = INdata
     })
-    local str = string.format("%08d",string.len(pData))
+    local str = string.pack("<I",string.len(pData))
     self.tcp:send(str .. pData)
 end
 
@@ -126,6 +158,9 @@ function SceneMain:onKeyEventPressed(INkey,INrender)
             arr = {1,2,3,3}
         })
         self:sendData(0,data)
+    end
+    if INkey == cc.KeyCode.KEY_U then
+        self.udp:send(tostring(os.time()))
     end
     if self.entity then self.entity:getKeyboardEvent("onKeyEventPressed",INkey) end
 end

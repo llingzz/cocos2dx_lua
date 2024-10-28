@@ -12,6 +12,7 @@ cc.FileUtils:getInstance():setPopupNotify(false)
 cc.exports.StateMachine = require "app.tools.StateMachine"
 cc.exports.EventProtocol = require "app.tools.EventProtocol"
 cc.exports.SocketTCP = require "app.tools.SocketTCP"
+cc.exports.SocketUDP = require "app.tools.SocketUDP"
 cc.exports.Scheduler = require "app.tools.Scheduler"
 cc.exports.HelpTools = require "app.tools.HelpTools"
 require "app.common.CommonDef"
