@@ -9,6 +9,29 @@ message data_head
 	optional bytes data_str = 10;
 }
 
+enum protocol_code
+{
+	protocol_user_info = 1;
+	protocol_ready = 2;
+	protocol_begin = 3;
+}
+
+message data_user_info
+{
+	optional int32 userid = 1;
+}
+
+message data_ready
+{
+	optional int32 userid = 1;
+	reserved 2 to 8;
+}
+
+message data_begin
+{
+	optional uint32 rand_seed = 1;
+}
+
 message data_ope
 {
 	optional int32 frameid = 1;

@@ -31,17 +31,18 @@ function SceneMain:ctor()
     -- spine:setScale(0.5)
     -- spine:setPosition(cc.p(display.cx,display.cy))
 
-    local tmx = cc.TMXTiledMap:create("res/tilemap/tilemap.tmx")
-    tmx:addTo(self)
-    self.borderLayer = tmx:getLayer("border")
-    local s = tmx:getMapOrientation()
-    local size = tmx:getMapSize()
-    self.tileSize = tmx:getTileSize()
+    -- local tmx = cc.TMXTiledMap:create("res/tilemap/tilemap.tmx")
+    -- tmx:addTo(self)
+    -- self.borderLayer = tmx:getLayer("border")
+    -- local s = tmx:getMapOrientation()
+    -- local size = tmx:getMapSize()
+    -- self.tileSize = tmx:getTileSize()
 
     local mapLayer = require("src.app.modules.map.LayerMap")
     self.layerMap = mapLayer:create()
     self.layerMap:addTo(self,-1)
 
+    self.token = -1
     self.entity = nil
 
     local keyBoardListener = cc.EventListenerKeyboard:create()
@@ -93,10 +94,6 @@ end
 
 function SceneMain:onEventConnected()
     local HandlerEntity = require "src.app.modules.map.NodeEntity"
-    self:sendData(1,protobuf.encode('pb_common.data_ope', {
-        frameid = 0,
-        opecode = 0
-    }))
     self.entity = HandlerEntity.new(self)
     self.entity:addTo(self)
     self.entity:setPosition(cc.p(display.cx,display.cy))
@@ -127,10 +124,16 @@ end
 
 function SceneMain:onEventData(INdata)
     if "tcp" == INdata.type then
-        if 2 == yieldRet.protocol_code then
-            local dataInfo = protobuf.decode("pb_common.data_all_ope", yieldRet.data_str)
+        if protobuf.enum_id("pb_common.protocol_code","protocol_user_info") == INdata.data.protocol_code then
+            local dataInfo = protobuf.decode("pb_common.data_user_info", INdata.data.data_str)
             protobuf.extract(dataInfo)
-            dump(dataInfo)
+            self.token = dataInfo.userid
+            self.entity:setToken(dataInfo.userid)
+        elseif protobuf.enum_id("pb_common.protocol_code","protocol_begin") == INdata.data.protocol_code then
+            local dataInfo = protobuf.decode("pb_common.data_begin", INdata.data.data_str)
+            protobuf.extract(dataInfo)
+            math.randomseed(dataInfo.rand_seed)
+            print("begin bout!")
         end
     elseif "udp" == INdata.type then
         dump(INdata.data)
@@ -148,8 +151,11 @@ function SceneMain:sendData(INprotocal,INdata)
 end
 
 function SceneMain:onKeyEventPressed(INkey,INrender)
-    if INkey == cc.KeyCode.KEY_F then
-        self.tcp:send(tostring(os.time()))
+    if INkey == cc.KeyCode.KEY_R then
+        local pData = protobuf.encode('pb_common.data_ready', {
+            userid = self.token,
+        })
+        self:sendData(protobuf.enum_id("pb_common.protocol_code","protocol_ready"),pData)
     end
     if INkey == cc.KeyCode.KEY_P then
         local data = protobuf.encode('pb_common.req_test', {

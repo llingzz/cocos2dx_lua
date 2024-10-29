@@ -5,11 +5,12 @@ local NodeEntity = class("NodeEntity", function ()
 end)
 
 function NodeEntity:ctor(INparent)
+    self.token = -1
     self.parent = INparent
     self.ahead = 0
     self.rotation = 0
-    self.entity = display.newSprite("res/entity.png")
-    self.entity:addTo(self)
+    -- self.entity = display.newSprite("res/entity.png")
+    -- self.entity:addTo(self)
     local posVers = {
         cc.p(-15,20),
         cc.p(15,20),
@@ -91,6 +92,10 @@ function NodeEntity:getKeyboardEvent(INType,INeventCode)
     --     frameid = self.frameid,
     --     opecode = self.opeCode
     -- }))
+end
+
+function NodeEntity:setToken(INtoken)
+    self.token = INtoken or -1
 end
 
 function NodeEntity:updateEntity(dt)

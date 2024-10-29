@@ -8,4 +8,8 @@ FOR /f %%i IN ('dir /b *.proto') DO (
     )
 )
 
+xcopy *.h ..\..\assistserver\assistserver\pb\ /s /e /y /i
+xcopy *.cc ..\..\assistserver\assistserver\pb\ /s /e /y /i
+xcopy *.pb ..\..\src\app\pbfiles\ /s /e /y /i
+
 PAUSE

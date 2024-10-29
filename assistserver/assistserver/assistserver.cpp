@@ -21,12 +21,15 @@ public:
         socket_(socket),
         strand_(strand),
         tokenid(token),
-        m_cbRemove(cbRemove), ready(false)
+        m_cbRemove(cbRemove), ready(false), inGame(false)
     {
         memset(data_, 0, sizeof(data_));
     }
 
     void start() {
+        pb_common::data_user_info user;
+        user.set_userid(tokenid);
+        send(pb_common::protocol_code::protocol_user_info, user.SerializeAsString());
         do_read();
     }
 
@@ -55,14 +58,13 @@ public:
         int idx = data.size() - head.data_len();
         std::string real_data = data.substr(idx, data.size() - 1);
         switch (head.protocol_code()) {
-        case 1:
+        case pb_common::protocol_code::protocol_ready:
         {
-            pb_common::data_ope ope;
-            ret = ope.ParseFromString(real_data);
+            pb_common::data_ready _ready;
+            ret = _ready.ParseFromString(real_data);
             if (!ret) { break; }
-            //printf("token %d frameid %d opecode %d\n", tokenid, ope.frameid(), ope.opecode());
-            std::lock_guard<std::mutex> lk(lock_frame);
-            map_frames[ope.frameid()] = ope.opecode();
+            ready = true;
+            printf("token %d set ready\n", _ready.userid());
         }
         break;
         default:
@@ -133,6 +135,7 @@ public:
     }
 
     bool ready;
+    bool inGame;
     LONG tokenid;
     std::shared_ptr<asio::ip::tcp::socket> socket_;
     asio::io_service::strand strand_;
@@ -218,9 +221,13 @@ public:
         );
     }
 
-    void notify_all(const std::string& msg)
+    void notify_all(int protocol, const std::string& msg)
     {
-        std::lock_guard<std::mutex> lk(lock);
+        for (auto& iter : m_mapSessions) {
+            if (iter.second.get() && iter.second.get()->inGame) {
+                iter.second.get()->send(protocol, msg);
+            }
+        }
     }
 
     LONG m_lTokenId;
@@ -232,10 +239,49 @@ public:
     std::map<LONG, std::shared_ptr<session>> m_mapSessions;
 };
 
+using asio::ip::udp;
+class udp_server {
+public:
+    udp_server(asio::io_context& io_context, short port)
+        : socket_(io_context, udp::endpoint(udp::v4(), port))
+    {
+        do_receive();
+    }
+
+    void do_receive()
+    {
+        socket_.async_receive_from(asio::buffer(data_, max_length), sender_endpoint_,
+            [this](asio::error_code ec, std::size_t bytes_recvd) {
+                if (!ec && bytes_recvd > 0) {
+                    do_send(bytes_recvd);
+                }
+                else {
+                    do_receive();
+                }
+            }
+        );
+    }
+
+    void do_send(std::size_t length)
+    {
+        socket_.async_send_to(asio::buffer(data_, length), sender_endpoint_,
+            [this](asio::error_code /*ec*/, std::size_t /*bytes_sent*/) {
+                do_receive();
+            }
+        );
+    }
+
+private:
+    udp::socket socket_;
+    udp::endpoint sender_endpoint_;
+    enum { max_length = 1024 };
+    char data_[max_length];
+};
+
 class gameserver : public server {
 public:
-    gameserver(std::string strIp, int port) :
-        server(strIp, port), frameid(0), game_start(false) {
+    gameserver(std::string strIp, int tcp_port, int udp_port) :
+        server(strIp, tcp_port), frameid(0), game_start(false) {
         auto fps = 1000 / 15;
         m_pThread = std::make_unique<std::thread>(
             [=]() {
@@ -243,26 +289,40 @@ public:
                     std::this_thread::sleep_for(std::chrono::microseconds(fps));
                     if (!game_start) {
                         std::lock_guard<std::mutex> lk(lock);
+                        if (m_mapSessions.size() <= 0) { continue; }
+                        bool allReady = true;
                         for (auto& iter : m_mapSessions) {
                             if (!iter.second.get() || !iter.second.get()->ready) {
+                                allReady = false;
                                 break;
                             }
                         }
-                        game_start = true;
+                        if (allReady) {
+                            game_start = true;
+                            pb_common::data_begin begin;
+                            begin.set_rand_seed(time(nullptr));
+                            for (auto& iter : m_mapSessions) {
+                                if (iter.second.get()) {
+                                    iter.second.get()->inGame = true;
+                                    iter.second.get()->send(pb_common::protocol_code::protocol_begin, begin.SerializeAsString());
+                                }
+                            }
+                        }
                     }
                     if (!game_start) { continue; }
                     if (frameid++ <= 0) {
-
                         continue;
                     }
                 }
             }
         );
+        m_udpServer = std::make_unique<udp_server>(*m_pContext, udp_port);
     }
 
     int frameid;
     bool game_start;
     std::unique_ptr<std::thread> m_pThread;
+    std::unique_ptr<udp_server> m_udpServer;
 };
 
 int main()
@@ -270,7 +330,7 @@ int main()
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
     try {
-        gameserver s("127.0.0.1", 8888);
+        gameserver s("127.0.0.1", 8888, 8889);
         auto ch = getchar();
     }
     catch (std::exception& e) {
