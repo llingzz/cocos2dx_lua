@@ -44,6 +44,7 @@ function NodeEntity:onContactEnd(INnode)
 end
 
 function NodeEntity:getKeyboardEvent(INType,INeventCode)
+    local opeCode = self.opeCode
     if "onKeyEventPressed" == INType then
         if cc.KeyCode.KEY_W == INeventCode then
             self.ahead = self.ahead + 1
@@ -86,12 +87,13 @@ function NodeEntity:getKeyboardEvent(INType,INeventCode)
             self.opeCode = bit._and(self.opeCode,0xef)
         end
     end
-    -- if INeventCode ~= cc.KeyCode.KEY_W and INeventCode ~= cc.KeyCode.KEY_S and INeventCode ~= cc.KeyCode.KEY_A and INeventCode ~= cc.KeyCode.KEY_D and INeventCode ~= cc.KeyCode.KEY_SPACE then return end
-    -- print(string.format("frameid:%d opeCode:%d",self.frameid,self.opeCode))
-    -- self.parent:sendData(1,protobuf.encode('pb_common.data_ope', {
-    --     frameid = self.frameid,
-    --     opecode = self.opeCode
-    -- }))
+    if self.opeCode == opeCode then return end
+    if not self.parent.begin then return end
+    self.parent:sendUdpData(protobuf.encode('pb_common.data_ope', {
+        frameid = self.parent.currentFrame,
+        opecode = self.opeCode
+    }))
+    print(string.format("frameid:%d opeCode:%d",self.parent.currentFrame,self.opeCode))
 end
 
 function NodeEntity:setToken(INtoken)
@@ -112,11 +114,11 @@ function NodeEntity:updateEntity(dt)
 end
 
 function NodeEntity:tickUpdate(dt)
-    self.parent:sendData(1,protobuf.encode('pb_common.data_ope', {
-        frameid = self.frameid,
-        opecode = self.opeCode
-    }))
-    self.frameid = self.frameid + 1
+    -- self.parent:sendData(1,protobuf.encode('pb_common.data_ope', {
+    --     frameid = self.frameid,
+    --     opecode = self.opeCode
+    -- }))
+    -- self.frameid = self.frameid + 1
 end
 
 function NodeEntity:fireBullet()

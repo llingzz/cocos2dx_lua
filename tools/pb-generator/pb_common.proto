@@ -34,17 +34,19 @@ message data_begin
 
 message data_ope
 {
-	optional int32 frameid = 1;
+	optional int32 userid = 1;
+	optional int32 frameid = 2;
+	optional int32 opecode = 3;
+}
+
+message data_frame
+{
+	optional int32 userid = 1;
 	optional int32 opecode = 2;
 }
 
-message data_one_ope
+message data_ope_frames
 {
-	optional int32 token = 1;
-	repeated data_ope ops = 2;
-}
-
-message data_all_ope
-{
-	repeated data_one_ope ops = 1;
+	optional int32 frameid = 1;
+	repeated data_frame frames = 2;
 }

@@ -243,7 +243,7 @@ using asio::ip::udp;
 class udp_server {
 public:
     udp_server(asio::io_context& io_context, short port)
-        : socket_(io_context, udp::endpoint(udp::v4(), port))
+        : socket_(io_context, udp::endpoint(udp::v4(), port)), currentFrame(1)
     {
         do_receive();
     }
@@ -253,11 +253,14 @@ public:
         socket_.async_receive_from(asio::buffer(data_, max_length), sender_endpoint_,
             [this](asio::error_code ec, std::size_t bytes_recvd) {
                 if (!ec && bytes_recvd > 0) {
-                    do_send(bytes_recvd);
+                    pb_common::data_ope frame;
+                    if (frame.ParseFromString(std::string(data_, bytes_recvd))) {
+                        udp_sessions[frame.userid()] = sender_endpoint_;
+                        printf_s("recv userid %d frameid %d opecode %d\n", frame.userid(), currentFrame, frame.opecode());
+                        frames_[currentFrame][frame.userid()].emplace_back(std::move(frame));
+                    }
                 }
-                else {
-                    do_receive();
-                }
+                do_receive();
             }
         );
     }
@@ -271,17 +274,47 @@ public:
         );
     }
 
-private:
+    void update()
+    {
+        int frame = currentFrame++;
+        if (frames_.find(frame) != frames_.end()) {
+            pb_common::data_ope_frames frames;
+            frames.set_frameid(frame);
+            for (auto& iter : frames_[frame]) {
+                for (auto& it : iter.second) {
+                    auto ope = frames.add_frames();
+                    if (ope) {
+                        ope->set_userid(it.userid());
+                        ope->set_opecode(it.opecode());
+                    }
+                }
+            }
+            auto data = frames.SerializeAsString();
+            for (auto& iter : udp_sessions) {
+                socket_.async_send_to(asio::buffer(data.c_str(), data.size()), iter.second,
+                    [this](asio::error_code /*ec*/, std::size_t /*bytes_sent*/) {
+                        // do nothing
+                    }
+                );
+            }
+        }
+    }
+
+public:
     udp::socket socket_;
     udp::endpoint sender_endpoint_;
     enum { max_length = 1024 };
     char data_[max_length];
+    int currentFrame;
+    std::map<int, std::map<int, std::vector<pb_common::data_ope>>> frames_;
+    std::map<int, udp::endpoint> udp_sessions;
 };
 
 class gameserver : public server {
 public:
     gameserver(std::string strIp, int tcp_port, int udp_port) :
-        server(strIp, tcp_port), frameid(0), game_start(false) {
+        server(strIp, tcp_port), game_start(false) {
+        m_udpServer = std::make_unique<udp_server>(*m_pContext, udp_port);
         auto fps = 1000 / 15;
         m_pThread = std::make_unique<std::thread>(
             [=]() {
@@ -310,16 +343,12 @@ public:
                         }
                     }
                     if (!game_start) { continue; }
-                    if (frameid++ <= 0) {
-                        continue;
-                    }
+                    if (m_udpServer) { m_udpServer->update(); }
                 }
             }
         );
-        m_udpServer = std::make_unique<udp_server>(*m_pContext, udp_port);
     }
 
-    int frameid;
     bool game_start;
     std::unique_ptr<std::thread> m_pThread;
     std::unique_ptr<udp_server> m_udpServer;

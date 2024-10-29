@@ -45,6 +45,10 @@ function SceneMain:ctor()
     self.token = -1
     self.entity = nil
 
+    self.currentFrame = 1
+    self.frames = {}
+    self.begin = false
+
     local keyBoardListener = cc.EventListenerKeyboard:create()
     keyBoardListener:registerScriptHandler(handler(self,self.onKeyEventPressed), cc.Handler.EVENT_KEYBOARD_PRESSED)
     keyBoardListener:registerScriptHandler(handler(self,self.onKeyEventReleased), cc.Handler.EVENT_KEYBOARD_RELEASED)
@@ -134,9 +138,18 @@ function SceneMain:onEventData(INdata)
             protobuf.extract(dataInfo)
             math.randomseed(dataInfo.rand_seed)
             print("begin bout!")
+            self.currentFrame = 1
+            self.begin = true
         end
     elseif "udp" == INdata.type then
-        dump(INdata.data)
+        local dataInfo = protobuf.decode("pb_common.data_ope_frames", INdata.data)
+        protobuf.extract(dataInfo)
+        self.currentFrame = dataInfo.frameid
+        if not self.frames[self.currentFrame] then self.frames[self.currentFrame] = {} end
+        for i=1,#dataInfo.frames do
+            print(string.format("render frame %d userid %d opecode %d",dataInfo.frameid, dataInfo.frames[i].userid, dataInfo.frames[i].opecode))
+            table.insert(self.frames[self.currentFrame],dataInfo.frames[i])
+        end
     end
 end
 
@@ -148,6 +161,10 @@ function SceneMain:sendData(INprotocal,INdata)
     })
     local str = string.pack("<I",string.len(pData))
     self.tcp:send(str .. pData)
+end
+
+function SceneMain:sendUdpData(INdata)
+    self.udp:send(INdata)
 end
 
 function SceneMain:onKeyEventPressed(INkey,INrender)
