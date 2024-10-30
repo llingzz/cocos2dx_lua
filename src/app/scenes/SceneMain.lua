@@ -44,6 +44,7 @@ function SceneMain:ctor()
 
     self.token = -1
     self.entity = nil
+    self.entities = {}
 
     self.currentFrame = 1
     self.frames = {}
@@ -79,7 +80,6 @@ function SceneMain:onEnter()
     self.co = coroutine.create(function()
         while true do
             local idx,yieldRet = coroutine.yield()
-            --dump(yieldRet, tostring(idx))
             self:onEventData(yieldRet)
         end
     end)
@@ -131,8 +131,15 @@ function SceneMain:onEventData(INdata)
         if protobuf.enum_id("pb_common.protocol_code","protocol_user_info") == INdata.data.protocol_code then
             local dataInfo = protobuf.decode("pb_common.data_user_info", INdata.data.data_str)
             protobuf.extract(dataInfo)
+            cc.exports.USERID = dataInfo.userid
             self.token = dataInfo.userid
             self.entity:setToken(dataInfo.userid)
+            self.entities[self.token] = self.entity
+            self:sendUdpData(protobuf.encode('pb_common.data_ope', {
+                userid = self.token,
+                frameid = 1,
+                opecode = 0x00
+            }))
         elseif protobuf.enum_id("pb_common.protocol_code","protocol_begin") == INdata.data.protocol_code then
             local dataInfo = protobuf.decode("pb_common.data_begin", INdata.data.data_str)
             protobuf.extract(dataInfo)
@@ -146,7 +153,17 @@ function SceneMain:onEventData(INdata)
         protobuf.extract(dataInfo)
         self.currentFrame = dataInfo.frameid
         if not self.frames[self.currentFrame] then self.frames[self.currentFrame] = {} end
+        print(string.format("recv frameid %d", dataInfo.frameid))
         for i=1,#dataInfo.frames do
+            if not self.entities[dataInfo.frames[i].userid] then
+                local HandlerEntity = require "src.app.modules.map.NodeEntity"
+                local entity = HandlerEntity.new(self)
+                entity:setToken(dataInfo.frames[i].userid)
+                entity:addTo(self)
+                entity:setPosition(cc.p(display.cx,display.cy))
+                self.entities[dataInfo.frames[i].userid] = entity
+            end
+            self.entities[dataInfo.frames[i].userid]:applyInput(dataInfo.frameid, dataInfo.frames[i].opecode)
             print(string.format("render frame %d userid %d opecode %d",dataInfo.frameid, dataInfo.frames[i].userid, dataInfo.frames[i].opecode))
             table.insert(self.frames[self.currentFrame],dataInfo.frames[i])
         end
@@ -193,7 +210,14 @@ function SceneMain:onKeyEventReleased(INkey,INrender)
 end
 
 function SceneMain:update(dt)
-    if self.entity then self.entity:updateEntity(dt) end
+    --local frames = self.frames[self.currentFrame]
+    if self.entities then
+        for k,v in pairs(self.entities) do
+            if v then
+                v:updateEntity(dt)
+            end
+        end
+    end
 end
 
 function SceneMain:tickUpdate(dt)

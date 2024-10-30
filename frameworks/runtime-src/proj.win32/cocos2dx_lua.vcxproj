@@ -131,10 +131,8 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup>
     <CustomBuildStep>
-      <Command>if not exist "$(LocalDebuggerWorkingDirectory)" mkdir "$(LocalDebuggerWorkingDirectory)"
-xcopy /Y /Q "$(OutDir)*.dll" "$(LocalDebuggerWorkingDirectory)"
-xcopy "$(ProjectDir)..\..\..\res" "$(LocalDebuggerWorkingDirectory)\Resources\res\" /D /E /I /F /Y
-xcopy "$(ProjectDir)..\..\..\src" "$(LocalDebuggerWorkingDirectory)\Resources\src\" /D /E /I /F /Y</Command>
+      <Command>if not exist "D:\Work\Client\Cocos2dx\cocos2dx_lua\frameworks\runtime-src\proj.win32\Debug.win32\../../../../simulator/win32" mkdir "D:\Work\Client\Cocos2dx\cocos2dx_lua\frameworks\runtime-src\proj.win32\Debug.win32\../../../../simulator/win32"
+xcopy /Y /Q "D:\Work\Client\Cocos2dx\cocos2dx_lua\frameworks\runtime-src\proj.win32\Debug.win32\*.dll" "D:\Work\Client\Cocos2dx\cocos2dx_lua\frameworks\runtime-src\proj.win32\Debug.win32\../../../../simulator/win32"</Command>
       <Outputs>$(TargetName).cab</Outputs>
       <Inputs>$(TargetFileName)</Inputs>
     </CustomBuildStep>

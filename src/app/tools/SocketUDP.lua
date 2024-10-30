@@ -6,7 +6,7 @@ function SocketUDP:ctor(__host, __port, __eventProtocol)
     self.socket = socket.udp()
     self.socket:settimeout(0)
     self.socket:setpeername(__host, __port)
-    self.tickScheduler = Scheduler:scheduleGlobal(handler(self,self.receive), 0.1)
+    self.tickScheduler = Scheduler:scheduleGlobal(handler(self,self.receive), 0.01)
     self.eventProtocol = __eventProtocol
 end
 

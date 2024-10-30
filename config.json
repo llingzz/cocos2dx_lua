@@ -3,8 +3,8 @@
        "isLandscape": true,
        "isWindowTop": false,
        "name": "cocos2dx_lua",
-       "width": 1280,
-       "height": 720,
+       "width": 640,
+       "height": 360,
        "entry": "src/main.lua",
        "consolePort": 6050,
        "uploadPort": 6060

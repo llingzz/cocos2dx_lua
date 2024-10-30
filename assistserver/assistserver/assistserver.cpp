@@ -65,8 +65,8 @@ public:
             if (!ret) { break; }
             ready = true;
             printf("token %d set ready\n", _ready.userid());
+            break;
         }
-        break;
         default:
             break;
         }
@@ -245,6 +245,7 @@ public:
     udp_server(asio::io_context& io_context, short port)
         : socket_(io_context, udp::endpoint(udp::v4(), port)), currentFrame(1)
     {
+        memset(data_, 0, max_length);
         do_receive();
     }
 
@@ -255,8 +256,9 @@ public:
                 if (!ec && bytes_recvd > 0) {
                     pb_common::data_ope frame;
                     if (frame.ParseFromString(std::string(data_, bytes_recvd))) {
+                        std::lock_guard<std::mutex> lk(lock);
                         udp_sessions[frame.userid()] = sender_endpoint_;
-                        printf_s("recv userid %d frameid %d opecode %d\n", frame.userid(), currentFrame, frame.opecode());
+                        //printf_s("recv userid %d frameid %d opecode %d\n", frame.userid(), currentFrame, frame.opecode());
                         frames_[currentFrame][frame.userid()].emplace_back(std::move(frame));
                     }
                 }
@@ -265,22 +267,15 @@ public:
         );
     }
 
-    void do_send(std::size_t length)
+    void update(bool bStart)
     {
-        socket_.async_send_to(asio::buffer(data_, length), sender_endpoint_,
-            [this](asio::error_code /*ec*/, std::size_t /*bytes_sent*/) {
-                do_receive();
-            }
-        );
-    }
-
-    void update()
-    {
-        int frame = currentFrame++;
-        if (frames_.find(frame) != frames_.end()) {
+        if (!bStart) { return; }
+        std::lock_guard<std::mutex> lk(lock);
+        int frameid = currentFrame++;
+        if (frames_.find(frameid) != frames_.end()) {
             pb_common::data_ope_frames frames;
-            frames.set_frameid(frame);
-            for (auto& iter : frames_[frame]) {
+            frames.set_frameid(frameid);
+            for (auto& iter : frames_[frameid]) {
                 for (auto& it : iter.second) {
                     auto ope = frames.add_frames();
                     if (ope) {
@@ -291,6 +286,7 @@ public:
             }
             auto data = frames.SerializeAsString();
             for (auto& iter : udp_sessions) {
+                //socket_.send_to(asio::buffer(data.c_str(), data.size()), iter.second);
                 socket_.async_send_to(asio::buffer(data.c_str(), data.size()), iter.second,
                     [this](asio::error_code /*ec*/, std::size_t /*bytes_sent*/) {
                         // do nothing
@@ -298,6 +294,7 @@ public:
                 );
             }
         }
+        //printf_s("send frameid %d opecount %d\n", frameid, frames.mutable_frames()->size());
     }
 
 public:
@@ -305,6 +302,7 @@ public:
     udp::endpoint sender_endpoint_;
     enum { max_length = 1024 };
     char data_[max_length];
+    std::mutex lock;
     int currentFrame;
     std::map<int, std::map<int, std::vector<pb_common::data_ope>>> frames_;
     std::map<int, udp::endpoint> udp_sessions;
@@ -342,8 +340,7 @@ public:
                             }
                         }
                     }
-                    if (!game_start) { continue; }
-                    if (m_udpServer) { m_udpServer->update(); }
+                    if (m_udpServer) { m_udpServer->update(game_start); }
                 }
             }
         );

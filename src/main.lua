@@ -9,6 +9,7 @@ end
 
 require "cocos.init"
 cc.FileUtils:getInstance():setPopupNotify(false)
+cc.exports.HLog = require "app.tools.Log"
 cc.exports.StateMachine = require "app.tools.StateMachine"
 cc.exports.EventProtocol = require "app.tools.EventProtocol"
 cc.exports.SocketTCP = require "app.tools.SocketTCP"

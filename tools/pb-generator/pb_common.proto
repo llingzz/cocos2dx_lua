@@ -14,6 +14,7 @@ enum protocol_code
 	protocol_user_info = 1;
 	protocol_ready = 2;
 	protocol_begin = 3;
+	protocol_frame = 4;
 }
 
 message data_user_info

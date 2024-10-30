@@ -1,6 +1,6 @@
 
 -- 0 - disable debug info, 1 - less debug info, 2 - verbose debug info
-DEBUG = 2
+DEBUG = 1
 
 -- use framework, will disable all deprecated API, false - use legacy API
 CC_USE_FRAMEWORK = true
