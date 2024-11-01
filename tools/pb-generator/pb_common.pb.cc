@@ -107,8 +107,8 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr data_frame::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
-        userid_{0},
-        opecode_{0} {}
+        opecode_{},
+        userid_{0} {}
 
 template <typename>
 PROTOBUF_CONSTEXPR data_frame::data_frame(::_pbi::ConstantInitialized)
@@ -241,7 +241,7 @@ const ::uint32_t TableStruct_pb_5fcommon_2eproto::offsets[] PROTOBUF_SECTION_VAR
     PROTOBUF_FIELD_OFFSET(::pb_common::data_frame, _impl_.userid_),
     PROTOBUF_FIELD_OFFSET(::pb_common::data_frame, _impl_.opecode_),
     0,
-    1,
+    ~0u,
     PROTOBUF_FIELD_OFFSET(::pb_common::data_ope_frames, _impl_._has_bits_),
     PROTOBUF_FIELD_OFFSET(::pb_common::data_ope_frames, _internal_metadata_),
     ~0u,  // no _extensions_
@@ -285,7 +285,7 @@ const char descriptor_table_protodef_pb_5fcommon_2eproto[] PROTOBUF_SECTION_VARI
     "eed\030\001 \001(\r\022\017\n\007userids\030\002 \003(\005\"<\n\010data_ope\022\016"
     "\n\006userid\030\001 \001(\005\022\017\n\007frameid\030\002 \001(\005\022\017\n\007opeco"
     "de\030\003 \001(\005\"-\n\ndata_frame\022\016\n\006userid\030\001 \001(\005\022\017"
-    "\n\007opecode\030\002 \001(\005\"I\n\017data_ope_frames\022\017\n\007fr"
+    "\n\007opecode\030\002 \003(\005\"I\n\017data_ope_frames\022\017\n\007fr"
     "ameid\030\001 \001(\005\022%\n\006frames\030\002 \003(\0132\025.pb_common."
     "data_frame*c\n\rprotocol_code\022\026\n\022protocol_"
     "user_info\020\001\022\022\n\016protocol_ready\020\002\022\022\n\016proto"
@@ -1457,9 +1457,6 @@ class data_frame::_Internal {
   static void set_has_userid(HasBits* has_bits) {
     (*has_bits)[0] |= 1u;
   }
-  static void set_has_opecode(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
 };
 
 data_frame::data_frame(::google::protobuf::Arena* arena)
@@ -1467,24 +1464,35 @@ data_frame::data_frame(::google::protobuf::Arena* arena)
   SharedCtor(arena);
   // @@protoc_insertion_point(arena_constructor:pb_common.data_frame)
 }
+inline PROTOBUF_NDEBUG_INLINE data_frame::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
+    const Impl_& from)
+      : _has_bits_{from._has_bits_},
+        _cached_size_{0},
+        opecode_{visibility, arena, from.opecode_} {}
+
 data_frame::data_frame(
-    ::google::protobuf::Arena* arena, const data_frame& from)
-    : data_frame(arena) {
-  MergeFrom(from);
+    ::google::protobuf::Arena* arena,
+    const data_frame& from)
+    : ::google::protobuf::Message(arena) {
+  data_frame* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_);
+  _impl_.userid_ = from._impl_.userid_;
+
+  // @@protoc_insertion_point(copy_constructor:pb_common.data_frame)
 }
 inline PROTOBUF_NDEBUG_INLINE data_frame::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* arena)
-      : _cached_size_{0} {}
+      : _cached_size_{0},
+        opecode_{visibility, arena} {}
 
 inline void data_frame::SharedCtor(::_pb::Arena* arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
-  ::memset(reinterpret_cast<char *>(&_impl_) +
-               offsetof(Impl_, userid_),
-           0,
-           offsetof(Impl_, opecode_) -
-               offsetof(Impl_, userid_) +
-               sizeof(Impl_::opecode_));
+  _impl_.userid_ = {};
 }
 data_frame::~data_frame() {
   // @@protoc_insertion_point(destructor:pb_common.data_frame)
@@ -1503,12 +1511,8 @@ PROTOBUF_NOINLINE void data_frame::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
-    ::memset(&_impl_.userid_, 0, static_cast<::size_t>(
-        reinterpret_cast<char*>(&_impl_.opecode_) -
-        reinterpret_cast<char*>(&_impl_.userid_)) + sizeof(_impl_.opecode_));
-  }
+  _impl_.opecode_.Clear();
+  _impl_.userid_ = 0;
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
@@ -1535,9 +1539,9 @@ const ::_pbi::TcParseTable<1, 2, 0, 0, 2> data_frame::_table_ = {
     &_data_frame_default_instance_._instance,
     ::_pbi::TcParser::GenericFallback,  // fallback
   }, {{
-    // optional int32 opecode = 2;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(data_frame, _impl_.opecode_), 1>(),
-     {16, 1, 0, PROTOBUF_FIELD_OFFSET(data_frame, _impl_.opecode_)}},
+    // repeated int32 opecode = 2;
+    {::_pbi::TcParser::FastV32R1,
+     {16, 63, 0, PROTOBUF_FIELD_OFFSET(data_frame, _impl_.opecode_)}},
     // optional int32 userid = 1;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(data_frame, _impl_.userid_), 0>(),
      {8, 0, 0, PROTOBUF_FIELD_OFFSET(data_frame, _impl_.userid_)}},
@@ -1547,9 +1551,9 @@ const ::_pbi::TcParseTable<1, 2, 0, 0, 2> data_frame::_table_ = {
     // optional int32 userid = 1;
     {PROTOBUF_FIELD_OFFSET(data_frame, _impl_.userid_), _Internal::kHasBitsOffset + 0, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
-    // optional int32 opecode = 2;
-    {PROTOBUF_FIELD_OFFSET(data_frame, _impl_.opecode_), _Internal::kHasBitsOffset + 1, 0,
-    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // repeated int32 opecode = 2;
+    {PROTOBUF_FIELD_OFFSET(data_frame, _impl_.opecode_), -1, 0,
+    (0 | ::_fl::kFcRepeated | ::_fl::kInt32)},
   }},
   // no aux_entries
   {{
@@ -1571,11 +1575,11 @@ const ::_pbi::TcParseTable<1, 2, 0, 0, 2> data_frame::_table_ = {
             stream, this->_internal_userid(), target);
   }
 
-  // optional int32 opecode = 2;
-  if (cached_has_bits & 0x00000002u) {
-    target = ::google::protobuf::internal::WireFormatLite::
-        WriteInt32ToArrayWithField<2>(
-            stream, this->_internal_opecode(), target);
+  // repeated int32 opecode = 2;
+  for (int i = 0, n = this->_internal_opecode_size(); i < n; ++i) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+        2, this->_internal_opecode().Get(i), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1595,21 +1599,23 @@ const ::_pbi::TcParseTable<1, 2, 0, 0, 2> data_frame::_table_ = {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
-    // optional int32 userid = 1;
-    if (cached_has_bits & 0x00000001u) {
-      total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-          this->_internal_userid());
-    }
-
-    // optional int32 opecode = 2;
-    if (cached_has_bits & 0x00000002u) {
-      total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-          this->_internal_opecode());
-    }
-
+  // repeated int32 opecode = 2;
+  {
+    std::size_t data_size = ::_pbi::WireFormatLite::Int32Size(
+        this->_internal_opecode())
+    ;
+    std::size_t tag_size = std::size_t{1} *
+        ::_pbi::FromIntSize(this->_internal_opecode_size());
+    ;
+    total_size += tag_size + data_size;
   }
+  // optional int32 userid = 1;
+  cached_has_bits = _impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000001u) {
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+        this->_internal_userid());
+  }
+
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
@@ -1629,15 +1635,9 @@ void data_frame::MergeImpl(::google::protobuf::Message& to_msg, const ::google::
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  cached_has_bits = from._impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
-    if (cached_has_bits & 0x00000001u) {
-      _this->_impl_.userid_ = from._impl_.userid_;
-    }
-    if (cached_has_bits & 0x00000002u) {
-      _this->_impl_.opecode_ = from._impl_.opecode_;
-    }
-    _this->_impl_._has_bits_[0] |= cached_has_bits;
+  _this->_internal_mutable_opecode()->MergeFrom(from._internal_opecode());
+  if ((from._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    _this->_internal_set_userid(from._internal_userid());
   }
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -1660,12 +1660,8 @@ void data_frame::InternalSwap(data_frame* PROTOBUF_RESTRICT other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
-  ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(data_frame, _impl_.opecode_)
-      + sizeof(data_frame::_impl_.opecode_)
-      - PROTOBUF_FIELD_OFFSET(data_frame, _impl_.userid_)>(
-          reinterpret_cast<char*>(&_impl_.userid_),
-          reinterpret_cast<char*>(&other->_impl_.userid_));
+  _impl_.opecode_.InternalSwap(&other->_impl_.opecode_);
+        swap(_impl_.userid_, other->_impl_.userid_);
 }
 
 ::google::protobuf::Metadata data_frame::GetMetadata() const {

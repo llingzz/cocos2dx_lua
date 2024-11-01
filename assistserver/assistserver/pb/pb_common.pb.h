@@ -1020,9 +1020,27 @@ class data_frame final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kUseridFieldNumber = 1,
     kOpecodeFieldNumber = 2,
+    kUseridFieldNumber = 1,
   };
+  // repeated int32 opecode = 2;
+  int opecode_size() const;
+  private:
+  int _internal_opecode_size() const;
+
+  public:
+  void clear_opecode() ;
+  ::int32_t opecode(int index) const;
+  void set_opecode(int index, ::int32_t value);
+  void add_opecode(::int32_t value);
+  const ::google::protobuf::RepeatedField<::int32_t>& opecode() const;
+  ::google::protobuf::RepeatedField<::int32_t>* mutable_opecode();
+
+  private:
+  const ::google::protobuf::RepeatedField<::int32_t>& _internal_opecode() const;
+  ::google::protobuf::RepeatedField<::int32_t>* _internal_mutable_opecode();
+
+  public:
   // optional int32 userid = 1;
   bool has_userid() const;
   void clear_userid() ;
@@ -1032,17 +1050,6 @@ class data_frame final :
   private:
   ::int32_t _internal_userid() const;
   void _internal_set_userid(::int32_t value);
-
-  public:
-  // optional int32 opecode = 2;
-  bool has_opecode() const;
-  void clear_opecode() ;
-  ::int32_t opecode() const;
-  void set_opecode(::int32_t value);
-
-  private:
-  ::int32_t _internal_opecode() const;
-  void _internal_set_opecode(::int32_t value);
 
   public:
   // @@protoc_insertion_point(class_scope:pb_common.data_frame)
@@ -1070,8 +1077,8 @@ class data_frame final :
                               ::google::protobuf::Arena* arena, const Impl_& from);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     mutable ::google::protobuf::internal::CachedSize _cached_size_;
+    ::google::protobuf::RepeatedField<::int32_t> opecode_;
     ::int32_t userid_;
-    ::int32_t opecode_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -1876,32 +1883,49 @@ inline void data_frame::_internal_set_userid(::int32_t value) {
   _impl_.userid_ = value;
 }
 
-// optional int32 opecode = 2;
-inline bool data_frame::has_opecode() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
-  return value;
+// repeated int32 opecode = 2;
+inline int data_frame::_internal_opecode_size() const {
+  return _internal_opecode().size();
+}
+inline int data_frame::opecode_size() const {
+  return _internal_opecode_size();
 }
 inline void data_frame::clear_opecode() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.opecode_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_.opecode_.Clear();
 }
-inline ::int32_t data_frame::opecode() const {
+inline ::int32_t data_frame::opecode(int index) const {
   // @@protoc_insertion_point(field_get:pb_common.data_frame.opecode)
-  return _internal_opecode();
+  return _internal_opecode().Get(index);
 }
-inline void data_frame::set_opecode(::int32_t value) {
-  _internal_set_opecode(value);
+inline void data_frame::set_opecode(int index, ::int32_t value) {
+  _internal_mutable_opecode()->Set(index, value);
   // @@protoc_insertion_point(field_set:pb_common.data_frame.opecode)
 }
-inline ::int32_t data_frame::_internal_opecode() const {
+inline void data_frame::add_opecode(::int32_t value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _internal_mutable_opecode()->Add(value);
+  // @@protoc_insertion_point(field_add:pb_common.data_frame.opecode)
+}
+inline const ::google::protobuf::RepeatedField<::int32_t>& data_frame::opecode() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_list:pb_common.data_frame.opecode)
+  return _internal_opecode();
+}
+inline ::google::protobuf::RepeatedField<::int32_t>* data_frame::mutable_opecode()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable_list:pb_common.data_frame.opecode)
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  return _internal_mutable_opecode();
+}
+inline const ::google::protobuf::RepeatedField<::int32_t>& data_frame::_internal_opecode()
+    const {
   PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
   return _impl_.opecode_;
 }
-inline void data_frame::_internal_set_opecode(::int32_t value) {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_._has_bits_[0] |= 0x00000002u;
-  _impl_.opecode_ = value;
+inline ::google::protobuf::RepeatedField<::int32_t>* data_frame::_internal_mutable_opecode() {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return &_impl_.opecode_;
 }
 
 // -------------------------------------------------------------------

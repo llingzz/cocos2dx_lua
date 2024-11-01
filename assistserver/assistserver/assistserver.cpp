@@ -154,7 +154,7 @@ class server
 public:
     server(std::string strIp, int port)
     {
-        m_lTokenId = 0;
+        m_lTokenId = 1;
         m_pContext = std::make_unique<asio::io_service>();
 
         auto size = std::thread::hardware_concurrency();
@@ -187,13 +187,6 @@ public:
         m_pAcceptor->listen();
         for (auto i = 0; i < 10; ++i) {
             do_accept();
-        }
-    }
-
-    void remove_session(LONG token) {
-        std::lock_guard<std::mutex> lk(lock);
-        if (m_mapSessions.find(token) != m_mapSessions.end()) {
-            m_mapSessions.erase(token);
         }
     }
 
@@ -276,11 +269,11 @@ public:
         frames.set_frameid(frameid);
         if (frames_.find(frameid) != frames_.end()) {
             for (auto& iter : frames_[frameid]) {
-                for (auto& it : iter.second) {
-                    auto ope = frames.add_frames();
-                    if (ope) {
-                        ope->set_userid(it.userid());
-                        ope->set_opecode(it.opecode());
+                auto user_frame = frames.add_frames();
+                if (user_frame) {
+                    user_frame->set_userid(iter.first);
+                    for (auto& it : iter.second) {
+                        user_frame->add_opecode(it.opecode());
                     }
                 }
             }

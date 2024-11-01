@@ -44,7 +44,7 @@ message data_ope
 message data_frame
 {
 	optional int32 userid = 1;
-	optional int32 opecode = 2;
+	repeated int32 opecode = 2;
 }
 
 message data_ope_frames

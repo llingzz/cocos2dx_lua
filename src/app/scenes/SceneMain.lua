@@ -213,9 +213,10 @@ function SceneMain:createEntity(INtoken)
 end
 
 function SceneMain:update(dt)
+    if not self.begin then return end
     for k,v in pairs(self.entities) do
         if v then
-            v:updateEntity(dt)
+            v:renderUpdate(dt)
         end
     end
 end
@@ -233,7 +234,9 @@ function SceneMain:tickLogic(dt)
     local frameid = self.currentFrameId + 1
     if not self.logicFrames[frameid] then return end
     for k,v in pairs(self.logicFrames[frameid]) do
-        self.entities[v.userid]:applyInput(frameid, v.opecode)
+        for i=1,#v.opecode do
+            self.entities[k]:applyInput(frameid, v.opecode[i])
+        end
     end
     for k,v in pairs(self.entities) do
         v:logicUpdate()

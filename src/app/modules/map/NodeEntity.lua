@@ -64,7 +64,6 @@ end
 
 function NodeEntity:capturePlayerOpts()
     if self.lastOpeCode == self.opeCode then return end
-    if not self.parent.begin then return end
     self.parent:sendUdpData(protobuf.encode('pb_common.data_ope', {
         userid = self.token,
         frameid = self.parent.currentFrameId,
@@ -89,18 +88,18 @@ end
 
 function NodeEntity:logicUpdate(dt)
     if self.rotation ~= 0 then
-        self.logicRat = self.logicRat + self.rotation*13
+        self.logicRat = self.logicRat + self.rotation*15
         --print(string.format("logicRat %d",self.logicRat))
     end
     if self.ahead ~= 0 then
         local dir = dir_table[math.round(self.logicRat%360)]
-        self.logicPos.x = self.logicPos.x + dir.x*2*self.ahead*67
-        self.logicPos.y = self.logicPos.y + dir.y*2*self.ahead*67
+        self.logicPos.x = self.logicPos.x + dir.x*self.ahead*200
+        self.logicPos.y = self.logicPos.y + dir.y*self.ahead*200
         --print(string.format("logicPox.x %d logicPos.y %d",self.logicPos.x,self.logicPos.y))
     end
 end
 
-function NodeEntity:updateEntity(dt)
+function NodeEntity:renderUpdate(dt)
     local function clamp(num, min, max)
         if num < min then num = min
         elseif num > max then num = max
