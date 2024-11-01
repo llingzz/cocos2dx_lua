@@ -127,6 +127,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr data_begin::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
+        userids_{},
         rand_seed_{0u} {}
 
 template <typename>
@@ -212,7 +213,9 @@ const ::uint32_t TableStruct_pb_5fcommon_2eproto::offsets[] PROTOBUF_SECTION_VAR
     ~0u,  // no _split_
     ~0u,  // no sizeof(Split)
     PROTOBUF_FIELD_OFFSET(::pb_common::data_begin, _impl_.rand_seed_),
+    PROTOBUF_FIELD_OFFSET(::pb_common::data_begin, _impl_.userids_),
     0,
+    ~0u,
     PROTOBUF_FIELD_OFFSET(::pb_common::data_ope, _impl_._has_bits_),
     PROTOBUF_FIELD_OFFSET(::pb_common::data_ope, _internal_metadata_),
     ~0u,  // no _extensions_
@@ -258,10 +261,10 @@ static const ::_pbi::MigrationSchema
         {0, 11, -1, sizeof(::pb_common::data_head)},
         {14, 23, -1, sizeof(::pb_common::data_user_info)},
         {24, 33, -1, sizeof(::pb_common::data_ready)},
-        {34, 43, -1, sizeof(::pb_common::data_begin)},
-        {44, 55, -1, sizeof(::pb_common::data_ope)},
-        {58, 68, -1, sizeof(::pb_common::data_frame)},
-        {70, 80, -1, sizeof(::pb_common::data_ope_frames)},
+        {34, 44, -1, sizeof(::pb_common::data_begin)},
+        {46, 57, -1, sizeof(::pb_common::data_ope)},
+        {60, 70, -1, sizeof(::pb_common::data_frame)},
+        {72, 82, -1, sizeof(::pb_common::data_ope_frames)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -278,20 +281,21 @@ const char descriptor_table_protodef_pb_5fcommon_2eproto[] PROTOBUF_SECTION_VARI
     "d\022\025\n\rprotocol_code\030\001 \001(\005\022\020\n\010data_len\030\t \001"
     "(\005\022\020\n\010data_str\030\n \001(\014J\004\010\002\020\t\" \n\016data_user_"
     "info\022\016\n\006userid\030\001 \001(\005\"\"\n\ndata_ready\022\016\n\006us"
-    "erid\030\001 \001(\005J\004\010\002\020\t\"\037\n\ndata_begin\022\021\n\trand_s"
-    "eed\030\001 \001(\r\"<\n\010data_ope\022\016\n\006userid\030\001 \001(\005\022\017\n"
-    "\007frameid\030\002 \001(\005\022\017\n\007opecode\030\003 \001(\005\"-\n\ndata_"
-    "frame\022\016\n\006userid\030\001 \001(\005\022\017\n\007opecode\030\002 \001(\005\"I"
-    "\n\017data_ope_frames\022\017\n\007frameid\030\001 \001(\005\022%\n\006fr"
-    "ames\030\002 \003(\0132\025.pb_common.data_frame*O\n\rpro"
-    "tocol_code\022\026\n\022protocol_user_info\020\001\022\022\n\016pr"
-    "otocol_ready\020\002\022\022\n\016protocol_begin\020\003"
+    "erid\030\001 \001(\005J\004\010\002\020\t\"0\n\ndata_begin\022\021\n\trand_s"
+    "eed\030\001 \001(\r\022\017\n\007userids\030\002 \003(\005\"<\n\010data_ope\022\016"
+    "\n\006userid\030\001 \001(\005\022\017\n\007frameid\030\002 \001(\005\022\017\n\007opeco"
+    "de\030\003 \001(\005\"-\n\ndata_frame\022\016\n\006userid\030\001 \001(\005\022\017"
+    "\n\007opecode\030\002 \001(\005\"I\n\017data_ope_frames\022\017\n\007fr"
+    "ameid\030\001 \001(\005\022%\n\006frames\030\002 \003(\0132\025.pb_common."
+    "data_frame*c\n\rprotocol_code\022\026\n\022protocol_"
+    "user_info\020\001\022\022\n\016protocol_ready\020\002\022\022\n\016proto"
+    "col_begin\020\003\022\022\n\016protocol_frame\020\004"
 };
 static ::absl::once_flag descriptor_table_pb_5fcommon_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_pb_5fcommon_2eproto = {
     false,
     false,
-    474,
+    511,
     descriptor_table_protodef_pb_5fcommon_2eproto,
     "pb_common.proto",
     &descriptor_table_pb_5fcommon_2eproto_once,
@@ -329,9 +333,9 @@ const ::google::protobuf::EnumDescriptor* protocol_code_descriptor() {
   return file_level_enum_descriptors_pb_5fcommon_2eproto[0];
 }
 PROTOBUF_CONSTINIT const uint32_t protocol_code_internal_data_[] = {
-    196609u, 0u, };
+    262145u, 0u, };
 bool protocol_code_IsValid(int value) {
-  return 1 <= value && value <= 3;
+  return 1 <= value && value <= 4;
 }
 // ===================================================================
 
@@ -986,15 +990,31 @@ data_begin::data_begin(::google::protobuf::Arena* arena)
   SharedCtor(arena);
   // @@protoc_insertion_point(arena_constructor:pb_common.data_begin)
 }
+inline PROTOBUF_NDEBUG_INLINE data_begin::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
+    const Impl_& from)
+      : _has_bits_{from._has_bits_},
+        _cached_size_{0},
+        userids_{visibility, arena, from.userids_} {}
+
 data_begin::data_begin(
-    ::google::protobuf::Arena* arena, const data_begin& from)
-    : data_begin(arena) {
-  MergeFrom(from);
+    ::google::protobuf::Arena* arena,
+    const data_begin& from)
+    : ::google::protobuf::Message(arena) {
+  data_begin* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_);
+  _impl_.rand_seed_ = from._impl_.rand_seed_;
+
+  // @@protoc_insertion_point(copy_constructor:pb_common.data_begin)
 }
 inline PROTOBUF_NDEBUG_INLINE data_begin::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* arena)
-      : _cached_size_{0} {}
+      : _cached_size_{0},
+        userids_{visibility, arena} {}
 
 inline void data_begin::SharedCtor(::_pb::Arena* arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
@@ -1017,6 +1037,7 @@ PROTOBUF_NOINLINE void data_begin::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
+  _impl_.userids_.Clear();
   _impl_.rand_seed_ = 0u;
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -1030,20 +1051,23 @@ const char* data_begin::_InternalParse(
 
 
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 0, 0, 2> data_begin::_table_ = {
+const ::_pbi::TcParseTable<1, 2, 0, 0, 2> data_begin::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(data_begin, _impl_._has_bits_),
     0, // no _extensions_
-    1, 0,  // max_field_number, fast_idx_mask
+    2, 8,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967294,  // skipmap
+    4294967292,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    1,  // num_field_entries
+    2,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     &_data_begin_default_instance_._instance,
     ::_pbi::TcParser::GenericFallback,  // fallback
   }, {{
+    // repeated int32 userids = 2;
+    {::_pbi::TcParser::FastV32R1,
+     {16, 63, 0, PROTOBUF_FIELD_OFFSET(data_begin, _impl_.userids_)}},
     // optional uint32 rand_seed = 1;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(data_begin, _impl_.rand_seed_), 0>(),
      {8, 0, 0, PROTOBUF_FIELD_OFFSET(data_begin, _impl_.rand_seed_)}},
@@ -1053,6 +1077,9 @@ const ::_pbi::TcParseTable<0, 1, 0, 0, 2> data_begin::_table_ = {
     // optional uint32 rand_seed = 1;
     {PROTOBUF_FIELD_OFFSET(data_begin, _impl_.rand_seed_), _Internal::kHasBitsOffset + 0, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // repeated int32 userids = 2;
+    {PROTOBUF_FIELD_OFFSET(data_begin, _impl_.userids_), -1, 0,
+    (0 | ::_fl::kFcRepeated | ::_fl::kInt32)},
   }},
   // no aux_entries
   {{
@@ -1074,6 +1101,13 @@ const ::_pbi::TcParseTable<0, 1, 0, 0, 2> data_begin::_table_ = {
         1, this->_internal_rand_seed(), target);
   }
 
+  // repeated int32 userids = 2;
+  for (int i = 0, n = this->_internal_userids_size(); i < n; ++i) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(
+        2, this->_internal_userids().Get(i), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target =
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
@@ -1091,6 +1125,16 @@ const ::_pbi::TcParseTable<0, 1, 0, 0, 2> data_begin::_table_ = {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
+  // repeated int32 userids = 2;
+  {
+    std::size_t data_size = ::_pbi::WireFormatLite::Int32Size(
+        this->_internal_userids())
+    ;
+    std::size_t tag_size = std::size_t{1} *
+        ::_pbi::FromIntSize(this->_internal_userids_size());
+    ;
+    total_size += tag_size + data_size;
+  }
   // optional uint32 rand_seed = 1;
   cached_has_bits = _impl_._has_bits_[0];
   if (cached_has_bits & 0x00000001u) {
@@ -1117,6 +1161,7 @@ void data_begin::MergeImpl(::google::protobuf::Message& to_msg, const ::google::
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
+  _this->_internal_mutable_userids()->MergeFrom(from._internal_userids());
   if ((from._impl_._has_bits_[0] & 0x00000001u) != 0) {
     _this->_internal_set_rand_seed(from._internal_rand_seed());
   }
@@ -1141,6 +1186,7 @@ void data_begin::InternalSwap(data_begin* PROTOBUF_RESTRICT other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  _impl_.userids_.InternalSwap(&other->_impl_.userids_);
         swap(_impl_.rand_seed_, other->_impl_.rand_seed_);
 }
 

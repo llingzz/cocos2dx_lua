@@ -31,6 +31,7 @@ message data_ready
 message data_begin
 {
 	optional uint32 rand_seed = 1;
+	repeated int32 userids = 2;
 }
 
 message data_ope

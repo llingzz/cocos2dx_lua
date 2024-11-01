@@ -1,5 +1,5 @@
 
-Ð
+þ
 pb_common.proto	pb_common"l
 	data_head#
 protocol_code (RprotocolCode
@@ -10,10 +10,11 @@
 userid (Ruserid"*
 
 data_ready
-userid (RuseridJ	")
+userid (RuseridJ	"C
 
 data_begin
-	rand_seed (RrandSeed"V
+	rand_seed (RrandSeed
+userids (Ruserids"V
 data_ope
 userid (Ruserid
 frameid (Rframeid
@@ -24,8 +25,9 @@ data_frame
 opecode (Ropecode"Z
 data_ope_frames
 frameid (Rframeid-
-frames (2.pb_common.data_frameRframes*O
+frames (2.pb_common.data_frameRframes*c
 protocol_code
 protocol_user_info
 protocol_ready
-protocol_begin
+protocol_begin
+protocol_frame

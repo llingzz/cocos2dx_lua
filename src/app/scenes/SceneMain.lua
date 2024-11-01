@@ -1,3 +1,4 @@
+
 local SceneMain = class("SceneMain", function()
     local scene = display.newScene("SceneMain")
     scene:initWithPhysics()
@@ -45,10 +46,11 @@ function SceneMain:ctor()
     self.token = -1
     self.entity = nil
     self.entities = {}
-
-    self.currentFrame = 1
-    self.frames = {}
     self.begin = false
+
+    self.lastedFrameId = 0
+    self.currentFrameId = 0
+    self.logicFrames = {}
 
     local keyBoardListener = cc.EventListenerKeyboard:create()
     keyBoardListener:registerScriptHandler(handler(self,self.onKeyEventPressed), cc.Handler.EVENT_KEYBOARD_PRESSED)
@@ -64,6 +66,7 @@ function SceneMain:ctor()
     if CC_SHOW_PHYSIC_MASK then self:getPhysicsWorld():setDebugDrawMask(cc.PhysicsWorld.DEBUGDRAW_ALL) end
     self.tickPhysicWorld = Scheduler:scheduleGlobal(handler(self, self.tickUpdate), 0.02)
     self:scheduleUpdate(handler(self,self.update))
+    self.tickLogic = Scheduler:scheduleGlobal(handler(self, self.tickLogic), 1.0/15)
 end
 
 function SceneMain:onEnter()
@@ -90,6 +93,10 @@ function SceneMain:onExit()
     if self.tickPhysicWorld then
         Scheduler:unscheduleGlobal(self.tickPhysicWorld)
         self.tickPhysicWorld = nil
+    end
+    if self.tickLogic then
+        Scheduler:unscheduleGlobal(self.tickLogic)
+        self.tickLogic = nil
     end
     self.tcp:disconnect()
     self.tcp:close()
@@ -144,29 +151,16 @@ function SceneMain:onEventData(INdata)
             local dataInfo = protobuf.decode("pb_common.data_begin", INdata.data.data_str)
             protobuf.extract(dataInfo)
             math.randomseed(dataInfo.rand_seed)
-            print("begin bout!")
-            self.currentFrame = 1
+            for k,v in pairs(dataInfo.userids) do
+                if not self.entities[v] then self:createEntity(v) end
+            end
             self.begin = true
         end
     elseif "udp" == INdata.type then
         local dataInfo = protobuf.decode("pb_common.data_ope_frames", INdata.data)
         protobuf.extract(dataInfo)
-        self.currentFrame = dataInfo.frameid
-        if not self.frames[self.currentFrame] then self.frames[self.currentFrame] = {} end
-        print(string.format("recv frameid %d", dataInfo.frameid))
-        for i=1,#dataInfo.frames do
-            if not self.entities[dataInfo.frames[i].userid] then
-                local HandlerEntity = require "src.app.modules.map.NodeEntity"
-                local entity = HandlerEntity.new(self)
-                entity:setToken(dataInfo.frames[i].userid)
-                entity:addTo(self)
-                entity:setPosition(cc.p(display.cx,display.cy))
-                self.entities[dataInfo.frames[i].userid] = entity
-            end
-            self.entities[dataInfo.frames[i].userid]:applyInput(dataInfo.frameid, dataInfo.frames[i].opecode)
-            print(string.format("render frame %d userid %d opecode %d",dataInfo.frameid, dataInfo.frames[i].userid, dataInfo.frames[i].opecode))
-            table.insert(self.frames[self.currentFrame],dataInfo.frames[i])
-        end
+        self.lastedFrameId = dataInfo.frameid
+        self.logicFrames[dataInfo.frameid] = dataInfo.frames
     end
 end
 
@@ -209,13 +203,19 @@ function SceneMain:onKeyEventReleased(INkey,INrender)
     if self.entity then self.entity:getKeyboardEvent("onKeyEventReleased",INkey) end
 end
 
+function SceneMain:createEntity(INtoken)
+    local HandlerEntity = require "src.app.modules.map.NodeEntity"
+    local entity = HandlerEntity.new(self)
+    entity:setToken(INtoken)
+    entity:addTo(self)
+    entity:setPosition(cc.p(display.cx,display.cy))
+    self.entities[INtoken] = entity
+end
+
 function SceneMain:update(dt)
-    --local frames = self.frames[self.currentFrame]
-    if self.entities then
-        for k,v in pairs(self.entities) do
-            if v then
-                v:updateEntity(dt)
-            end
+    for k,v in pairs(self.entities) do
+        if v then
+            v:updateEntity(dt)
         end
     end
 end
@@ -225,6 +225,20 @@ function SceneMain:tickUpdate(dt)
     for i=1,3 do
         self:getPhysicsWorld():step(1/90.0)
     end
+end
+
+function SceneMain:tickLogic(dt)
+    if not self.begin then return end
+    if self.entity then self.entity:capturePlayerOpts() end
+    local frameid = self.currentFrameId + 1
+    if not self.logicFrames[frameid] then return end
+    for k,v in pairs(self.logicFrames[frameid]) do
+        self.entities[v.userid]:applyInput(frameid, v.opecode)
+    end
+    for k,v in pairs(self.entities) do
+        v:logicUpdate()
+    end
+    self.currentFrameId = self.currentFrameId + 1
 end
 
 function SceneMain:onContactBegin(INcontact)

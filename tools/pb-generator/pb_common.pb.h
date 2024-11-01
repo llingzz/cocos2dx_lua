@@ -89,13 +89,14 @@ enum protocol_code : int {
   protocol_user_info = 1,
   protocol_ready = 2,
   protocol_begin = 3,
+  protocol_frame = 4,
 };
 
 bool protocol_code_IsValid(int value);
 extern const uint32_t protocol_code_internal_data_[];
 constexpr protocol_code protocol_code_MIN = static_cast<protocol_code>(1);
-constexpr protocol_code protocol_code_MAX = static_cast<protocol_code>(3);
-constexpr int protocol_code_ARRAYSIZE = 3 + 1;
+constexpr protocol_code protocol_code_MAX = static_cast<protocol_code>(4);
+constexpr int protocol_code_ARRAYSIZE = 4 + 1;
 const ::google::protobuf::EnumDescriptor*
 protocol_code_descriptor();
 template <typename T>
@@ -108,7 +109,7 @@ const std::string& protocol_code_Name(T value) {
 template <>
 inline const std::string& protocol_code_Name(protocol_code value) {
   return ::google::protobuf::internal::NameOfDenseEnum<protocol_code_descriptor,
-                                                 1, 3>(
+                                                 1, 4>(
       static_cast<int>(value));
 }
 inline bool protocol_code_Parse(absl::string_view name, protocol_code* value) {
@@ -1209,8 +1210,27 @@ class data_begin final :
   // accessors -------------------------------------------------------
 
   enum : int {
+    kUseridsFieldNumber = 2,
     kRandSeedFieldNumber = 1,
   };
+  // repeated int32 userids = 2;
+  int userids_size() const;
+  private:
+  int _internal_userids_size() const;
+
+  public:
+  void clear_userids() ;
+  ::int32_t userids(int index) const;
+  void set_userids(int index, ::int32_t value);
+  void add_userids(::int32_t value);
+  const ::google::protobuf::RepeatedField<::int32_t>& userids() const;
+  ::google::protobuf::RepeatedField<::int32_t>* mutable_userids();
+
+  private:
+  const ::google::protobuf::RepeatedField<::int32_t>& _internal_userids() const;
+  ::google::protobuf::RepeatedField<::int32_t>* _internal_mutable_userids();
+
+  public:
   // optional uint32 rand_seed = 1;
   bool has_rand_seed() const;
   void clear_rand_seed() ;
@@ -1228,7 +1248,7 @@ class data_begin final :
 
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      0, 1, 0,
+      1, 2, 0,
       0, 2>
       _table_;
   friend class ::google::protobuf::MessageLite;
@@ -1247,6 +1267,7 @@ class data_begin final :
                               ::google::protobuf::Arena* arena, const Impl_& from);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     mutable ::google::protobuf::internal::CachedSize _cached_size_;
+    ::google::protobuf::RepeatedField<::int32_t> userids_;
     ::uint32_t rand_seed_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -1688,6 +1709,51 @@ inline void data_begin::_internal_set_rand_seed(::uint32_t value) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.rand_seed_ = value;
+}
+
+// repeated int32 userids = 2;
+inline int data_begin::_internal_userids_size() const {
+  return _internal_userids().size();
+}
+inline int data_begin::userids_size() const {
+  return _internal_userids_size();
+}
+inline void data_begin::clear_userids() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.userids_.Clear();
+}
+inline ::int32_t data_begin::userids(int index) const {
+  // @@protoc_insertion_point(field_get:pb_common.data_begin.userids)
+  return _internal_userids().Get(index);
+}
+inline void data_begin::set_userids(int index, ::int32_t value) {
+  _internal_mutable_userids()->Set(index, value);
+  // @@protoc_insertion_point(field_set:pb_common.data_begin.userids)
+}
+inline void data_begin::add_userids(::int32_t value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _internal_mutable_userids()->Add(value);
+  // @@protoc_insertion_point(field_add:pb_common.data_begin.userids)
+}
+inline const ::google::protobuf::RepeatedField<::int32_t>& data_begin::userids() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_list:pb_common.data_begin.userids)
+  return _internal_userids();
+}
+inline ::google::protobuf::RepeatedField<::int32_t>* data_begin::mutable_userids()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable_list:pb_common.data_begin.userids)
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  return _internal_mutable_userids();
+}
+inline const ::google::protobuf::RepeatedField<::int32_t>& data_begin::_internal_userids()
+    const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.userids_;
+}
+inline ::google::protobuf::RepeatedField<::int32_t>* data_begin::_internal_mutable_userids() {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return &_impl_.userids_;
 }
 
 // -------------------------------------------------------------------

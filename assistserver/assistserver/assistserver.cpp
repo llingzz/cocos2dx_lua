@@ -243,7 +243,7 @@ using asio::ip::udp;
 class udp_server {
 public:
     udp_server(asio::io_context& io_context, short port)
-        : socket_(io_context, udp::endpoint(udp::v4(), port)), currentFrame(1)
+        : socket_(io_context, udp::endpoint(udp::v4(), port)), currentFrame(0)
     {
         memset(data_, 0, max_length);
         do_receive();
@@ -258,7 +258,7 @@ public:
                     if (frame.ParseFromString(std::string(data_, bytes_recvd))) {
                         std::lock_guard<std::mutex> lk(lock);
                         udp_sessions[frame.userid()] = sender_endpoint_;
-                        //printf_s("recv userid %d frameid %d opecode %d\n", frame.userid(), currentFrame, frame.opecode());
+                        printf_s("recv userid %d frameid %d opecode %d\n", frame.userid(), currentFrame, frame.opecode());
                         frames_[currentFrame][frame.userid()].emplace_back(std::move(frame));
                     }
                 }
@@ -272,9 +272,9 @@ public:
         if (!bStart) { return; }
         std::lock_guard<std::mutex> lk(lock);
         int frameid = currentFrame++;
+        pb_common::data_ope_frames frames;
+        frames.set_frameid(frameid);
         if (frames_.find(frameid) != frames_.end()) {
-            pb_common::data_ope_frames frames;
-            frames.set_frameid(frameid);
             for (auto& iter : frames_[frameid]) {
                 for (auto& it : iter.second) {
                     auto ope = frames.add_frames();
@@ -284,15 +284,15 @@ public:
                     }
                 }
             }
-            auto data = frames.SerializeAsString();
-            for (auto& iter : udp_sessions) {
-                //socket_.send_to(asio::buffer(data.c_str(), data.size()), iter.second);
-                socket_.async_send_to(asio::buffer(data.c_str(), data.size()), iter.second,
-                    [this](asio::error_code /*ec*/, std::size_t /*bytes_sent*/) {
-                        // do nothing
-                    }
-                );
-            }
+        }
+        auto data = frames.SerializeAsString();
+        for (auto& iter : udp_sessions) {
+            //socket_.send_to(asio::buffer(data.c_str(), data.size()), iter.second);
+            socket_.async_send_to(asio::buffer(data.c_str(), data.size()), iter.second,
+                [this](asio::error_code /*ec*/, std::size_t /*bytes_sent*/) {
+                    // do nothing
+                }
+            );
         }
         //printf_s("send frameid %d opecount %d\n", frameid, frames.mutable_frames()->size());
     }
@@ -317,21 +317,24 @@ public:
         m_pThread = std::make_unique<std::thread>(
             [=]() {
                 while (true) {
-                    std::this_thread::sleep_for(std::chrono::microseconds(fps));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(fps));
                     if (!game_start) {
                         std::lock_guard<std::mutex> lk(lock);
                         if (m_mapSessions.size() <= 0) { continue; }
                         bool allReady = true;
+                        std::vector<int> userids;
                         for (auto& iter : m_mapSessions) {
                             if (!iter.second.get() || !iter.second.get()->ready) {
                                 allReady = false;
                                 break;
                             }
+                            userids.push_back(iter.first);
                         }
                         if (allReady) {
                             game_start = true;
                             pb_common::data_begin begin;
                             begin.set_rand_seed(time(nullptr));
+                            begin.mutable_userids()->CopyFrom({ userids.begin(), userids.end() });
                             for (auto& iter : m_mapSessions) {
                                 if (iter.second.get()) {
                                     iter.second.get()->inGame = true;

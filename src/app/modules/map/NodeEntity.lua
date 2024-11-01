@@ -1,3 +1,4 @@
+local dir_table = require "app.tools.RotationToSpeed"
 local NodeEntity = class("NodeEntity", function ()
     local node = display.newNode()
     node:enableNodeEvents()
@@ -26,6 +27,10 @@ function NodeEntity:ctor(INparent)
     -- self:setPhysicsBody(entityBody)
     self.frameid = 0
     self.opeCode = 0x00
+    self.lastOpeCode = 0x00
+
+    self.logicRat = 0
+    self.logicPos = cc.p(display.cx*1000,display.cy*1000)
 end
 
 function NodeEntity:onExit()
@@ -39,57 +44,34 @@ function NodeEntity:onContactEnd(INnode)
 end
 
 function NodeEntity:getKeyboardEvent(INType,INeventCode)
-    local opeCode = self.opeCode
     if "onKeyEventPressed" == INType then
-        if cc.KeyCode.KEY_W == INeventCode then
-            --self.ahead = self.ahead + 1
-            self.opeCode = bit._or(self.opeCode,0x01)
-        end
-        if cc.KeyCode.KEY_S == INeventCode then
-            --self.ahead = self.ahead - 1
-            self.opeCode = bit._or(self.opeCode,0x02)
-        end
-        if cc.KeyCode.KEY_A == INeventCode then
-            --self.rotation = self.rotation - 1
-            self.opeCode = bit._or(self.opeCode,0x04)
-        end
-        if cc.KeyCode.KEY_D == INeventCode then
-            --self.rotation = self.rotation + 1
-            self.opeCode = bit._or(self.opeCode,0x08)
-        end
+        if cc.KeyCode.KEY_W == INeventCode then self.opeCode = bit._or(self.opeCode,0x01) end
+        if cc.KeyCode.KEY_S == INeventCode then self.opeCode = bit._or(self.opeCode,0x02) end
+        if cc.KeyCode.KEY_A == INeventCode then self.opeCode = bit._or(self.opeCode,0x04) end
+        if cc.KeyCode.KEY_D == INeventCode then self.opeCode = bit._or(self.opeCode,0x08) end
         if cc.KeyCode.KEY_SPACE == INeventCode then
             self:fireBullet()
             self.opeCode = bit._or(self.opeCode,0x10)
         end
     elseif "onKeyEventReleased" == INType then
-        if cc.KeyCode.KEY_W == INeventCode then
-            --self.ahead = self.ahead - 1
-            self.opeCode = bit._and(self.opeCode,0xfe)
-        end
-        if cc.KeyCode.KEY_S == INeventCode then
-            --self.ahead = self.ahead + 1
-            self.opeCode = bit._and(self.opeCode,0xfd)
-        end
-        if cc.KeyCode.KEY_A == INeventCode then
-            --self.rotation = self.rotation + 1
-            self.opeCode = bit._and(self.opeCode,0xfb)
-        end
-        if cc.KeyCode.KEY_D == INeventCode then
-            --self.rotation = self.rotation - 1
-            self.opeCode = bit._and(self.opeCode,0xf7)
-        end
-        if cc.KeyCode.KEY_SPACE == INeventCode then
-            self.opeCode = bit._and(self.opeCode,0xef)
-        end
+        if cc.KeyCode.KEY_W == INeventCode then self.opeCode = bit._and(self.opeCode,0xfe) end
+        if cc.KeyCode.KEY_S == INeventCode then self.opeCode = bit._and(self.opeCode,0xfd) end
+        if cc.KeyCode.KEY_A == INeventCode then self.opeCode = bit._and(self.opeCode,0xfb) end
+        if cc.KeyCode.KEY_D == INeventCode then self.opeCode = bit._and(self.opeCode,0xf7) end
+        if cc.KeyCode.KEY_SPACE == INeventCode then self.opeCode = bit._and(self.opeCode,0xef) end
     end
-    if self.opeCode == opeCode then return end
+end
+
+function NodeEntity:capturePlayerOpts()
+    if self.lastOpeCode == self.opeCode then return end
     if not self.parent.begin then return end
     self.parent:sendUdpData(protobuf.encode('pb_common.data_ope', {
         userid = self.token,
-        frameid = self.parent.currentFrame,
+        frameid = self.parent.currentFrameId,
         opecode = self.opeCode
     }))
-    print(string.format("input frameid:%d opeCode:%d",self.parent.currentFrame,self.opeCode))
+    self.lastOpeCode = self.opeCode
+    print(string.format("input frameid:%d opeCode:%d",self.parent.currentFrameId,self.opeCode))
 end
 
 function NodeEntity:setToken(INtoken)
@@ -105,19 +87,31 @@ function NodeEntity:applyInput(INframe,INopeCode)
     self.ahead, self.rotation = ahead, rotation
 end
 
-function NodeEntity:updateEntity(dt)
+function NodeEntity:logicUpdate(dt)
     if self.rotation ~= 0 then
-        local rotation = self:getRotation()
-        self:setRotation(rotation+self.rotation*dt*200)
+        self.logicRat = self.logicRat + self.rotation*13
+        --print(string.format("logicRat %d",self.logicRat))
     end
     if self.ahead ~= 0 then
-        local rotation = self:getRotation() % 360
-        local dir = cc.p(math.sin(rotation*math.pi/180),math.cos(rotation*math.pi/180))
-        local pos = cc.p(self:getPosition())
-        pos = cc.pAdd(pos,cc.pMul(dir,self.ahead*dt*200))
-        --if 0 == self.token then HLog:printf("frame %d pos.x %f pos.y %f dt %f",self.parent.currentFrame,pos.x,pos.y,dt) end
-        self:setPosition(pos)
+        local dir = dir_table[math.round(self.logicRat%360)]
+        self.logicPos.x = self.logicPos.x + dir.x*2*self.ahead*67
+        self.logicPos.y = self.logicPos.y + dir.y*2*self.ahead*67
+        --print(string.format("logicPox.x %d logicPos.y %d",self.logicPos.x,self.logicPos.y))
     end
+end
+
+function NodeEntity:updateEntity(dt)
+    local function clamp(num, min, max)
+        if num < min then num = min
+        elseif num > max then num = max
+        end
+        return num
+    end
+    local function lerp(from, to, t)
+        return from + (to - from) * clamp(t, 0, 1)
+    end
+    self:setRotation(lerp(self:getRotation(),self.logicRat,0.067))
+    self:setPosition(cc.pLerp(cc.p(self:getPosition()),cc.p(self.logicPos.x/1000,self.logicPos.y/1000),0.067))
 end
 
 function NodeEntity:fireBullet()
