@@ -160,6 +160,7 @@ function SceneMain:onEventData(INdata)
         local dataInfo = protobuf.decode("pb_common.data_ope_frames", INdata.data)
         protobuf.extract(dataInfo)
         self.lastedFrameId = dataInfo.frameid
+        if self.currentFrameId > dataInfo.frameid then return end
         self.logicFrames[dataInfo.frameid] = dataInfo.frames
     end
 end
@@ -231,11 +232,24 @@ end
 function SceneMain:tickLogic(dt)
     if not self.begin then return end
     if self.entity then self.entity:capturePlayerOpts() end
-    local frameid = self.currentFrameId + 1
-    if not self.logicFrames[frameid] then return end
+    local frameid = self.currentFrameId
+    if not self.logicFrames[frameid] then
+        if frameid < self.lastedFrameId then
+            local pData = protobuf.encode('pb_common.data_repair_frame', {
+                userid = self.token,
+                frameid = frameid
+            })
+            self:sendData(protobuf.enum_id("pb_common.protocol_code","protocol_repair_frame"),pData)
+        end
+        return
+    end
     for k,v in pairs(self.logicFrames[frameid]) do
-        for i=1,#v.opecode do
-            self.entities[k]:applyInput(frameid, v.opecode[i])
+        local total = #v.opecode
+        for i=1,total do
+            self.entities[v.userid]:applyInput(frameid, v.opecode[i])
+            if i ~= total then
+                self.entities[v.userid]:logicUpdate()
+            end
         end
     end
     for k,v in pairs(self.entities) do

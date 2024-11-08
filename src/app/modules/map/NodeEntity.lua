@@ -70,7 +70,7 @@ function NodeEntity:capturePlayerOpts()
         opecode = self.opeCode
     }))
     self.lastOpeCode = self.opeCode
-    print(string.format("input frameid:%d opeCode:%d",self.parent.currentFrameId,self.opeCode))
+    --print(string.format("input frameid:%d opeCode:%d",self.parent.currentFrameId,self.opeCode))
 end
 
 function NodeEntity:setToken(INtoken)
@@ -78,12 +78,15 @@ function NodeEntity:setToken(INtoken)
 end
 
 function NodeEntity:applyInput(INframe,INopeCode)
+    if self.frameid > INframe then return end
     local ahead, rotation = 0, 0
     if bit._and(INopeCode,0x01) > 0 then ahead = ahead + 1 end
     if bit._and(INopeCode,0x02) > 0 then ahead = ahead - 1 end
     if bit._and(INopeCode,0x04) > 0 then rotation = rotation - 1 end
     if bit._and(INopeCode,0x08) > 0 then rotation = rotation + 1 end
     self.ahead, self.rotation = ahead, rotation
+    self.frameid = INframe
+    --print(string.format("client %d apply frameid:%d opeCode:%d",self.token,INframe,INopeCode))
 end
 
 function NodeEntity:logicUpdate(dt)

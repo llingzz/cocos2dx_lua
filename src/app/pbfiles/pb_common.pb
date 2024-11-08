@@ -1,5 +1,5 @@
 
-þ
+à
 pb_common.proto	pb_common"l
 	data_head#
 protocol_code (RprotocolCode
@@ -25,9 +25,13 @@ data_frame
 opecode (Ropecode"Z
 data_ope_frames
 frameid (Rframeid-
-frames (2.pb_common.data_frameRframes*c
+frames (2.pb_common.data_frameRframes"E
+data_repair_frame
+userid (Ruserid
+frameid (Rframeid*~
 protocol_code
 protocol_user_info
 protocol_ready
 protocol_begin
-protocol_frame
+protocol_frame
+protocol_repair_frame
