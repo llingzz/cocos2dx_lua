@@ -6,7 +6,7 @@
 注意：调试时请删除simulator\win32/resource文件夹，否则无法正常进入断点
 
 pbc支持
-1. https://github.com/cloudwu/pbc下载源码，解压放入frameworks\cocos2d-x\external下
+1. https://github.com/cloudwu/pbc 下载源码，解压放入frameworks\cocos2d-x\external下
 2. libcocos2d筛选器external下新建pbc目录，添加pbc源码src目录下的文件和pbc.h
 3. libcocos2d导出为dll，对pbc.h修改：
 1)#include "platform/CCPlatformMacros.h"
@@ -105,7 +105,7 @@ local dataInfo = protobuf.decode("Module.MESSAGE1", pData)
 protobuf.extract(dataInfo)
 
 fairy-gui支持
-1.https://github.com/fairygui/FairyGUI-cocos2dx获取源码
+1.https://github.com/fairygui/FairyGUI-cocos2dx 获取源码
 2.将libfairygui下文件加放入到D:\Work\Client\Cocos2dx\cocos2dx_lua\frameworks\cocos2d-x\cocos\editor-support\下
 3.调整libfairygui.vcxproj
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
