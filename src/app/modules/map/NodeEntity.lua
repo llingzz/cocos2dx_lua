@@ -28,9 +28,12 @@ function NodeEntity:ctor(INparent)
     self.frameid = 0
     self.opeCode = 0x00
     self.lastOpeCode = 0x00
+    self.syncOpeCode = 0x00
 
     self.logicRat = 0
     self.logicPos = cc.p(display.cx*1000,display.cy*1000)
+    self.predictRat = 0
+    self.predictPos = cc.p(display.cx*1000,display.cy*1000)
 end
 
 function NodeEntity:onExit()
@@ -70,23 +73,37 @@ function NodeEntity:capturePlayerOpts()
         opecode = self.opeCode
     }))
     self.lastOpeCode = self.opeCode
-    --print(string.format("input frameid:%d opeCode:%d",self.parent.currentFrameId,self.opeCode))
 end
 
 function NodeEntity:setToken(INtoken)
     self.token = INtoken or -1
 end
 
-function NodeEntity:applyInput(INframe,INopeCode)
-    if self.frameid > INframe then return end
+function NodeEntity:convertOpeCode(INopeCode)
     local ahead, rotation = 0, 0
     if bit._and(INopeCode,0x01) > 0 then ahead = ahead + 1 end
     if bit._and(INopeCode,0x02) > 0 then ahead = ahead - 1 end
     if bit._and(INopeCode,0x04) > 0 then rotation = rotation - 1 end
     if bit._and(INopeCode,0x08) > 0 then rotation = rotation + 1 end
-    self.ahead, self.rotation = ahead, rotation
+    return ahead, rotation
+end
+
+function NodeEntity:applyInput(INframe,INopeCode)
+    if self.frameid > INframe then return end
+    self.ahead, self.rotation = self:convertOpeCode(INopeCode)
     self.frameid = INframe
-    --print(string.format("client %d apply frameid:%d opeCode:%d",self.token,INframe,INopeCode))
+    self.syncOpeCode = INopeCode
+end
+
+function NodeEntity:predictUpdate(INahead,INrotation)
+    if INrotation ~= 0 then
+        self.predictRat = self.predictRat + INrotation*15
+    end
+    if INahead ~= 0 then
+        local dir = dir_table[math.round(self.predictRat%360)]
+        self.predictPos.x = self.predictPos.x + dir.x*INahead*200
+        self.predictPos.y = self.predictPos.y + dir.y*INahead*200
+    end
 end
 
 function NodeEntity:logicUpdate(dt)
@@ -112,8 +129,10 @@ function NodeEntity:renderUpdate(dt)
     local function lerp(from, to, t)
         return from + (to - from) * clamp(t, 0, 1)
     end
-    self:setRotation(lerp(self:getRotation(),self.logicRat,0.067))
-    self:setPosition(cc.pLerp(cc.p(self:getPosition()),cc.p(self.logicPos.x/1000,self.logicPos.y/1000),0.067))
+    self:setRotation(lerp(self:getRotation(),self.predictRat,0.067))
+    self:setPosition(cc.pLerp(cc.p(self:getPosition()),cc.p(self.predictPos.x/1000,self.predictPos.y/1000),0.067))
+    -- self:setRotation(lerp(self:getRotation(),self.logicRat,0.067))
+    -- self:setPosition(cc.pLerp(cc.p(self:getPosition()),cc.p(self.logicPos.x/1000,self.logicPos.y/1000),0.067))
 end
 
 function NodeEntity:fireBullet()

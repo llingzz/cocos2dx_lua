@@ -63,6 +63,9 @@ extern data_beginDefaultTypeInternal _data_begin_default_instance_;
 class data_frame;
 struct data_frameDefaultTypeInternal;
 extern data_frameDefaultTypeInternal _data_frame_default_instance_;
+class data_frames;
+struct data_framesDefaultTypeInternal;
+extern data_framesDefaultTypeInternal _data_frames_default_instance_;
 class data_head;
 struct data_headDefaultTypeInternal;
 extern data_headDefaultTypeInternal _data_head_default_instance_;
@@ -362,7 +365,7 @@ class data_repair_frame final :
                &_data_repair_frame_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    7;
+    8;
 
   friend void swap(data_repair_frame& a, data_repair_frame& b) {
     a.Swap(&b);
@@ -1671,6 +1674,189 @@ class data_ope_frames final :
   };
   union { Impl_ _impl_; };
   friend struct ::TableStruct_pb_5fcommon_2eproto;
+};// -------------------------------------------------------------------
+
+class data_frames final :
+    public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pb_common.data_frames) */ {
+ public:
+  inline data_frames() : data_frames(nullptr) {}
+  ~data_frames() override;
+  template<typename = void>
+  explicit PROTOBUF_CONSTEXPR data_frames(::google::protobuf::internal::ConstantInitialized);
+
+  inline data_frames(const data_frames& from)
+      : data_frames(nullptr, from) {}
+  data_frames(data_frames&& from) noexcept
+    : data_frames() {
+    *this = ::std::move(from);
+  }
+
+  inline data_frames& operator=(const data_frames& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline data_frames& operator=(data_frames&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetArena() == from.GetArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const data_frames& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const data_frames* internal_default_instance() {
+    return reinterpret_cast<const data_frames*>(
+               &_data_frames_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    7;
+
+  friend void swap(data_frames& a, data_frames& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(data_frames* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() != nullptr &&
+        GetArena() == other->GetArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() == other->GetArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(data_frames* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  data_frames* New(::google::protobuf::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<data_frames>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const data_frames& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom( const data_frames& from) {
+    data_frames::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  ::size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::google::protobuf::internal::ParseContext* ctx) final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target, ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  ::google::protobuf::internal::CachedSize* AccessCachedSize() const final;
+  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedDtor();
+  void InternalSwap(data_frames* other);
+
+  private:
+  friend class ::google::protobuf::internal::AnyMetadata;
+  static ::absl::string_view FullMessageName() {
+    return "pb_common.data_frames";
+  }
+  protected:
+  explicit data_frames(::google::protobuf::Arena* arena);
+  data_frames(::google::protobuf::Arena* arena, const data_frames& from);
+  public:
+
+  static const ClassData _class_data_;
+  const ::google::protobuf::Message::ClassData*GetClassData() const final;
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kFramesFieldNumber = 1,
+  };
+  // repeated .pb_common.data_ope_frames frames = 1;
+  int frames_size() const;
+  private:
+  int _internal_frames_size() const;
+
+  public:
+  void clear_frames() ;
+  ::pb_common::data_ope_frames* mutable_frames(int index);
+  ::google::protobuf::RepeatedPtrField< ::pb_common::data_ope_frames >*
+      mutable_frames();
+  private:
+  const ::google::protobuf::RepeatedPtrField<::pb_common::data_ope_frames>& _internal_frames() const;
+  ::google::protobuf::RepeatedPtrField<::pb_common::data_ope_frames>* _internal_mutable_frames();
+  public:
+  const ::pb_common::data_ope_frames& frames(int index) const;
+  ::pb_common::data_ope_frames* add_frames();
+  const ::google::protobuf::RepeatedPtrField< ::pb_common::data_ope_frames >&
+      frames() const;
+  // @@protoc_insertion_point(class_scope:pb_common.data_frames)
+ private:
+  class _Internal;
+
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      0, 1, 1,
+      0, 2>
+      _table_;
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+
+        inline explicit constexpr Impl_(
+            ::google::protobuf::internal::ConstantInitialized) noexcept;
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena);
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena, const Impl_& from);
+    ::google::protobuf::RepeatedPtrField< ::pb_common::data_ope_frames > frames_;
+    mutable ::google::protobuf::internal::CachedSize _cached_size_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_pb_5fcommon_2eproto;
 };
 
 // ===================================================================
@@ -2199,6 +2385,59 @@ data_ope_frames::_internal_frames() const {
 }
 inline ::google::protobuf::RepeatedPtrField<::pb_common::data_frame>*
 data_ope_frames::_internal_mutable_frames() {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return &_impl_.frames_;
+}
+
+// -------------------------------------------------------------------
+
+// data_frames
+
+// repeated .pb_common.data_ope_frames frames = 1;
+inline int data_frames::_internal_frames_size() const {
+  return _internal_frames().size();
+}
+inline int data_frames::frames_size() const {
+  return _internal_frames_size();
+}
+inline void data_frames::clear_frames() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.frames_.Clear();
+}
+inline ::pb_common::data_ope_frames* data_frames::mutable_frames(int index)
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable:pb_common.data_frames.frames)
+  return _internal_mutable_frames()->Mutable(index);
+}
+inline ::google::protobuf::RepeatedPtrField<::pb_common::data_ope_frames>* data_frames::mutable_frames()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable_list:pb_common.data_frames.frames)
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  return _internal_mutable_frames();
+}
+inline const ::pb_common::data_ope_frames& data_frames::frames(int index) const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:pb_common.data_frames.frames)
+  return _internal_frames().Get(index);
+}
+inline ::pb_common::data_ope_frames* data_frames::add_frames() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ::pb_common::data_ope_frames* _add = _internal_mutable_frames()->Add();
+  // @@protoc_insertion_point(field_add:pb_common.data_frames.frames)
+  return _add;
+}
+inline const ::google::protobuf::RepeatedPtrField<::pb_common::data_ope_frames>& data_frames::frames() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_list:pb_common.data_frames.frames)
+  return _internal_frames();
+}
+inline const ::google::protobuf::RepeatedPtrField<::pb_common::data_ope_frames>&
+data_frames::_internal_frames() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.frames_;
+}
+inline ::google::protobuf::RepeatedPtrField<::pb_common::data_ope_frames>*
+data_frames::_internal_mutable_frames() {
   PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
   return &_impl_.frames_;
 }

@@ -47,10 +47,13 @@ function SceneMain:ctor()
     self.entity = nil
     self.entities = {}
     self.begin = false
+    self.standalone = false
 
     self.lastedFrameId = 0
     self.currentFrameId = 0
     self.logicFrames = {}
+    self.predictFrames = {}
+    self.predictFrameId = 0
 
     local keyBoardListener = cc.EventListenerKeyboard:create()
     keyBoardListener:registerScriptHandler(handler(self,self.onKeyEventPressed), cc.Handler.EVENT_KEYBOARD_PRESSED)
@@ -144,7 +147,7 @@ function SceneMain:onEventData(INdata)
             self.entities[self.token] = self.entity
             self:sendUdpData(protobuf.encode('pb_common.data_ope', {
                 userid = self.token,
-                frameid = 1,
+                frameid = -1,
                 opecode = 0x00
             }))
         elseif protobuf.enum_id("pb_common.protocol_code","protocol_begin") == INdata.data.protocol_code then
@@ -157,11 +160,14 @@ function SceneMain:onEventData(INdata)
             self.begin = true
         end
     elseif "udp" == INdata.type then
-        local dataInfo = protobuf.decode("pb_common.data_ope_frames", INdata.data)
+        local dataInfo = protobuf.decode("pb_common.data_frames", INdata.data)
         protobuf.extract(dataInfo)
-        self.lastedFrameId = dataInfo.frameid
-        if self.currentFrameId > dataInfo.frameid then return end
-        self.logicFrames[dataInfo.frameid] = dataInfo.frames
+        for i=1,#dataInfo.frames do
+            if self.lastedFrameId < dataInfo.frames[i].frameid then self.lastedFrameId = dataInfo.frames[i].frameid end
+            if self.currentFrameId <= dataInfo.frames[i].frameid then
+                self.logicFrames[dataInfo.frames[i].frameid] = clone(dataInfo.frames[i].frames)
+            end
+        end
     end
 end
 
@@ -187,15 +193,15 @@ function SceneMain:onKeyEventPressed(INkey,INrender)
         self:sendData(protobuf.enum_id("pb_common.protocol_code","protocol_ready"),pData)
     end
     if INkey == cc.KeyCode.KEY_P then
-        local data = protobuf.encode('pb_common.req_test', {
-            n1 = 606224,
-            s1 = "hello world!",
-            arr = {1,2,3,3}
-        })
-        self:sendData(0,data)
-    end
-    if INkey == cc.KeyCode.KEY_U then
-        self.udp:send(tostring(os.time()))
+        self.begin = true
+        self.standalone = true
+        local HandlerEntity = require "src.app.modules.map.NodeEntity"
+        self.entity = HandlerEntity.new(self)
+        self.entity:addTo(self)
+        self.entity:setPosition(cc.p(display.cx,display.cy))
+        self.entity:setToken(1)
+        self.token = 1
+        self.entities[1] = self.entity
     end
     if self.entity then self.entity:getKeyboardEvent("onKeyEventPressed",INkey) end
 end
@@ -233,6 +239,19 @@ function SceneMain:tickLogic(dt)
     if not self.begin then return end
     if self.entity then self.entity:capturePlayerOpts() end
     local frameid = self.currentFrameId
+    local predictAheadFrame = 1
+    if frameid + predictAheadFrame >= self.predictFrameId and not self.predictFrames[self.predictFrameId] then
+        self.predictFrames[self.predictFrameId] = {}
+        for k,v in pairs(self.entities) do
+            local opeCode = v.syncOpeCode
+            if k==self.token then opeCode = v.opeCode end
+            self.predictFrames[self.predictFrameId][k] = {opecode=opeCode}
+            v:predictUpdate(v:convertOpeCode(opeCode))
+            print(string.format("predict userid %d frameid %d opecode %d logic:[%d][%d:%d] predict:[%d][%d:%d]",k,self.predictFrameId,opeCode,v.logicRat,v.logicPos.x,v.logicPos.y,v.predictRat,v.predictPos.x,v.predictPos.y))
+        end
+        self.predictFrameId = self.predictFrameId + 1
+    end
+    if self.standalone then return end
     if not self.logicFrames[frameid] then
         if frameid < self.lastedFrameId then
             local pData = protobuf.encode('pb_common.data_repair_frame', {
@@ -252,9 +271,19 @@ function SceneMain:tickLogic(dt)
             end
         end
     end
+    local predict = self.predictFrames[frameid]
     for k,v in pairs(self.entities) do
         v:logicUpdate()
+        if predict and predict[k] then
+            if v.syncOpeCode ~= predict[k].opecode then
+                v.predictRat = clone(v.logicRat)
+                v.predictPos = clone(v.logicPos)
+                v:predictUpdate(v:convertOpeCode(v.syncOpeCode))
+                print(string.format("rollback userid %d frameid %d opecode %d %d logic:[%d][%d:%d] predict:[%d][%d:%d]",k,frameid,predict[k].opecode,v.syncOpeCode,v.logicRat,v.logicPos.x,v.logicPos.y,v.predictRat,v.predictPos.x,v.predictPos.y))
+            end
+        end
     end
+    table.remove(self.predictFrames,frameid)
     self.currentFrameId = self.currentFrameId + 1
 end
 

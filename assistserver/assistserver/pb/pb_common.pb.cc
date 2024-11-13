@@ -183,8 +183,27 @@ struct data_ope_framesDefaultTypeInternal {
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 data_ope_framesDefaultTypeInternal _data_ope_frames_default_instance_;
+
+inline constexpr data_frames::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : frames_{},
+        _cached_size_{0} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR data_frames::data_frames(::_pbi::ConstantInitialized)
+    : _impl_(::_pbi::ConstantInitialized()) {}
+struct data_framesDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR data_framesDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~data_framesDefaultTypeInternal() {}
+  union {
+    data_frames _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 data_framesDefaultTypeInternal _data_frames_default_instance_;
 }  // namespace pb_common
-static ::_pb::Metadata file_level_metadata_pb_5fcommon_2eproto[8];
+static ::_pb::Metadata file_level_metadata_pb_5fcommon_2eproto[9];
 static const ::_pb::EnumDescriptor* file_level_enum_descriptors_pb_5fcommon_2eproto[1];
 static constexpr const ::_pb::ServiceDescriptor**
     file_level_service_descriptors_pb_5fcommon_2eproto = nullptr;
@@ -274,6 +293,15 @@ const ::uint32_t TableStruct_pb_5fcommon_2eproto::offsets[] PROTOBUF_SECTION_VAR
     PROTOBUF_FIELD_OFFSET(::pb_common::data_ope_frames, _impl_.frames_),
     0,
     ~0u,
+    ~0u,  // no _has_bits_
+    PROTOBUF_FIELD_OFFSET(::pb_common::data_frames, _internal_metadata_),
+    ~0u,  // no _extensions_
+    ~0u,  // no _oneof_case_
+    ~0u,  // no _weak_field_map_
+    ~0u,  // no _inlined_string_donated_
+    ~0u,  // no _split_
+    ~0u,  // no sizeof(Split)
+    PROTOBUF_FIELD_OFFSET(::pb_common::data_frames, _impl_.frames_),
     PROTOBUF_FIELD_OFFSET(::pb_common::data_repair_frame, _impl_._has_bits_),
     PROTOBUF_FIELD_OFFSET(::pb_common::data_repair_frame, _internal_metadata_),
     ~0u,  // no _extensions_
@@ -297,7 +325,8 @@ static const ::_pbi::MigrationSchema
         {46, 57, -1, sizeof(::pb_common::data_ope)},
         {60, 70, -1, sizeof(::pb_common::data_frame)},
         {72, 82, -1, sizeof(::pb_common::data_ope_frames)},
-        {84, 94, -1, sizeof(::pb_common::data_repair_frame)},
+        {84, -1, -1, sizeof(::pb_common::data_frames)},
+        {93, 103, -1, sizeof(::pb_common::data_repair_frame)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -308,6 +337,7 @@ static const ::_pb::Message* const file_default_instances[] = {
     &::pb_common::_data_ope_default_instance_._instance,
     &::pb_common::_data_frame_default_instance_._instance,
     &::pb_common::_data_ope_frames_default_instance_._instance,
+    &::pb_common::_data_frames_default_instance_._instance,
     &::pb_common::_data_repair_frame_default_instance_._instance,
 };
 const char descriptor_table_protodef_pb_5fcommon_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
@@ -321,23 +351,25 @@ const char descriptor_table_protodef_pb_5fcommon_2eproto[] PROTOBUF_SECTION_VARI
     "de\030\003 \001(\005\"-\n\ndata_frame\022\016\n\006userid\030\001 \001(\005\022\017"
     "\n\007opecode\030\002 \003(\005\"I\n\017data_ope_frames\022\017\n\007fr"
     "ameid\030\001 \001(\005\022%\n\006frames\030\002 \003(\0132\025.pb_common."
-    "data_frame\"4\n\021data_repair_frame\022\016\n\006useri"
-    "d\030\001 \001(\005\022\017\n\007frameid\030\002 \001(\005*~\n\rprotocol_cod"
-    "e\022\026\n\022protocol_user_info\020\001\022\022\n\016protocol_re"
-    "ady\020\002\022\022\n\016protocol_begin\020\003\022\022\n\016protocol_fr"
-    "ame\020\004\022\031\n\025protocol_repair_frame\020\005"
+    "data_frame\"9\n\013data_frames\022*\n\006frames\030\001 \003("
+    "\0132\032.pb_common.data_ope_frames\"4\n\021data_re"
+    "pair_frame\022\016\n\006userid\030\001 \001(\005\022\017\n\007frameid\030\002 "
+    "\001(\005*~\n\rprotocol_code\022\026\n\022protocol_user_in"
+    "fo\020\001\022\022\n\016protocol_ready\020\002\022\022\n\016protocol_beg"
+    "in\020\003\022\022\n\016protocol_frame\020\004\022\031\n\025protocol_rep"
+    "air_frame\020\005"
 };
 static ::absl::once_flag descriptor_table_pb_5fcommon_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_pb_5fcommon_2eproto = {
     false,
     false,
-    592,
+    651,
     descriptor_table_protodef_pb_5fcommon_2eproto,
     "pb_common.proto",
     &descriptor_table_pb_5fcommon_2eproto_once,
     nullptr,
     0,
-    8,
+    9,
     schemas,
     file_default_instances,
     TableStruct_pb_5fcommon_2eproto::offsets,
@@ -1927,6 +1959,189 @@ void data_ope_frames::InternalSwap(data_ope_frames* PROTOBUF_RESTRICT other) {
 }
 // ===================================================================
 
+class data_frames::_Internal {
+ public:
+};
+
+data_frames::data_frames(::google::protobuf::Arena* arena)
+    : ::google::protobuf::Message(arena) {
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:pb_common.data_frames)
+}
+inline PROTOBUF_NDEBUG_INLINE data_frames::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
+    const Impl_& from)
+      : frames_{visibility, arena, from.frames_},
+        _cached_size_{0} {}
+
+data_frames::data_frames(
+    ::google::protobuf::Arena* arena,
+    const data_frames& from)
+    : ::google::protobuf::Message(arena) {
+  data_frames* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_);
+
+  // @@protoc_insertion_point(copy_constructor:pb_common.data_frames)
+}
+inline PROTOBUF_NDEBUG_INLINE data_frames::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* arena)
+      : frames_{visibility, arena},
+        _cached_size_{0} {}
+
+inline void data_frames::SharedCtor(::_pb::Arena* arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+}
+data_frames::~data_frames() {
+  // @@protoc_insertion_point(destructor:pb_common.data_frames)
+  _internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  SharedDtor();
+}
+inline void data_frames::SharedDtor() {
+  ABSL_DCHECK(GetArena() == nullptr);
+  _impl_.~Impl_();
+}
+
+PROTOBUF_NOINLINE void data_frames::Clear() {
+// @@protoc_insertion_point(message_clear_start:pb_common.data_frames)
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.frames_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+const char* data_frames::_InternalParse(
+    const char* ptr, ::_pbi::ParseContext* ctx) {
+  ptr = ::_pbi::TcParser::ParseLoop(this, ptr, ctx, &_table_.header);
+  return ptr;
+}
+
+
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<0, 1, 1, 0, 2> data_frames::_table_ = {
+  {
+    0,  // no _has_bits_
+    0, // no _extensions_
+    1, 0,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967294,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    1,  // num_field_entries
+    1,  // num_aux_entries
+    offsetof(decltype(_table_), aux_entries),
+    &_data_frames_default_instance_._instance,
+    ::_pbi::TcParser::GenericFallback,  // fallback
+  }, {{
+    // repeated .pb_common.data_ope_frames frames = 1;
+    {::_pbi::TcParser::FastMtR1,
+     {10, 63, 0, PROTOBUF_FIELD_OFFSET(data_frames, _impl_.frames_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // repeated .pb_common.data_ope_frames frames = 1;
+    {PROTOBUF_FIELD_OFFSET(data_frames, _impl_.frames_), 0, 0,
+    (0 | ::_fl::kFcRepeated | ::_fl::kMessage | ::_fl::kTvTable)},
+  }}, {{
+    {::_pbi::TcParser::GetTable<::pb_common::data_ope_frames>()},
+  }}, {{
+  }},
+};
+
+::uint8_t* data_frames::_InternalSerialize(
+    ::uint8_t* target,
+    ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:pb_common.data_frames)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  // repeated .pb_common.data_ope_frames frames = 1;
+  for (unsigned i = 0,
+      n = static_cast<unsigned>(this->_internal_frames_size()); i < n; i++) {
+    const auto& repfield = this->_internal_frames().Get(i);
+    target = ::google::protobuf::internal::WireFormatLite::
+        InternalWriteMessage(1, repfield, repfield.GetCachedSize(), target, stream);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:pb_common.data_frames)
+  return target;
+}
+
+::size_t data_frames::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:pb_common.data_frames)
+  ::size_t total_size = 0;
+
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // repeated .pb_common.data_ope_frames frames = 1;
+  total_size += 1UL * this->_internal_frames_size();
+  for (const auto& msg : this->_internal_frames()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormatLite::MessageSize(msg);
+  }
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
+}
+
+const ::google::protobuf::Message::ClassData data_frames::_class_data_ = {
+    data_frames::MergeImpl,
+    nullptr,  // OnDemandRegisterArenaDtor
+};
+const ::google::protobuf::Message::ClassData* data_frames::GetClassData() const {
+  return &_class_data_;
+}
+
+void data_frames::MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg) {
+  auto* const _this = static_cast<data_frames*>(&to_msg);
+  auto& from = static_cast<const data_frames&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:pb_common.data_frames)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  _this->_internal_mutable_frames()->MergeFrom(
+      from._internal_frames());
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void data_frames::CopyFrom(const data_frames& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:pb_common.data_frames)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+PROTOBUF_NOINLINE bool data_frames::IsInitialized() const {
+  return true;
+}
+
+::_pbi::CachedSize* data_frames::AccessCachedSize() const {
+  return &_impl_._cached_size_;
+}
+void data_frames::InternalSwap(data_frames* PROTOBUF_RESTRICT other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  _impl_.frames_.InternalSwap(&other->_impl_.frames_);
+}
+
+::google::protobuf::Metadata data_frames::GetMetadata() const {
+  return ::_pbi::AssignDescriptors(
+      &descriptor_table_pb_5fcommon_2eproto_getter, &descriptor_table_pb_5fcommon_2eproto_once,
+      file_level_metadata_pb_5fcommon_2eproto[7]);
+}
+// ===================================================================
+
 class data_repair_frame::_Internal {
  public:
   using HasBits = decltype(std::declval<data_repair_frame>()._impl_._has_bits_);
@@ -2149,7 +2364,7 @@ void data_repair_frame::InternalSwap(data_repair_frame* PROTOBUF_RESTRICT other)
 ::google::protobuf::Metadata data_repair_frame::GetMetadata() const {
   return ::_pbi::AssignDescriptors(
       &descriptor_table_pb_5fcommon_2eproto_getter, &descriptor_table_pb_5fcommon_2eproto_once,
-      file_level_metadata_pb_5fcommon_2eproto[7]);
+      file_level_metadata_pb_5fcommon_2eproto[8]);
 }
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace pb_common
