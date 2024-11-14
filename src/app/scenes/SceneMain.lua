@@ -54,6 +54,7 @@ function SceneMain:ctor()
     self.logicFrames = {}
     self.predictFrames = {}
     self.predictFrameId = 0
+    self.predictAheadFrameCount = 1
 
     local keyBoardListener = cc.EventListenerKeyboard:create()
     keyBoardListener:registerScriptHandler(handler(self,self.onKeyEventPressed), cc.Handler.EVENT_KEYBOARD_PRESSED)
@@ -239,8 +240,7 @@ function SceneMain:tickLogic(dt)
     if not self.begin then return end
     if self.entity then self.entity:capturePlayerOpts() end
     local frameid = self.currentFrameId
-    local predictAheadFrame = 1
-    if frameid + predictAheadFrame >= self.predictFrameId and not self.predictFrames[self.predictFrameId] then
+    if (self.standalone or frameid + self.predictAheadFrameCount >= self.predictFrameId) and not self.predictFrames[self.predictFrameId] then
         self.predictFrames[self.predictFrameId] = {}
         for k,v in pairs(self.entities) do
             local opeCode = v.syncOpeCode

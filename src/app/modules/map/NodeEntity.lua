@@ -52,10 +52,7 @@ function NodeEntity:getKeyboardEvent(INType,INeventCode)
         if cc.KeyCode.KEY_S == INeventCode then self.opeCode = bit._or(self.opeCode,0x02) end
         if cc.KeyCode.KEY_A == INeventCode then self.opeCode = bit._or(self.opeCode,0x04) end
         if cc.KeyCode.KEY_D == INeventCode then self.opeCode = bit._or(self.opeCode,0x08) end
-        if cc.KeyCode.KEY_SPACE == INeventCode then
-            self:fireBullet()
-            self.opeCode = bit._or(self.opeCode,0x10)
-        end
+        if cc.KeyCode.KEY_SPACE == INeventCode then self.opeCode = bit._or(self.opeCode,0x10) end
     elseif "onKeyEventReleased" == INType then
         if cc.KeyCode.KEY_W == INeventCode then self.opeCode = bit._and(self.opeCode,0xfe) end
         if cc.KeyCode.KEY_S == INeventCode then self.opeCode = bit._and(self.opeCode,0xfd) end
@@ -117,6 +114,9 @@ function NodeEntity:logicUpdate(dt)
         self.logicPos.y = self.logicPos.y + dir.y*self.ahead*200
         --print(string.format("logicPox.x %d logicPos.y %d",self.logicPos.x,self.logicPos.y))
     end
+    if bit._and(self.syncOpeCode,0x10) > 0 then
+        self:fireBullet()
+    end
 end
 
 function NodeEntity:renderUpdate(dt)
@@ -136,6 +136,9 @@ function NodeEntity:renderUpdate(dt)
 end
 
 function NodeEntity:fireBullet()
+    if not self.lastFire then self.lastFire = socket.gettime() - 1 end
+    if socket.gettime() - self.lastFire <= 0.3 then return end
+    self.lastFire = socket.gettime()
     local HandlerBullet = require "app.modules.map.NodeBullet"
     local bullet = HandlerBullet.new(self:getRotation())
     bullet:addTo(self.parent)
