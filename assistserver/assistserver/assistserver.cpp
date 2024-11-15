@@ -17,7 +17,7 @@ class server;
 class session : public std::enable_shared_from_this<session>
 {
 public:
-    session(std::shared_ptr<asio::ip::tcp::socket> socket, asio::io_service::strand strand, LONG token, std::function<void(LONG)> cbRemove, std::function<void(LONG,int,const std::string&)> cbHandleData) :
+    session(std::shared_ptr<tcp::socket> socket, asio::io_service::strand strand, LONG token, std::function<void(LONG)> cbRemove, std::function<void(LONG,int,const std::string&)> cbHandleData) :
         socket_(socket),
         strand_(strand),
         tokenid(token),
@@ -36,13 +36,14 @@ public:
 
     void close() {
         asio::error_code ignored_ec;
-        (*socket_).shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
+        (*socket_).shutdown(tcp::socket::shutdown_both, ignored_ec);
         (*socket_).close();
         if (m_cbRemove) {
             m_cbRemove(tokenid);
         }
     }
 
+    /*协议格式：数据长度(4字节)|数据*/
     void send(int protocol, const std::string& data) {
         pb_common::data_head pb_head;
         pb_head.set_protocol_code(protocol);
@@ -128,7 +129,7 @@ public:
     bool ready;
     bool inGame;
     LONG tokenid;
-    std::shared_ptr<asio::ip::tcp::socket> socket_;
+    std::shared_ptr<tcp::socket> socket_;
     asio::io_service::strand strand_;
     enum { max_length = 1024, head = 4 };
     char data_[max_length];
@@ -138,7 +139,6 @@ public:
     std::function<void(LONG,int,const std::string&)> m_cbHandleData;
 };
 
-/*协议格式：数据长度(4字节)|数据*/
 class server
 {
 public:
@@ -169,11 +169,11 @@ public:
         );
 
         m_pAcceptor = std::make_unique<tcp::acceptor>(*m_pContext);
-        asio::ip::tcp::resolver resolver(*m_pContext);
-        auto query = asio::ip::tcp::resolver::query(strIp, std::to_string(port));
-        asio::ip::tcp::endpoint endpoint(*resolver.resolve(query));
+        tcp::resolver resolver(*m_pContext);
+        auto query = tcp::resolver::query(strIp, std::to_string(port));
+        tcp::endpoint endpoint(*resolver.resolve(query));
         m_pAcceptor->open(endpoint.protocol());
-        m_pAcceptor->set_option(asio::ip::tcp::acceptor::reuse_address(TRUE));
+        m_pAcceptor->set_option(tcp::acceptor::reuse_address(TRUE));
         m_pAcceptor->bind(endpoint);
         m_pAcceptor->listen();
         for (auto i = 0; i < 10; ++i) {
@@ -183,7 +183,7 @@ public:
 
     void do_accept()
     {
-        auto socket_ = std::make_shared<asio::ip::tcp::socket>(*m_pContext);
+        auto socket_ = std::make_shared<tcp::socket>(*m_pContext);
         m_pAcceptor->async_accept(*socket_,
             [this,socket_](asio::error_code ec)
             {
@@ -275,9 +275,9 @@ public:
         server(strIp, tcp_port, std::bind(&gameserver::handle_tcp_data, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)), game_start(false), currentFrame(0)
     {
         m_udpServer = std::make_unique<udp_server>(*m_pContext, udp_port, std::bind(&gameserver::handle_udp_data, this, std::placeholders::_1, std::placeholders::_2));
-        auto fps = 1000 / 15;
         m_pThread = std::make_unique<std::thread>(
             [=]() {
+                auto fps = 1000 / 15;
                 while (true) {
                     std::this_thread::sleep_for(std::chrono::milliseconds(fps));
                     if (!game_start) {
@@ -332,9 +332,12 @@ public:
                                     }
                                 }
                             }
-                            auto data = frames.SerializeAsString();
+                            pb_common::data_head pb_head;
+                            pb_head.set_protocol_code(pb_common::protocol_code::protocol_frame);
+                            pb_head.set_data_len(frames.ByteSizeLong());
+                            pb_head.set_data_str(frames.SerializeAsString());
                             if (m_udpServer) {
-                                m_udpServer->send_data(data, iter.second);
+                                m_udpServer->send_data(pb_head.SerializeAsString(), iter.second);
                             }
                         }
                     }
@@ -386,15 +389,25 @@ public:
 
     void handle_udp_data(const std::string& data, const udp::endpoint& ed)
     {
-        pb_common::data_ope frame;
-        if (!frame.ParseFromString(data)) { return; }
-        auto userid = frame.userid();
-        auto frameid = frame.frameid();
-        auto opecode = frame.opecode();
-        std::lock_guard<std::mutex> lk(lock_frames);
-        udp_sessions[userid] = ed;
-        frames_[currentFrame][userid].insert(std::make_pair(frameid, std::move(frame)));
-        printf_s("recv userid %d frameid %d frameid_svr %d opecode %d\n", userid, frameid, currentFrame, opecode);
+        pb_common::data_head head;
+        if (!head.ParsePartialFromString(data)) { return; }
+        switch (head.protocol_code()) {
+        case pb_common::protocol_code::protocol_frame:
+        {
+            pb_common::data_ope frame;
+            if (!frame.ParseFromString(head.data_str())) { return; }
+            auto userid = frame.userid();
+            auto frameid = frame.frameid();
+            auto opecode = frame.opecode();
+            std::lock_guard<std::mutex> lk(lock_frames);
+            udp_sessions[userid] = ed;
+            frames_[currentFrame][userid].insert(std::make_pair(frameid, std::move(frame)));
+            printf_s("recv userid %d frameid %d frameid_svr %d opecode %d\n", userid, frameid, currentFrame, opecode);
+            break;
+        }
+        default:
+            break;
+        }
     }
 
 public:

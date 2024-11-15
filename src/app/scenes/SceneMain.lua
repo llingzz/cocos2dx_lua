@@ -117,7 +117,9 @@ end
 function SceneMain:onEventUdpData(INdata)
     if not INdata then return end
     self.index = self.index + 1
-    coroutine.resume(self.co, self.index, {type="udp",data=INdata.data})
+    local dataInfo = protobuf.decode("pb_common.data_head", INdata.data)
+    protobuf.extract(dataInfo)
+    coroutine.resume(self.co, self.index, {type="udp",data=dataInfo})
 end
 
 function SceneMain:onEventTcpData(INdata)
@@ -146,7 +148,7 @@ function SceneMain:onEventData(INdata)
             self.token = dataInfo.userid
             self.entity:setToken(dataInfo.userid)
             self.entities[self.token] = self.entity
-            self:sendUdpData(protobuf.encode('pb_common.data_ope', {
+            self:sendUdpData(protobuf.enum_id("pb_common.protocol_code","protocol_frame"),protobuf.encode('pb_common.data_ope', {
                 userid = self.token,
                 frameid = -1,
                 opecode = 0x00
@@ -161,12 +163,14 @@ function SceneMain:onEventData(INdata)
             self.begin = true
         end
     elseif "udp" == INdata.type then
-        local dataInfo = protobuf.decode("pb_common.data_frames", INdata.data)
-        protobuf.extract(dataInfo)
-        for i=1,#dataInfo.frames do
-            if self.lastedFrameId < dataInfo.frames[i].frameid then self.lastedFrameId = dataInfo.frames[i].frameid end
-            if self.currentFrameId <= dataInfo.frames[i].frameid then
-                self.logicFrames[dataInfo.frames[i].frameid] = clone(dataInfo.frames[i].frames)
+        if protobuf.enum_id("pb_common.protocol_code","protocol_frame") == INdata.data.protocol_code then
+            local dataInfo = protobuf.decode("pb_common.data_frames", INdata.data.data_str)
+            protobuf.extract(dataInfo)
+            for i=1,#dataInfo.frames do
+                if self.lastedFrameId < dataInfo.frames[i].frameid then self.lastedFrameId = dataInfo.frames[i].frameid end
+                if self.currentFrameId <= dataInfo.frames[i].frameid then
+                    self.logicFrames[dataInfo.frames[i].frameid] = clone(dataInfo.frames[i].frames)
+                end
             end
         end
     end
@@ -182,8 +186,13 @@ function SceneMain:sendData(INprotocal,INdata)
     self.tcp:send(str .. pData)
 end
 
-function SceneMain:sendUdpData(INdata)
-    self.udp:send(INdata)
+function SceneMain:sendUdpData(INprotocal,INdata)
+    local pData = protobuf.encode('pb_common.data_head', {
+        protocol_code = INprotocal,
+        data_len = string.len(INdata),
+        data_str = INdata
+    })
+    self.udp:send(pData)
 end
 
 function SceneMain:onKeyEventPressed(INkey,INrender)
@@ -247,7 +256,7 @@ function SceneMain:tickLogic(dt)
             if k==self.token then opeCode = v.opeCode end
             self.predictFrames[self.predictFrameId][k] = {opecode=opeCode}
             v:predictUpdate(v:convertOpeCode(opeCode))
-            print(string.format("predict userid %d frameid %d opecode %d logic:[%d][%d:%d] predict:[%d][%d:%d]",k,self.predictFrameId,opeCode,v.logicRat,v.logicPos.x,v.logicPos.y,v.predictRat,v.predictPos.x,v.predictPos.y))
+            --print(string.format("predict userid %d frameid %d opecode %d logic:[%d][%d:%d] predict:[%d][%d:%d]",k,self.predictFrameId,opeCode,v.logicRat,v.logicPos.x,v.logicPos.y,v.predictRat,v.predictPos.x,v.predictPos.y))
         end
         self.predictFrameId = self.predictFrameId + 1
     end
@@ -279,7 +288,7 @@ function SceneMain:tickLogic(dt)
                 v.predictRat = clone(v.logicRat)
                 v.predictPos = clone(v.logicPos)
                 v:predictUpdate(v:convertOpeCode(v.syncOpeCode))
-                print(string.format("rollback userid %d frameid %d opecode %d %d logic:[%d][%d:%d] predict:[%d][%d:%d]",k,frameid,predict[k].opecode,v.syncOpeCode,v.logicRat,v.logicPos.x,v.logicPos.y,v.predictRat,v.predictPos.x,v.predictPos.y))
+                --print(string.format("rollback userid %d frameid %d opecode %d %d logic:[%d][%d:%d] predict:[%d][%d:%d]",k,frameid,predict[k].opecode,v.syncOpeCode,v.logicRat,v.logicPos.x,v.logicPos.y,v.predictRat,v.predictPos.x,v.predictPos.y))
             end
         end
     end
