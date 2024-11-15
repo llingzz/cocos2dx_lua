@@ -262,13 +262,6 @@ function SceneMain:tickLogic(dt)
     end
     if self.standalone then return end
     if not self.logicFrames[frameid] then
-        if frameid < self.lastedFrameId then
-            local pData = protobuf.encode('pb_common.data_repair_frame', {
-                userid = self.token,
-                frameid = frameid
-            })
-            self:sendData(protobuf.enum_id("pb_common.protocol_code","protocol_repair_frame"),pData)
-        end
         return
     end
     for k,v in pairs(self.logicFrames[frameid]) do
@@ -280,9 +273,9 @@ function SceneMain:tickLogic(dt)
             end
         end
     end
-    local predict = self.predictFrames[frameid]
     for k,v in pairs(self.entities) do
         v:logicUpdate()
+        local predict = self.predictFrames[frameid]
         if predict and predict[k] then
             if v.syncOpeCode ~= predict[k].opecode then
                 v.predictRat = clone(v.logicRat)
@@ -293,7 +286,6 @@ function SceneMain:tickLogic(dt)
         end
     end
     table.remove(self.predictFrames,frameid)
-    self.currentFrameId = self.currentFrameId + 1
 end
 
 function SceneMain:onContactBegin(INcontact)

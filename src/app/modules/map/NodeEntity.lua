@@ -22,7 +22,6 @@ function NodeEntity:ctor(INparent)
     self.logicPos = cc.p(display.cx*1000,display.cy*1000)
     self.predictRat = 0
     self.predictPos = cc.p(display.cx*1000,display.cy*1000)
-
     --self:createPhysicBody()
 end
 
@@ -126,18 +125,9 @@ function NodeEntity:logicUpdate(dt)
 end
 
 function NodeEntity:renderUpdate(dt)
-    local function clamp(num, min, max)
-        if num < min then num = min
-        elseif num > max then num = max
-        end
-        return num
-    end
-    local function lerp(from, to, t)
-        return from + (to - from) * clamp(t, 0, 1)
-    end
-    self:setRotation(lerp(self:getRotation(),self.predictRat,0.067))
-    self:setPosition(cc.pLerp(cc.p(self:getPosition()),cc.p(self.predictPos.x/1000,self.predictPos.y/1000),0.067))
-    -- self:setRotation(lerp(self:getRotation(),self.logicRat,0.067))
+    self:setRotation(HelpTools:lerp(self:getRotation(),self.predictRat,0.067))
+    self:setPosition(cc.pLerp(cc.p(self:getPosition()),cc.p(self.predictPos.x/1000,self.predictPos.y/1000),0.016*6))
+    -- self:setRotation(HelpTools:lerp(self:getRotation(),self.logicRat,0.067))
     -- self:setPosition(cc.pLerp(cc.p(self:getPosition()),cc.p(self.logicPos.x/1000,self.logicPos.y/1000),0.067))
 end
 

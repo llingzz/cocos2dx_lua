@@ -223,8 +223,6 @@ public:
     std::function<void(LONG, int, const std::string&)> m_callback;
     std::mutex lock;
     std::map<LONG, std::shared_ptr<session>> m_mapSessions;
-    std::mutex lock_repair;
-    std::map<LONG, int> m_mapRepair;
 };
 
 using asio::ip::udp;
@@ -306,17 +304,11 @@ public:
                         }
                     }
                     if (game_start) {
-                        std::map<LONG, int> mapRepair;
-                        {
-                            std::lock_guard<std::mutex> lk(lock_repair);
-                            std::swap(mapRepair, m_mapRepair);
-                        }
                         std::lock_guard<std::mutex> lk(lock_frames);
                         int frameid = currentFrame++;
                         for (auto& iter : udp_sessions) {
                             pb_common::data_frames frames;
-                            auto begin_frame = mapRepair.find(iter.first) != mapRepair.end() ? mapRepair[iter.first] : frameid;
-                            begin_frame = begin_frame > frameid ? frameid : begin_frame;
+                            auto begin_frame = frame_sync[iter.first] < 0 ? 0 : frame_sync[iter.first];
                             for (auto i = begin_frame; i <= frameid; ++i) {
                                 auto frame = frames.add_frames();
                                 frame->set_frameid(i);
@@ -362,24 +354,6 @@ public:
                 printf("token %d set ready\n", _ready.userid());
                 break;
             }
-            case pb_common::protocol_code::protocol_repair_frame:
-            {
-                pb_common::data_repair_frame repair;
-                if (!repair.ParseFromString(real_data)) { break; }
-                {
-                    std::lock_guard<std::mutex> lk(lock_repair);
-                    if (m_mapRepair.find(token) != m_mapRepair.end()) {
-                        if (repair.frameid() < m_mapRepair[token]) {
-                            m_mapRepair[token] = repair.frameid();
-                        }
-                    }
-                    else {
-                        m_mapRepair[token] = repair.frameid();
-                    }
-                }
-                printf("token %d repair frameid begin %d\n", repair.userid(), repair.frameid());
-                break;
-            }
             default:
             {
                 break;
@@ -401,6 +375,12 @@ public:
             auto opecode = frame.opecode();
             std::lock_guard<std::mutex> lk(lock_frames);
             udp_sessions[userid] = ed;
+            if (frame_sync.find(userid) == frame_sync.end()) {
+                frame_sync.insert(std::make_pair(userid, frameid));
+            }
+            if (frame_sync[userid] <= frameid) {
+                frame_sync[userid] = frameid;
+            }
             frames_[currentFrame][userid].insert(std::make_pair(frameid, std::move(frame)));
             printf_s("recv userid %d frameid %d frameid_svr %d opecode %d\n", userid, frameid, currentFrame, opecode);
             break;
@@ -418,6 +398,7 @@ public:
     int currentFrame;
     std::map<int, std::map<int, std::map<int, pb_common::data_ope>>> frames_;
     std::map<int, udp::endpoint> udp_sessions;
+    std::map<int, int> frame_sync;
 };
 
 int main()

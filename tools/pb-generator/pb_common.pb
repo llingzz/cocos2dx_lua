@@ -1,5 +1,5 @@
 
-£
+Á
 pb_common.proto	pb_common"l
 	data_head#
 protocol_code (RprotocolCode
@@ -27,13 +27,9 @@ data_frame
 frameid (Rframeid-
 frames (2.pb_common.data_frameRframes"A
 data_frames2
-frames (2.pb_common.data_ope_framesRframes"E
-data_repair_frame
-userid (Ruserid
-frameid (Rframeid*~
+frames (2.pb_common.data_ope_framesRframes*c
 protocol_code
 protocol_user_info
 protocol_ready
 protocol_begin
-protocol_frame
-protocol_repair_frame
+protocol_frame

@@ -15,7 +15,6 @@ enum protocol_code
 	protocol_ready = 2;
 	protocol_begin = 3;
 	protocol_frame = 4;
-	protocol_repair_frame = 5;
 }
 
 message data_user_info
@@ -57,10 +56,4 @@ message data_ope_frames
 message data_frames
 {
 	repeated data_ope_frames frames = 1;
-}
-
-message data_repair_frame
-{
-	optional int32 userid = 1;
-	optional int32 frameid = 2;
 }

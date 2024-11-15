@@ -8,4 +8,15 @@ function HelpTools:creatBinaryEnumTable(INtbl)
     return enumtbl
 end
 
+function HelpTools:clamp(num, min, max)
+    if num < min then num = min
+    elseif num > max then num = max
+    end
+    return num
+end
+
+function HelpTools:lerp(from, to, t)
+    return from + (to - from) * self:clamp(t, 0, 1)
+end
+
 return HelpTools
