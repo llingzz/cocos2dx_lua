@@ -286,6 +286,7 @@ function SceneMain:tickLogic(dt)
         end
     end
     table.remove(self.predictFrames,frameid)
+    self.currentFrameId = self.currentFrameId + 1
 end
 
 function SceneMain:onContactBegin(INcontact)

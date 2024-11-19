@@ -126,7 +126,7 @@ end
 
 function NodeEntity:renderUpdate(dt)
     self:setRotation(HelpTools:lerp(self:getRotation(),self.predictRat,0.067))
-    self:setPosition(cc.pLerp(cc.p(self:getPosition()),cc.p(self.predictPos.x/1000,self.predictPos.y/1000),0.016*6))
+    self:setPosition(cc.pLerp(cc.p(self:getPosition()),cc.p(self.predictPos.x/1000,self.predictPos.y/1000),0.067))
     -- self:setRotation(HelpTools:lerp(self:getRotation(),self.logicRat,0.067))
     -- self:setPosition(cc.pLerp(cc.p(self:getPosition()),cc.p(self.logicPos.x/1000,self.logicPos.y/1000),0.067))
 end
