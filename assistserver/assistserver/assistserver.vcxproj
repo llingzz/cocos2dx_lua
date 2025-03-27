@@ -132,9 +132,26 @@
   <ItemGroup>
     <ClCompile Include="assistserver.cpp" />
     <ClCompile Include="pb\pb_common.pb.cc" />
+    <ClCompile Include="redispool\redisclient.cpp" />
+    <ClCompile Include="redispool\redispool.cpp" />
+    <ClCompile Include="redispool\redis\async.c" />
+    <ClCompile Include="redispool\redis\dict.c" />
+    <ClCompile Include="redispool\redis\hiredis.c" />
+    <ClCompile Include="redispool\redis\net.c" />
+    <ClCompile Include="redispool\redis\sds.c" />
+    <ClCompile Include="redispool\redis\win32fixes.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pb\pb_common.pb.h" />
+    <ClInclude Include="redispool\redisclient.h" />
+    <ClInclude Include="redispool\redispool.h" />
+    <ClInclude Include="redispool\redis\async.h" />
+    <ClInclude Include="redispool\redis\dict.h" />
+    <ClInclude Include="redispool\redis\fmacros.h" />
+    <ClInclude Include="redispool\redis\hiredis.h" />
+    <ClInclude Include="redispool\redis\net.h" />
+    <ClInclude Include="redispool\redis\sds.h" />
+    <ClInclude Include="redispool\redis\win32fixes.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

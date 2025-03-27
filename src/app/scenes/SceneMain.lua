@@ -8,14 +8,14 @@ local SceneMain = class("SceneMain", function()
 end)
 
 function SceneMain:ctor()
-    -- local uiloader = cc.load('uiloader')
-    -- local layer = uiloader:load("res/modules/LayerTest.csb")
-    -- local width = display.width
-    -- local height = display.height
-    -- layer:setContentSize(width, height)
-    -- layer:enableNodeEvents()
-    -- ccui.Helper:doLayout(layer)
-    -- layer:addTo(self)
+    local uiloader = cc.load('uiloader')
+    local layer = uiloader:load("res/modules/LayerTest.csb")
+    local width = display.width
+    local height = display.height
+    layer:setContentSize(width, height)
+    layer:enableNodeEvents()
+    ccui.Helper:doLayout(layer)
+    layer:addTo(self)
 
     -- local touchLayer = require "src.app.modules.joysticks.TouchLayer"
     -- touchLayer:new():addTo(self)
@@ -39,6 +39,33 @@ function SceneMain:ctor()
     -- local size = tmx:getMapSize()
     -- self.tileSize = tmx:getTileSize()
 
+    -- self.resourceMgr = ResourceManager:new()
+    -- self.nodePool = self.resourceMgr:createSpawnPool("nodepool",
+    -- {
+    --     --载入方式
+    --     load = function()
+    --         return display.newNode()
+    --     end,
+    --     --预载的数量,0表示使用时载入
+    --     preloadamount = 1,
+    --     --是否在指定时间内载入完或一次性载入完成
+    --     preloadovertime = true,
+    --     --每帧载入数量
+    --     preloadoneframe = 1,
+    --     --载入延迟
+    --     preloaddelay = 0,
+    --     --闲置对象生命周期,0表示永远存在,-1表示场景切换后删除
+    --     duration = 0,
+    -- })
+    -- self.nodePool:preload()
+    -- Scheduler:performWithDelayGlobal(function()
+    --     self.testNode = self.nodePool:spawn()
+    --     self.testNode:addTo(self)
+    --     Scheduler:performWithDelayGlobal(function()
+    --         self.testNode:removeSelf()
+    --     end,0)
+    -- end,0)
+
     local mapLayer = require("src.app.modules.map.LayerMap")
     self.layerMap = mapLayer:create()
     self.layerMap:addTo(self,-1)
@@ -48,6 +75,7 @@ function SceneMain:ctor()
     self.entities = {}
     self.begin = false
     self.standalone = false
+    self.roomid = 0
 
     self.lastedFrameId = 0
     self.currentFrameId = 0
@@ -71,13 +99,13 @@ function SceneMain:ctor()
     self.tickPhysicWorld = Scheduler:scheduleGlobal(handler(self, self.tickUpdate), 0.02)
     self:scheduleUpdate(handler(self,self.update))
     self.tickLogic = Scheduler:scheduleGlobal(handler(self, self.tickLogic), 1.0/15)
+    self.tickPing = Scheduler:scheduleGlobal(handler(self,self.ping),1)
 end
 
 function SceneMain:onEnter()
     self.index = 0
     self.recvStr = ""
     self.eventProtocol = EventProtocol:new()
-    self.eventProtocol:addEventListener(SocketTCP.EVENT_CONNECTED, handler(self,self.onEventConnected), "SOCKET_TCP_CONNECTED")
     self.eventProtocol:addEventListener(SocketTCP.EVENT_DATA, handler(self,self.onEventTcpData), "TCP_DATA")
     self.tcp = SocketTCP:create()
     self.tcp:setEventProtocol(self.eventProtocol)
@@ -91,6 +119,8 @@ function SceneMain:onEnter()
         end
     end)
     coroutine.resume(self.co, nil)
+    self.ping = 1
+    self.tblPong = {}
 end
 
 function SceneMain:onExit()
@@ -102,16 +132,13 @@ function SceneMain:onExit()
         Scheduler:unscheduleGlobal(self.tickLogic)
         self.tickLogic = nil
     end
+    if self.tickPing then
+        Scheduler:unscheduleGlobal(self.tickPing)
+        self.tickPing = nil
+    end
     self.tcp:disconnect()
     self.tcp:close()
     self.udp:close()
-end
-
-function SceneMain:onEventConnected()
-    local HandlerEntity = require "src.app.modules.map.NodeEntity"
-    self.entity = HandlerEntity.new(self)
-    self.entity:addTo(self)
-    self.entity:setPosition(cc.p(display.cx,display.cy))
 end
 
 function SceneMain:onEventUdpData(INdata)
@@ -126,41 +153,69 @@ function SceneMain:onEventTcpData(INdata)
     self.recvStr = self.recvStr .. INdata.data
     local head_len = 4
     local strlen = string.len(self.recvStr)
-    if strlen > head_len then
-        local _,datalen = string.unpack(string.sub(self.recvStr,1,head_len),"<I")
-        if strlen >= head_len + datalen then
-            local data = string.sub(self.recvStr,head_len + 1,head_len + datalen)
-            local dataInfo = protobuf.decode("pb_common.data_head", data)
+    while strlen > head_len do
+        local head_str = string.sub(self.recvStr,1,head_len)
+        local _,data_len = string.unpack(head_str,"<I")
+        if strlen >= head_len + data_len then
+            local data_str = string.sub(self.recvStr,head_len + 1,head_len + data_len)
+            local dataInfo = protobuf.decode("pb_common.data_head", data_str)
             protobuf.extract(dataInfo)
             self.index = self.index + 1
             coroutine.resume(self.co, self.index, {type="tcp",data=dataInfo})
-            self.recvStr = string.sub(self.recvStr,head_len + datalen + 1,datalen)
+            self.recvStr = string.sub(self.recvStr,head_len + data_len+1,strlen)
+            strlen = string.len(self.recvStr)
+        else
+            break
         end
     end
 end
 
 function SceneMain:onEventData(INdata)
+    if not INdata then return end
     if "tcp" == INdata.type then
-        if protobuf.enum_id("pb_common.protocol_code","protocol_user_info") == INdata.data.protocol_code then
-            local dataInfo = protobuf.decode("pb_common.data_user_info", INdata.data.data_str)
-            protobuf.extract(dataInfo)
-            cc.exports.USERID = dataInfo.userid
-            self.token = dataInfo.userid
-            self.entity:setToken(dataInfo.userid)
-            self.entities[self.token] = self.entity
-            self:sendUdpData(protobuf.enum_id("pb_common.protocol_code","protocol_frame"),protobuf.encode('pb_common.data_ope', {
-                userid = self.token,
-                frameid = -1,
-                opecode = 0x00
-            }))
-        elseif protobuf.enum_id("pb_common.protocol_code","protocol_begin") == INdata.data.protocol_code then
+        if protobuf.enum_id("pb_common.protocol_code","protocol_begin") == INdata.data.protocol_code then
             local dataInfo = protobuf.decode("pb_common.data_begin", INdata.data.data_str)
             protobuf.extract(dataInfo)
             math.randomseed(dataInfo.rand_seed)
             for k,v in pairs(dataInfo.userids) do
                 if not self.entities[v] then self:createEntity(v) end
+                if v == self.token then self.entity = self.entities[v] end
             end
             self.begin = true
+        elseif protobuf.enum_id("pb_common.protocol_code","protocol_register_response") == INdata.data.protocol_code then
+            local dataInfo = protobuf.decode("pb_common.data_user_register_response", INdata.data.data_str)
+            protobuf.extract(dataInfo)
+            if dataInfo.return_code ~= 1 then return end
+            cc.exports.USERID = dataInfo.userid
+            self.token = dataInfo.userid
+            self:sendUdpData(protobuf.enum_id("pb_common.protocol_code","protocol_frame"),protobuf.encode('pb_common.data_ope', {
+                userid = self.token,
+                frameid = -1,
+                opecode = 0x00
+            }))
+        elseif protobuf.enum_id("pb_common.protocol_code","protocol_join_room_response") == INdata.data.protocol_code then
+            local dataInfo = protobuf.decode("pb_common.data_user_join_room_response", INdata.data.data_str)
+            protobuf.extract(dataInfo)
+            self.roomid = dataInfo.roomid
+        elseif protobuf.enum_id("pb_common.protocol_code","protocol_ready_response") == INdata.data.protocol_code then
+            local dataInfo = protobuf.decode("pb_common.data_ready_response", INdata.data.data_str)
+            protobuf.extract(dataInfo)
+            if dataInfo.return_code ~= 1 then
+                print("join room error")
+                return
+            end
+        elseif protobuf.enum_id("pb_common.protocol_code","protocol_tcp_close") == INdata.data.protocol_code then
+            local dataInfo = protobuf.decode("pb_common.data_tcp_close", INdata.data.data_str)
+            protobuf.extract(dataInfo)
+            if not self.entities[dataInfo.userid] then return end
+            self.entities[dataInfo.userid]:removeFromParent()
+            self.entities[dataInfo.userid] = nil
+        elseif protobuf.enum_id("pb_common.protocol_code","protocol_leave_room_response") == INdata.data.protocol_code then
+            local dataInfo = protobuf.decode("pb_common.data_user_leave_room_response", INdata.data.data_str)
+            protobuf.extract(dataInfo)
+            if not self.entities[dataInfo.userid] then return end
+            self.entities[dataInfo.userid]:removeFromParent()
+            self.entities[dataInfo.userid] = nil
         end
     elseif "udp" == INdata.type then
         if protobuf.enum_id("pb_common.protocol_code","protocol_frame") == INdata.data.protocol_code then
@@ -172,6 +227,11 @@ function SceneMain:onEventData(INdata)
                     self.logicFrames[dataInfo.frames[i].frameid] = clone(dataInfo.frames[i].frames)
                 end
             end
+        elseif protobuf.enum_id("pb_common.protocol_code","protocol_pong") == INdata.data.protocol_code then
+            local dataInfo = protobuf.decode("pb_common.data_pong", INdata.data.data_str)
+            protobuf.extract(dataInfo)
+            if self.token ~= dataInfo.userid then return end
+            self.tblPong[dataInfo.idx].endtime = socket.gettime()
         end
     end
 end
@@ -195,13 +255,27 @@ function SceneMain:sendUdpData(INprotocal,INdata)
     self.udp:send(pData)
 end
 
-function SceneMain:onKeyEventPressed(INkey,INrender)
-    if INkey == cc.KeyCode.KEY_R then
-        local pData = protobuf.encode('pb_common.data_ready', {
-            userid = self.token,
-        })
-        self:sendData(protobuf.enum_id("pb_common.protocol_code","protocol_ready"),pData)
+function SceneMain:ping()
+    if not self.token or -1 == self.token then return end
+    local total,count,delay = 0,0,"+999ms"
+    for i=1,10 do
+        if self.tblPong[i] and self.tblPong[i].endtime then
+            total = total + (self.tblPong[i].endtime-self.tblPong[i].time)/2
+            count = count + 1
+        end
     end
+    if count ~= 0 then delay = tostring(total*1000.0/count) end
+    self.tblPong = {}
+    for i=1,10 do
+        self.tblPong[i] = {time=socket.gettime()}
+        self:sendUdpData(protobuf.enum_id("pb_common.protocol_code","protocol_ping"),protobuf.encode('pb_common.data_ping', {
+            userid = self.token,
+            idx = i
+        }))
+    end
+end
+
+function SceneMain:onKeyEventPressed(INkey,INrender)
     if INkey == cc.KeyCode.KEY_P then
         self.begin = true
         self.standalone = true
@@ -212,6 +286,33 @@ function SceneMain:onKeyEventPressed(INkey,INrender)
         self.entity:setToken(1)
         self.token = 1
         self.entities[1] = self.entity
+    end
+    if INkey == cc.KeyCode.KEY_F1 then
+        local pData = protobuf.encode('pb_common.data_user_register', {
+            username = "test001",
+            password = "test001"
+        })
+        self:sendData(protobuf.enum_id("pb_common.protocol_code","protocol_register"),pData)
+    end
+    if INkey == cc.KeyCode.KEY_F2 then
+        local pData = protobuf.encode('pb_common.data_user_register', {
+            username = "test002",
+            password = "test002"
+        })
+        self:sendData(protobuf.enum_id("pb_common.protocol_code","protocol_register"),pData)
+    end
+    if INkey == cc.KeyCode.KEY_J then
+        local pData = protobuf.encode('pb_common.data_user_join_room', {
+            userid = self.token
+        })
+        self:sendData(protobuf.enum_id("pb_common.protocol_code","protocol_join_room"),pData)
+    end
+    if INkey == cc.KeyCode.KEY_R then
+        local pData = protobuf.encode('pb_common.data_ready', {
+            userid = self.token,
+            roomid = self.roomid,
+        })
+        self:sendData(protobuf.enum_id("pb_common.protocol_code","protocol_ready"),pData)
     end
     if self.entity then self.entity:getKeyboardEvent("onKeyEventPressed",INkey) end
 end
@@ -246,6 +347,7 @@ function SceneMain:tickUpdate(dt)
 end
 
 function SceneMain:tickLogic(dt)
+    self:ping()
     if not self.begin then return end
     if self.entity then self.entity:capturePlayerOpts() end
     local frameid = self.currentFrameId

@@ -16,6 +16,7 @@ cc.exports.SocketTCP = require "app.tools.SocketTCP"
 cc.exports.SocketUDP = require "app.tools.SocketUDP"
 cc.exports.Scheduler = require "app.tools.Scheduler"
 cc.exports.HelpTools = require "app.tools.HelpTools"
+cc.exports.ResourceManager = require "app.tools.ResourceManager"
 require "app.common.CommonDef"
 
 cc.load('uiloader')
@@ -28,10 +29,13 @@ local function main()
     cc.FileUtils:getInstance():purgeCachedEntries()
     local list = cc.FileUtils:getInstance():getSearchPaths()
     dump (list, "list")
-    local HandlerSceneMain = require("src.app.scenes.SceneMain")
-    display.runScene(HandlerSceneMain.new())
-    -- local HandlerSceneFairyGUI = require("src.app.scenes.SceneFairyGUI")
-    -- display.runScene(HandlerSceneFairyGUI.new())
+    if CC_SHOW_FAIRYUI_SYSTEM then
+        local HandlerSceneFairyGUI = require("src.app.scenes.SceneFairyGUI")
+        display.runScene(HandlerSceneFairyGUI.new())
+    else
+        local HandlerSceneMain = require("src.app.scenes.SceneMain")
+        display.runScene(HandlerSceneMain.new())
+    end
 end
 
 local status, msg = xpcall(main, __G__TRACKBACK__)

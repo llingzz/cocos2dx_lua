@@ -14,6 +14,9 @@ CC_DISABLE_GLOBAL = true
 -- self:getPhysicsWorld():setDebugDrawMask(cc.PhysicsWorld.DEBUGDRAW_ALL)
 CC_SHOW_PHYSIC_MASK = false
 
+-- use fairygui lib
+CC_SHOW_FAIRYUI_SYSTEM = false
+
 -- for module display
 CC_DESIGN_RESOLUTION = {
     width = 1280,

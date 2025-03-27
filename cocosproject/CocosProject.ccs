@@ -6,6 +6,7 @@
         <Folder Name="modules">
           <Project Name="LayerTest.csd" Type="Layer" />
         </Folder>
+        <Folder Name="resource" />
       </RootFolder>
     </Group>
   </SolutionFolder>

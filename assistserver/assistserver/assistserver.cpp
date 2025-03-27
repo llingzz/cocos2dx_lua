@@ -2,6 +2,7 @@
 //
 
 #include <iostream>
+#include "redispool/redispool.h"
 #include "pb/pb_common.pb.h"
 
 #include <cstdlib>
@@ -12,25 +13,15 @@
 #include <asio.hpp>
 
 using asio::ip::tcp;
-
-class server;
-class session : public std::enable_shared_from_this<session>
-{
+class session : public std::enable_shared_from_this<session> {
 public:
     session(std::shared_ptr<tcp::socket> socket, asio::io_service::strand strand, LONG token, std::function<void(LONG)> cbRemove, std::function<void(LONG,int,const std::string&)> cbHandleData) :
-        socket_(socket),
-        strand_(strand),
-        tokenid(token),
-        m_cbRemove(cbRemove), m_cbHandleData(cbHandleData),
-        ready(false), inGame(false)
+        socket_(socket), strand_(strand), tokenid(token), m_cbRemove(cbRemove), m_cbHandleData(cbHandleData), bSending(false)
     {
         memset(data_, 0, sizeof(data_));
     }
 
     void start() {
-        pb_common::data_user_info user;
-        user.set_userid(tokenid);
-        send(pb_common::protocol_code::protocol_user_info, user.SerializeAsString());
         do_read();
     }
 
@@ -98,7 +89,7 @@ public:
     }
 
     void write(const std::string& msg) {
-        std::lock_guard<std::mutex> lk(lock);
+        std::lock_guard<std::mutex> lk(lock_msg);
         bool write_in_progress = !write_msgs_.empty();
         write_msgs_.push_back(msg);
         if (!write_in_progress) {
@@ -111,7 +102,7 @@ public:
             asio::bind_executor(strand_,
                 [this](std::error_code ec, std::size_t length)
                 {
-                    std::lock_guard<std::mutex> lk(lock);
+                    std::lock_guard<std::mutex> lk(lock_msg);
                     if (!ec) {
                         write_msgs_.pop_front();
                         if (!write_msgs_.empty()) {
@@ -126,28 +117,22 @@ public:
         );
     }
 
-    bool ready;
-    bool inGame;
     LONG tokenid;
     std::shared_ptr<tcp::socket> socket_;
     asio::io_service::strand strand_;
     enum { max_length = 1024, head = 4 };
     char data_[max_length];
-    std::mutex lock;
+    std::mutex lock_msg;
+    bool bSending;
     std::deque<std::string> write_msgs_;
     std::function<void(LONG)> m_cbRemove;
     std::function<void(LONG,int,const std::string&)> m_cbHandleData;
 };
-
-class server
-{
+class tcp_server {
 public:
-    server(std::string strIp, int port, std::function<void(LONG,int,const std::string&)> cb)
+    tcp_server(std::shared_ptr<asio::io_service> io, std::string strIp, int port, std::function<void(LONG,int,const std::string&)> cb, std::function<void(LONG)> rm_session_cb) :
+        m_pContext(io), m_callback(cb), m_lTokenId(1), m_tcpSessionRemoveCb(rm_session_cb)
     {
-        m_callback = cb;
-        m_lTokenId = 1;
-        m_pContext = std::make_unique<asio::io_service>();
-
         auto size = std::thread::hardware_concurrency();
         for (size_t i = 0; i < size; ++i) {
             m_pStrands.emplace_back(std::make_unique<asio::io_service::strand>(*m_pContext));
@@ -180,6 +165,9 @@ public:
             do_accept();
         }
     }
+    ~tcp_server() {
+
+    }
 
     void do_accept()
     {
@@ -190,11 +178,14 @@ public:
                 if (!ec) {
                     auto token = m_lTokenId++;
                     const auto& strand = m_pStrands[token % m_pStrands.size()];
-                    std::lock_guard<std::mutex> lk(lock);
+                    std::lock_guard<std::mutex> lk(lock_session);
                     m_mapSessions[token] = std::make_shared<session>(socket_, *strand, token,
                         [this](LONG token) {
                             if (m_mapSessions.find(token) != m_mapSessions.end()) {
                                 m_mapSessions.erase(token);
+                            }
+                            if (m_tcpSessionRemoveCb) {
+                                m_tcpSessionRemoveCb(token);
                             }
                         },
                         m_callback
@@ -206,22 +197,24 @@ public:
         );
     }
 
-    void notify_all(int protocol, const std::string& msg)
+    void tcp_send(LONG token, int protocal, const std::string& data)
     {
-        for (auto& iter : m_mapSessions) {
-            if (iter.second.get() && iter.second.get()->inGame) {
-                iter.second.get()->send(protocol, msg);
-            }
+        std::lock_guard<std::mutex> lk(lock_session);
+        if (m_mapSessions.find(token) == m_mapSessions.end()) { return; }
+        if (!m_mapSessions[token].get()) {
+            return;
         }
+        m_mapSessions[token].get()->send(protocal, data);
     }
 
     LONG m_lTokenId;
-    std::unique_ptr<tcp::acceptor> m_pAcceptor;
-    std::vector<std::unique_ptr<asio::io_service::strand>> m_pStrands;
-    std::unique_ptr<asio::io_service> m_pContext;
     std::unique_ptr<std::thread> m_pThread;
+    std::unique_ptr<tcp::acceptor> m_pAcceptor;
+    std::shared_ptr<asio::io_service> m_pContext;
+    std::vector<std::unique_ptr<asio::io_service::strand>> m_pStrands;
     std::function<void(LONG, int, const std::string&)> m_callback;
-    std::mutex lock;
+    std::function<void(LONG)> m_tcpSessionRemoveCb;
+    std::mutex lock_session;
     std::map<LONG, std::shared_ptr<session>> m_mapSessions;
 };
 
@@ -233,6 +226,9 @@ public:
     {
         memset(data_, 0, max_length);
         do_receive();
+    }
+    ~udp_server() {
+
     }
 
     void do_receive()
@@ -249,14 +245,31 @@ public:
         );
     }
 
-    void send_data(const std::string& data, const udp::endpoint& ed)
+    void update_udp_session(int token, const udp::endpoint& ed)
     {
+        std::lock_guard<std::mutex> lk(lock_udp);
+        udp_sessions[token] = ed;
+    }
+
+    void send_data(int token, const std::string& data)
+    {
+        std::lock_guard<std::mutex> lk(lock_udp);
+        if (udp_sessions.find(token) == udp_sessions.end()) { return; }
         //socket_.send_to(asio::buffer(data.c_str(), data.size()), ed);
-        socket_.async_send_to(asio::buffer(data.c_str(), data.size()), ed,
+        socket_.async_send_to(asio::buffer(data.c_str(), data.size()), udp_sessions[token],
             [this](asio::error_code /*ec*/, std::size_t /*bytes_sent*/) {
                 // do nothing
             }
         );
+    }
+
+    void udp_send(LONG token, int protocal, int len, const std::string& data)
+    {
+        pb_common::data_head pb_head;
+        pb_head.set_protocol_code(protocal);
+        pb_head.set_data_len(len);
+        pb_head.set_data_str(data);
+        send_data(token, pb_head.SerializeAsString());
     }
 
 public:
@@ -265,99 +278,236 @@ public:
     enum { max_length = 1024 };
     char data_[max_length];
     std::function<void(const std::string&,const udp::endpoint&)> m_callback;
+    std::mutex lock_udp;
+    std::map<int, udp::endpoint> udp_sessions;
 };
 
-class gameserver : public server {
+class gameserver;
+class gameplayer {
 public:
-    gameserver(std::string strIp, int tcp_port, int udp_port) :
-        server(strIp, tcp_port, std::bind(&gameserver::handle_tcp_data, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)), game_start(false), currentFrame(0)
+    gameplayer(int userid, LONG token, int state) :
+        m_userid(userid), m_token(token), m_state(state) {
+
+    }
+    ~gameplayer() {
+
+    }
+    int m_userid;
+    int m_token;
+    int m_state;
+};
+class gameroom {
+public:
+    gameroom() :
+        game_start(false), all_ready(false), currentFrame(0) {
+
+    }
+    ~gameroom() {
+
+    }
+    void start_game(gameserver* pServer);
+    void input_frame(int userid, int frameid, const pb_common::data_ope& frame) {
+        std::lock_guard<std::mutex> lk(lock_frames);
+        if (frame_sync.find(userid) == frame_sync.end()) {
+            frame_sync.insert(std::make_pair(userid, frameid));
+        }
+        if (frame_sync[userid] <= frameid) {
+            frame_sync[userid] = frameid;
+        }
+        printf_s("recv userid %d frameid %d frameid_svr %d opecode %d\n", userid, frameid, currentFrame, frame.opecode());
+        frames_[currentFrame][userid].insert(std::make_pair(frameid, frame));
+    }
+
+    bool all_ready;
+    bool game_start;
+    std::map<int, std::shared_ptr<gameplayer>> m_mapPlayer;
+    std::mutex lock_frames;
+    int currentFrame;
+    std::map<int, std::map<int, std::map<int, pb_common::data_ope>>> frames_;
+    std::map<int, int> frame_sync;
+};
+class gameserver : public tcp_server, public udp_server {
+public:
+    gameserver(std::string strIp, int tcp_port, short udp_port, std::shared_ptr<asio::io_service> io) : m_nIncrRoomId(1),
+        tcp_server(io, strIp, tcp_port, std::bind(&gameserver::handle_tcp_data, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3), std::bind(&gameserver::tcp_session_close, this, std::placeholders::_1)),
+        udp_server(*io, udp_port, std::bind(&gameserver::handle_udp_data, this, std::placeholders::_1, std::placeholders::_2))
     {
-        m_udpServer = std::make_unique<udp_server>(*m_pContext, udp_port, std::bind(&gameserver::handle_udp_data, this, std::placeholders::_1, std::placeholders::_2));
-        m_pThread = std::make_unique<std::thread>(
-            [=]() {
-                auto fps = 1000 / 15;
-                while (true) {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(fps));
-                    if (!game_start) {
-                        std::lock_guard<std::mutex> lk(lock);
-                        if (m_mapSessions.size() <= 0) { continue; }
-                        bool allReady = true;
-                        std::vector<int> userids;
-                        for (auto& iter : m_mapSessions) {
-                            if (!iter.second.get() || !iter.second.get()->ready) {
-                                allReady = false;
-                                break;
-                            }
-                            userids.push_back(iter.first);
+        m_pRedisPool = RedisPool::create("127.0.0.1", 6379, "");
+        m_pRedisPool->initConnection(3);
+        m_pLogicThread = std::make_unique<std::thread>([=]() {
+            auto fps = 1000 / 15;
+            while (true) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(fps));
+                {
+                    std::lock_guard<std::mutex> lk(lock_room);
+                    for (auto& iter : m_mapRoom) {
+                        if (iter.second->all_ready || iter.second->m_mapPlayer.size() <= 0) {
+                            continue;
                         }
-                        if (allReady) {
-                            game_start = true;
-                            pb_common::data_begin begin;
-                            begin.set_rand_seed((uint32_t)time(nullptr));
-                            begin.mutable_userids()->CopyFrom({ userids.begin(), userids.end() });
-                            for (auto& iter : m_mapSessions) {
-                                if (iter.second.get()) {
-                                    iter.second.get()->inGame = true;
-                                    iter.second.get()->send(pb_common::protocol_code::protocol_begin, begin.SerializeAsString());
-                                }
+                        iter.second->all_ready = true;
+                        for (auto& it : iter.second->m_mapPlayer) {
+                            if (it.second->m_state != 1) {
+                                iter.second->all_ready = false;
+                                break;
                             }
                         }
                     }
-                    if (game_start) {
-                        std::lock_guard<std::mutex> lk(lock_frames);
-                        int frameid = currentFrame++;
-                        for (auto& iter : udp_sessions) {
-                            pb_common::data_frames frames;
-                            auto begin_frame = frame_sync[iter.first] < 0 ? 0 : frame_sync[iter.first];
-                            for (auto i = begin_frame; i <= frameid; ++i) {
-                                auto frame = frames.add_frames();
-                                frame->set_frameid(i);
-                                if (frames_.find(frameid) != frames_.end()) {
-                                    for (auto& iter : frames_[frameid]) {
-                                        auto user_frame = frame->add_frames();
-                                        if (user_frame) {
-                                            user_frame->set_userid(iter.first);
-                                            for (auto& it : iter.second) {
-                                                user_frame->add_opecode(it.second.opecode());
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            pb_common::data_head pb_head;
-                            pb_head.set_protocol_code(pb_common::protocol_code::protocol_frame);
-                            pb_head.set_data_len(frames.ByteSizeLong());
-                            pb_head.set_data_str(frames.SerializeAsString());
-                            if (m_udpServer) {
-                                m_udpServer->send_data(pb_head.SerializeAsString(), iter.second);
-                            }
+                    for (auto& iter : m_mapRoom) {
+                        if (iter.second->all_ready) {
+                            iter.second->start_game(this);
                         }
                     }
                 }
             }
-        );
+        });
+        register_tcp_callback(pb_common::protocol_code::protocol_register, [&](LONG token, int protocol, const std::string& real_data) {
+            pb_common::data_user_register _register;
+            if (!_register.ParseFromString(real_data)) { return; }
+            pb_common::data_user_register_response rsp;
+            rsp.set_return_code(0);
+            std::string ani;
+            auto res = m_pRedisPool->get(0)->RedisCommand(ani, "HGET username_userid %s", _register.username().c_str());
+            do {
+                if (REDIS_REPLY_ERROR == atoi(res.c_str())) {
+                    break;
+                }
+                else if (REDIS_REPLY_NIL == atoi(res.c_str())) {
+                    res = m_pRedisPool->get(0)->RedisCommand(ani, "INCRBY user_id_generator 1");
+                    if (REDIS_REPLY_ERROR == atoi(res.c_str())) { break; }
+                }
+                rsp.set_return_code(1);
+                rsp.set_userid(atoi(ani.c_str()));
+                m_pRedisPool->get(0)->RedisCommand(ani, "HSET username_userid %s %d", _register.username().c_str(), rsp.userid());
+                m_pRedisPool->get(0)->RedisCommand(ani, "HSET username_password %s %s", _register.username().c_str(), _register.password().c_str());
+                {
+                    std::lock_guard<std::mutex> lklk(lock_token);
+                    m_mapTokenUserId[token] = rsp.userid();
+                }
+            } while (0);
+            tcp_send(token, pb_common::protocol_code::protocol_register_response, rsp.SerializeAsString());
+        });
+        register_tcp_callback(pb_common::protocol_code::protocol_join_room, [&](LONG token, int protocol, const std::string& real_data) {
+            pb_common::data_user_join_room _room;
+            if (!_room.ParseFromString(real_data)) { return; }
+            pb_common::data_user_join_room_response rsp;
+            rsp.set_userid(_room.userid());
+            {
+                std::lock_guard<std::mutex> lk(lock_room);
+                for (auto& iter : m_mapRoom) {
+                    if (iter.second->game_start) { continue; }
+                    rsp.set_roomid(iter.first);
+                    break;
+                }
+                if (rsp.roomid() <= 0) {
+                    rsp.set_roomid(m_nIncrRoomId++);
+                    m_mapRoom.insert(std::make_pair(rsp.roomid(), std::make_shared<gameroom>()));
+                }
+                auto player = std::make_shared<gameplayer>(_room.userid(), token, 0);
+                m_mapRoom[rsp.roomid()]->m_mapPlayer.insert(std::make_pair(_room.userid(), player));
+            }
+            tcp_send(token, pb_common::protocol_code::protocol_join_room_response, rsp.SerializeAsString());
+        });
+        register_tcp_callback(pb_common::protocol_code::protocol_ready, [&](LONG token, int protocol, const std::string& real_data) {
+            pb_common::data_ready _ready;
+            if (!_ready.ParseFromString(real_data)) { return; }
+            pb_common::data_ready_response rsp;
+            rsp.set_userid(_ready.userid());
+            rsp.set_roomid(_ready.roomid());
+            rsp.set_return_code(0);
+            do {
+                std::lock_guard<std::mutex> lk(lock_room);
+                if (m_mapRoom.find(_ready.roomid()) == m_mapRoom.end()) { break; }
+                else {
+                    const auto& room = m_mapRoom[_ready.roomid()];
+                    if (room->m_mapPlayer.find(_ready.userid()) == room->m_mapPlayer.end()) { break; }
+                    auto& players = room->m_mapPlayer;
+                    players[_ready.userid()]->m_state = 1;
+                }
+            } while (0);
+            rsp.set_return_code(1);
+            tcp_send(token, pb_common::protocol_code::protocol_ready_response, rsp.SerializeAsString());
+        });
+        register_tcp_callback(pb_common::protocol_code::protocol_leave_room, [&](LONG token, int protocol, const std::string& real_data) {
+            pb_common::data_user_leave_room _lv;
+            if (!_lv.ParseFromString(real_data)) { return; }
+            pb_common::data_user_leave_room_response rsp;
+            int userid = _lv.userid();
+            {
+                std::lock_guard<std::mutex> lk(lock_room);
+                for (auto& iter : m_mapRoom) {
+                    auto& players = iter.second->m_mapPlayer;
+                    if (players.find(userid) != players.end()) {
+                        rsp.set_userid(userid);
+                        rsp.set_roomid(iter.first);
+                        for (auto& it : players) {
+                            tcp_send(it.second->m_token, pb_common::protocol_code::protocol_leave_room_response, rsp.SerializeAsString());
+                        }
+                        players.erase(userid);
+                    }
+                }
+            }
+        });
+        register_udp_callback(pb_common::protocol_code::protocol_frame, [&](const std::string& data, const udp::endpoint& ed) {
+            pb_common::data_ope frame;
+            if (!frame.ParseFromString(data)) { return; }
+            auto userid = frame.userid();
+            update_udp_session(userid, ed);
+            std::lock_guard<std::mutex> lk(lock_room);
+            for (auto& iter : m_mapRoom) {
+                if (iter.second->game_start && iter.second->m_mapPlayer.find(userid) != iter.second->m_mapPlayer.end()) {
+                    iter.second->input_frame(userid, frame.frameid(), frame);
+                    break;
+                }
+            }
+        });
+        register_udp_callback(pb_common::protocol_code::protocol_ping, [&](const std::string& data, const udp::endpoint& ed) {
+            pb_common::data_ping ping;
+            if (!ping.ParseFromString(data)) { return; }
+            pb_common::data_pong pong;
+            pong.set_userid(ping.userid());
+            udp_send(ping.userid(), pb_common::protocol_code::protocol_pong, ping.ByteSizeLong(), ping.SerializeAsString());
+        });
+    }
+
+    void tcp_session_close(LONG token)
+    {
+        int userid = -1;
+        {
+            std::lock_guard<std::mutex> lk(lock_token);
+            if (m_mapTokenUserId.find(token) != m_mapTokenUserId.end()) {
+                userid = m_mapTokenUserId[token];
+                m_mapTokenUserId.erase(token);
+            }
+        }
+        if (-1 == userid) { return; }
+        {
+            std::lock_guard<std::mutex> lk(lock_room);
+            auto iter = m_mapRoom.begin();
+            while (iter != m_mapRoom.end()) {
+                auto& players = iter->second->m_mapPlayer;
+                if (players.find(userid) != players.end()) {
+                    pb_common::data_tcp_close rsp;
+                    rsp.set_userid(userid);
+                    rsp.set_token(token);
+                    for (auto& it : players) {
+                        tcp_send(it.second->m_token, pb_common::protocol_code::protocol_tcp_close, rsp.SerializeAsString());
+                    }
+                    players.erase(userid);
+                }
+                if (players.size() <= 0) {
+                    iter = m_mapRoom.erase(iter);
+                }
+                else {
+                    iter++;
+                }
+            }
+        }
     }
 
     void handle_tcp_data(LONG token, int protocol, const std::string& real_data)
     {
-        switch (protocol) {
-            case pb_common::protocol_code::protocol_ready:
-            {
-                pb_common::data_ready _ready;
-                if (!_ready.ParseFromString(real_data)) { break; }
-                {
-                    std::lock_guard<std::mutex> lk(lock);
-                    if (m_mapSessions[token].get()) {
-                        m_mapSessions[token]->ready = true;
-                    }
-                }
-                printf("token %d set ready\n", _ready.userid());
-                break;
-            }
-            default:
-            {
-                break;
-            }
+        if (m_tcpProtocalCallback.find(protocol) != m_tcpProtocalCallback.end()) {
+            m_tcpProtocalCallback[protocol](token, protocol, real_data);
         }
     }
 
@@ -365,48 +515,81 @@ public:
     {
         pb_common::data_head head;
         if (!head.ParsePartialFromString(data)) { return; }
-        switch (head.protocol_code()) {
-        case pb_common::protocol_code::protocol_frame:
-        {
-            pb_common::data_ope frame;
-            if (!frame.ParseFromString(head.data_str())) { return; }
-            auto userid = frame.userid();
-            auto frameid = frame.frameid();
-            auto opecode = frame.opecode();
-            std::lock_guard<std::mutex> lk(lock_frames);
-            udp_sessions[userid] = ed;
-            if (frame_sync.find(userid) == frame_sync.end()) {
-                frame_sync.insert(std::make_pair(userid, frameid));
-            }
-            if (frame_sync[userid] <= frameid) {
-                frame_sync[userid] = frameid;
-            }
-            frames_[currentFrame][userid].insert(std::make_pair(frameid, std::move(frame)));
-            printf_s("recv userid %d frameid %d frameid_svr %d opecode %d\n", userid, frameid, currentFrame, opecode);
-            break;
-        }
-        default:
-            break;
+        int protocol = head.protocol_code();
+        if (m_udpProtocalCallback.find(protocol) != m_udpProtocalCallback.end()) {
+            m_udpProtocalCallback[protocol](head.data_str(), ed);
         }
     }
 
+    void register_tcp_callback(int id, std::function<void(LONG, int, const std::string&)> cb)
+    {
+        m_tcpProtocalCallback.insert(std::make_pair(id, cb));
+    }
+
+    void register_udp_callback(int id, std::function<void(const std::string&, const udp::endpoint&)> cb)
+    {
+        m_udpProtocalCallback.insert(std::make_pair(id, cb));
+    }
+
 public:
-    bool game_start;
-    std::unique_ptr<std::thread> m_pThread;
-    std::unique_ptr<udp_server> m_udpServer;
-    std::mutex lock_frames;
-    int currentFrame;
-    std::map<int, std::map<int, std::map<int, pb_common::data_ope>>> frames_;
-    std::map<int, udp::endpoint> udp_sessions;
-    std::map<int, int> frame_sync;
+    std::unique_ptr<std::thread> m_pLogicThread;
+    RedisPool* m_pRedisPool;
+    std::mutex lock_room;
+    int m_nIncrRoomId;
+    std::map<int, std::shared_ptr<gameroom>> m_mapRoom;
+    std::map<int, std::function<void(LONG, int, const std::string&)>> m_tcpProtocalCallback;
+    std::map<int, std::function<void(const std::string&, const udp::endpoint&)>> m_udpProtocalCallback;
+    std::mutex lock_token;
+    std::map<LONG, int> m_mapTokenUserId;
 };
+
+void gameroom::start_game(gameserver* pServer) {
+    if (!pServer) { return; }
+    if (!game_start) {
+        game_start = true;
+        pb_common::data_begin begin;
+        begin.set_rand_seed((uint32_t)time(nullptr));
+        for (auto& iter : m_mapPlayer) {
+            begin.mutable_userids()->Add(iter.first);
+        }
+        for (auto& iter : m_mapPlayer) {
+            pServer->tcp_send(iter.second->m_token, pb_common::protocol_code::protocol_begin, begin.SerializeAsString());
+        }
+    }
+    if (game_start) {
+        std::lock_guard<std::mutex> lk(lock_frames);
+        int frameid = currentFrame++;
+        for (auto& it : m_mapPlayer) {
+            int userid = it.second->m_userid;
+            pb_common::data_frames frames;
+            auto begin_frame = frame_sync[userid] < 0 ? 0 : frame_sync[userid];
+            for (auto i = begin_frame; i <= frameid; ++i) {
+                auto frame = frames.add_frames();
+                frame->set_frameid(i);
+                if (frames_.find(frameid) != frames_.end()) {
+                    for (auto& iter : frames_[frameid]) {
+                        auto user_frame = frame->add_frames();
+                        if (user_frame) {
+                            user_frame->set_userid(iter.first);
+                            for (auto& it : iter.second) {
+                                user_frame->add_opecode(it.second.opecode());
+                            }
+                        }
+                    }
+                }
+            }
+            pServer->udp_send(userid, pb_common::protocol_code::protocol_frame, frames.ByteSizeLong(), frames.SerializeAsString());
+        }
+    }
+}
 
 int main()
 {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
     try {
-        gameserver s("127.0.0.1", 8888, 8889);
+        std::shared_ptr<asio::io_service> io_service = std::make_shared<asio::io_service>();
+        gameserver s("127.0.0.1", 8888, 8889, io_service);
         auto ch = getchar();
     }
     catch (std::exception& e) {

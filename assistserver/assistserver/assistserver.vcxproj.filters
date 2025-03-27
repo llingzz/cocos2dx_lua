@@ -16,6 +16,12 @@
     <Filter Include="pb">
       <UniqueIdentifier>{5ef9cbb7-52f6-4bdd-ae86-be96ba5070a5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="redis">
+      <UniqueIdentifier>{5f74afc1-25f5-435e-955a-c3ed0e3ea95a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="redis\hiredis">
+      <UniqueIdentifier>{65baf20d-e8b2-44e3-a172-9b04e1250ab0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="assistserver.cpp">
@@ -24,10 +30,61 @@
     <ClCompile Include="pb\pb_common.pb.cc">
       <Filter>pb</Filter>
     </ClCompile>
+    <ClCompile Include="redispool\redisclient.cpp">
+      <Filter>redis</Filter>
+    </ClCompile>
+    <ClCompile Include="redispool\redispool.cpp">
+      <Filter>redis</Filter>
+    </ClCompile>
+    <ClCompile Include="redispool\redis\async.c">
+      <Filter>redis\hiredis</Filter>
+    </ClCompile>
+    <ClCompile Include="redispool\redis\dict.c">
+      <Filter>redis\hiredis</Filter>
+    </ClCompile>
+    <ClCompile Include="redispool\redis\hiredis.c">
+      <Filter>redis\hiredis</Filter>
+    </ClCompile>
+    <ClCompile Include="redispool\redis\net.c">
+      <Filter>redis\hiredis</Filter>
+    </ClCompile>
+    <ClCompile Include="redispool\redis\sds.c">
+      <Filter>redis\hiredis</Filter>
+    </ClCompile>
+    <ClCompile Include="redispool\redis\win32fixes.c">
+      <Filter>redis\hiredis</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pb\pb_common.pb.h">
       <Filter>pb</Filter>
+    </ClInclude>
+    <ClInclude Include="redispool\redisclient.h">
+      <Filter>redis</Filter>
+    </ClInclude>
+    <ClInclude Include="redispool\redispool.h">
+      <Filter>redis</Filter>
+    </ClInclude>
+    <ClInclude Include="redispool\redis\async.h">
+      <Filter>redis\hiredis</Filter>
+    </ClInclude>
+    <ClInclude Include="redispool\redis\dict.h">
+      <Filter>redis\hiredis</Filter>
+    </ClInclude>
+    <ClInclude Include="redispool\redis\fmacros.h">
+      <Filter>redis\hiredis</Filter>
+    </ClInclude>
+    <ClInclude Include="redispool\redis\hiredis.h">
+      <Filter>redis\hiredis</Filter>
+    </ClInclude>
+    <ClInclude Include="redispool\redis\net.h">
+      <Filter>redis\hiredis</Filter>
+    </ClInclude>
+    <ClInclude Include="redispool\redis\sds.h">
+      <Filter>redis\hiredis</Filter>
+    </ClInclude>
+    <ClInclude Include="redispool\redis\win32fixes.h">
+      <Filter>redis\hiredis</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

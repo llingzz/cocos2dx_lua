@@ -11,21 +11,57 @@ message data_head
 
 enum protocol_code
 {
-	protocol_user_info = 1;
-	protocol_ready = 2;
-	protocol_begin = 3;
-	protocol_frame = 4;
+	protocol_register = 1;
+	protocol_register_response = 2;
+	protocol_join_room = 3;
+	protocol_join_room_response = 4;
+	protocol_ready = 5;
+	protocol_ready_response = 6;
+	protocol_begin = 7;
+	protocol_frame = 8;
+	protocol_tcp_close = 9;
+	protocol_leave_room = 10;
+	protocol_leave_room_response = 11;
+	protocol_ping = 12;
+	protocol_pong = 13;
 }
 
-message data_user_info
+message data_user_register
+{
+	optional bytes username = 1;
+	optional bytes password = 2;
+}
+
+message data_user_register_response
+{
+	optional int32 return_code = 1;
+	optional int32 userid = 2;
+}
+
+message data_user_join_room
 {
 	optional int32 userid = 1;
+}
+
+message data_user_join_room_response
+{
+	optional int32 userid = 1;
+	optional int32 roomid = 2;
 }
 
 message data_ready
 {
 	optional int32 userid = 1;
-	reserved 2 to 8;
+	optional int32 roomid = 2;
+	reserved 3 to 8;
+}
+
+message data_ready_response
+{
+	optional int32 userid = 1;
+	optional int32 roomid = 2;
+	optional int32 return_code = 3;
+	reserved 4 to 8;
 }
 
 message data_begin
@@ -56,4 +92,34 @@ message data_ope_frames
 message data_frames
 {
 	repeated data_ope_frames frames = 1;
+}
+
+message data_tcp_close
+{
+	optional int32 userid = 1;
+	optional int32 token = 2;
+}
+
+message data_user_leave_room
+{
+	optional int32 userid = 1;
+	optional int32 roomid = 2;
+}
+
+message data_user_leave_room_response
+{
+	optional int32 userid = 1;
+	optional int32 roomid = 2;
+}
+
+message data_ping
+{
+	optional int32 userid = 1;
+	optional int32 idx = 2;
+}
+
+message data_pong
+{
+	optional int32 userid = 1;
+	optional int32 idx = 2;
 }
