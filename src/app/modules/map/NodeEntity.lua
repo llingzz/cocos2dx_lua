@@ -68,13 +68,11 @@ function NodeEntity:getKeyboardEvent(INType,INeventCode)
 end
 
 function NodeEntity:capturePlayerOpts()
-    if self.lastOpeCode == self.opeCode then return end
     self.parent:sendUdpData(protobuf.enum_id("pb_common.protocol_code","protocol_frame"),protobuf.encode('pb_common.data_ope', {
         userid = self.token,
-        frameid = self.parent.currentFrameId,
+        frameid = self.parent.syncFrameId,
         opecode = self.opeCode
     }))
-    self.lastOpeCode = self.opeCode
 end
 
 function NodeEntity:setToken(INtoken)

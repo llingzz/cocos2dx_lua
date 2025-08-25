@@ -8,14 +8,14 @@ local SceneMain = class("SceneMain", function()
 end)
 
 function SceneMain:ctor()
-    local uiloader = cc.load('uiloader')
-    local layer = uiloader:load("res/modules/LayerTest.csb")
-    local width = display.width
-    local height = display.height
-    layer:setContentSize(width, height)
-    layer:enableNodeEvents()
-    ccui.Helper:doLayout(layer)
-    layer:addTo(self)
+    -- local uiloader = cc.load('uiloader')
+    -- local layer = uiloader:load("res/modules/LayerTest.csb")
+    -- local width = display.width
+    -- local height = display.height
+    -- layer:setContentSize(width, height)
+    -- layer:enableNodeEvents()
+    -- ccui.Helper:doLayout(layer)
+    -- layer:addTo(self)
 
     -- local touchLayer = require "src.app.modules.joysticks.TouchLayer"
     -- touchLayer:new():addTo(self)
@@ -77,12 +77,12 @@ function SceneMain:ctor()
     self.standalone = false
     self.roomid = 0
 
-    self.lastedFrameId = 0
-    self.currentFrameId = 0
-    self.logicFrames = {}
-    self.predictFrames = {}
-    self.predictFrameId = 0
-    self.predictAheadFrameCount = 1
+    -- 服务端下发的帧数据
+    self.serverFrames = {}
+    -- 客户端同步过的帧号
+    self.syncFrameId = 0
+    -- 客户端收到的服务端最大帧号
+    self.maxServerFrameId = 0
 
     local keyBoardListener = cc.EventListenerKeyboard:create()
     keyBoardListener:registerScriptHandler(handler(self,self.onKeyEventPressed), cc.Handler.EVENT_KEYBOARD_PRESSED)
@@ -119,7 +119,7 @@ function SceneMain:onEnter()
         end
     end)
     coroutine.resume(self.co, nil)
-    self.ping = 1
+    self.pingIdx = 1
     self.tblPong = {}
 end
 
@@ -222,9 +222,12 @@ function SceneMain:onEventData(INdata)
             local dataInfo = protobuf.decode("pb_common.data_frames", INdata.data.data_str)
             protobuf.extract(dataInfo)
             for i=1,#dataInfo.frames do
-                if self.lastedFrameId < dataInfo.frames[i].frameid then self.lastedFrameId = dataInfo.frames[i].frameid end
-                if self.currentFrameId <= dataInfo.frames[i].frameid then
-                    self.logicFrames[dataInfo.frames[i].frameid] = clone(dataInfo.frames[i].frames)
+                local frameid = dataInfo.frames[i].frameid
+                if self.syncFrameId < frameid then
+                    self.serverFrames[frameid] = clone(dataInfo.frames[i].frames)
+                end
+                if self.maxServerFrameId < frameid then
+                    self.maxServerFrameId = frameid
                 end
             end
         elseif protobuf.enum_id("pb_common.protocol_code","protocol_pong") == INdata.data.protocol_code then
@@ -349,46 +352,13 @@ end
 function SceneMain:tickLogic(dt)
     self:ping()
     if not self.begin then return end
-    if self.entity then self.entity:capturePlayerOpts() end
-    local frameid = self.currentFrameId
-    if (self.standalone or frameid + self.predictAheadFrameCount >= self.predictFrameId) and not self.predictFrames[self.predictFrameId] then
-        self.predictFrames[self.predictFrameId] = {}
-        for k,v in pairs(self.entities) do
-            local opeCode = v.syncOpeCode
-            if k==self.token then opeCode = v.opeCode end
-            self.predictFrames[self.predictFrameId][k] = {opecode=opeCode}
-            v:predictUpdate(v:convertOpeCode(opeCode))
-            --print(string.format("predict userid %d frameid %d opecode %d logic:[%d][%d:%d] predict:[%d][%d:%d]",k,self.predictFrameId,opeCode,v.logicRat,v.logicPos.x,v.logicPos.y,v.predictRat,v.predictPos.x,v.predictPos.y))
-        end
-        self.predictFrameId = self.predictFrameId + 1
-    end
-    if self.standalone then return end
-    if not self.logicFrames[frameid] then
-        return
-    end
-    for k,v in pairs(self.logicFrames[frameid]) do
-        local total = #v.opecode
-        for i=1,total do
-            self.entities[v.userid]:applyInput(frameid, v.opecode[i])
-            if i ~= total then
-                self.entities[v.userid]:logicUpdate()
-            end
+    for i=self.syncFrameId+1,self.maxServerFrameId do
+        if self.serverFrames[i] then
+            self.syncFrameId = i
+            print('frame update '..i)
         end
     end
-    for k,v in pairs(self.entities) do
-        v:logicUpdate()
-        local predict = self.predictFrames[frameid]
-        if predict and predict[k] then
-            if v.syncOpeCode ~= predict[k].opecode then
-                v.predictRat = clone(v.logicRat)
-                v.predictPos = clone(v.logicPos)
-                v:predictUpdate(v:convertOpeCode(v.syncOpeCode))
-                --print(string.format("rollback userid %d frameid %d opecode %d %d logic:[%d][%d:%d] predict:[%d][%d:%d]",k,frameid,predict[k].opecode,v.syncOpeCode,v.logicRat,v.logicPos.x,v.logicPos.y,v.predictRat,v.predictPos.x,v.predictPos.y))
-            end
-        end
-    end
-    table.remove(self.predictFrames,frameid)
-    self.currentFrameId = self.currentFrameId + 1
+    self.entity:capturePlayerOpts()
 end
 
 function SceneMain:onContactBegin(INcontact)

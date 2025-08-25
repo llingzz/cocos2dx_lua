@@ -1,0 +1,187 @@
+﻿  assistserver.cpp
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\io\coded_stream.h(1262,28): warning C4251: “google::protobuf::io::CodedOutputStream::default_serialization_deterministic_”:“std::atomic<bool>”需要有 dll 接口以供“google::protobuf::io::CodedOutputStream”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Soft\VS2022\VC\Tools\MSVC\14.44.35207\include\atomic(2131,8):
+      参见“std::atomic<bool>”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\serial_arena.h(371,22): warning C4251: “google::protobuf::internal::SerialArena::ptr_”:“std::atomic<char *>”需要有 dll 接口以供“google::protobuf::internal::SerialArena”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Soft\VS2022\VC\Tools\MSVC\14.44.35207\include\atomic(2131,8):
+      参见“std::atomic<char *>”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\serial_arena.h(381,29): warning C4251: “google::protobuf::internal::SerialArena::string_block_”:“std::atomic<google::protobuf::internal::StringBlock *>”需要有 dll 接口以供“google::protobuf::internal::SerialArena”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Soft\VS2022\VC\Tools\MSVC\14.44.35207\include\atomic(2131,8):
+      参见“std::atomic<google::protobuf::internal::StringBlock *>”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\serial_arena.h(386,23): warning C4251: “google::protobuf::internal::SerialArena::string_block_unused_”:“std::atomic<unsigned __int64>”需要有 dll 接口以供“google::protobuf::internal::SerialArena”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Soft\VS2022\VC\Tools\MSVC\14.44.35207\include\atomic(2131,8):
+      参见“std::atomic<unsigned __int64>”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\serial_arena.h(388,28): warning C4251: “google::protobuf::internal::SerialArena::head_”:“std::atomic<google::protobuf::internal::ArenaBlock *>”需要有 dll 接口以供“google::protobuf::internal::SerialArena”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Soft\VS2022\VC\Tools\MSVC\14.44.35207\include\atomic(2131,8):
+      参见“std::atomic<google::protobuf::internal::ArenaBlock *>”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\serial_arena.h(389,23): warning C4251: “google::protobuf::internal::SerialArena::space_used_”:“std::atomic<unsigned __int64>”需要有 dll 接口以供“google::protobuf::internal::SerialArena”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Soft\VS2022\VC\Tools\MSVC\14.44.35207\include\atomic(2131,8):
+      参见“std::atomic<unsigned __int64>”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\serial_arena.h(390,23): warning C4251: “google::protobuf::internal::SerialArena::space_allocated_”:“std::atomic<unsigned __int64>”需要有 dll 接口以供“google::protobuf::internal::SerialArena”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Soft\VS2022\VC\Tools\MSVC\14.44.35207\include\atomic(2131,8):
+      参见“std::atomic<unsigned __int64>”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\thread_safe_arena.h(138,29): warning C4251: “google::protobuf::internal::ThreadSafeArena::alloc_policy_”:“google::protobuf::internal::TaggedAllocationPolicyPtr”需要有 dll 接口以供“google::protobuf::internal::ThreadSafeArena”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\arena_allocation_policy.h(41,7):
+      参见“google::protobuf::internal::TaggedAllocationPolicyPtr”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\thread_safe_arena.h(139,30): warning C4251: “google::protobuf::internal::ThreadSafeArena::arena_stats_”:“google::protobuf::internal::ThreadSafeArenaStatsHandle”需要有 dll 接口以供“google::protobuf::internal::ThreadSafeArena”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\arenaz_sampler.h(175,7):
+      参见“google::protobuf::internal::ThreadSafeArenaStatsHandle”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\thread_safe_arena.h(142,15): warning C4251: “google::protobuf::internal::ThreadSafeArena::mutex_”:“absl::lts_20240722::Mutex”需要有 dll 接口以供“google::protobuf::internal::ThreadSafeArena”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\absl\synchronization\mutex.h(151,48):
+      参见“absl::lts_20240722::Mutex”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\thread_safe_arena.h(144,34): warning C4251: “google::protobuf::internal::ThreadSafeArena::head_”:“std::atomic<google::protobuf::internal::ThreadSafeArena::SerialArenaChunk *>”需要有 dll 接口以供“google::protobuf::internal::ThreadSafeArena”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Soft\VS2022\VC\Tools\MSVC\14.44.35207\include\atomic(2131,8):
+      参见“std::atomic<google::protobuf::internal::ThreadSafeArena::SerialArenaChunk *>”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\thread_safe_arena.h(241,39): warning C4251: “google::protobuf::internal::ThreadSafeArena::lifecycle_id_”:“std::atomic<unsigned __int64>”需要有 dll 接口以供“google::protobuf::internal::ThreadSafeArena”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Soft\VS2022\VC\Tools\MSVC\14.44.35207\include\atomic(2131,8):
+      参见“std::atomic<unsigned __int64>”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\arenastring.h(60,43): warning C4251: “google::protobuf::internal::LazyString::inited_”:“std::atomic<const std::string *>”需要有 dll 接口以供“google::protobuf::internal::LazyString”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Soft\VS2022\VC\Tools\MSVC\14.44.35207\include\atomic(2131,8):
+      参见“std::atomic<const std::string *>”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\metadata_lite.h(248,15): warning C4251: “google::protobuf::internal::LiteUnknownFieldSetter::buffer_”:“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”需要有 dll 接口以供“google::protobuf::internal::LiteUnknownFieldSetter”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Soft\VS2022\VC\Tools\MSVC\14.44.35207\include\xstring(541,7):
+      参见“std::basic_string<char,std::char_traits<char>,std::allocator<char>>”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\message_lite.h(117,23): warning C4251: “google::protobuf::internal::CachedSize::atom_”:“std::atomic<int>”需要有 dll 接口以供“google::protobuf::internal::CachedSize”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Soft\VS2022\VC\Tools\MSVC\14.44.35207\include\atomic(2131,8):
+      参见“std::atomic<int>”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\extension_set.h(1059,26): warning C4251: “google::protobuf::internal::RepeatedPrimitiveDefaults::default_repeated_field_int32_t_”:“google::protobuf::RepeatedField<int>”需要有 dll 接口以供“google::protobuf::internal::RepeatedPrimitiveDefaults”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\repeated_field.h(109,7):
+      参见“google::protobuf::RepeatedField<int>”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\extension_set.h(1060,26): warning C4251: “google::protobuf::internal::RepeatedPrimitiveDefaults::default_repeated_field_int64_t_”:“google::protobuf::RepeatedField<int64_t>”需要有 dll 接口以供“google::protobuf::internal::RepeatedPrimitiveDefaults”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\repeated_field.h(109,7):
+      参见“google::protobuf::RepeatedField<int64_t>”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\extension_set.h(1061,27): warning C4251: “google::protobuf::internal::RepeatedPrimitiveDefaults::default_repeated_field_uint32_t_”:“google::protobuf::RepeatedField<uint32_t>”需要有 dll 接口以供“google::protobuf::internal::RepeatedPrimitiveDefaults”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\repeated_field.h(109,7):
+      参见“google::protobuf::RepeatedField<uint32_t>”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\extension_set.h(1062,27): warning C4251: “google::protobuf::internal::RepeatedPrimitiveDefaults::default_repeated_field_uint64_t_”:“google::protobuf::RepeatedField<uint64_t>”需要有 dll 接口以供“google::protobuf::internal::RepeatedPrimitiveDefaults”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\repeated_field.h(109,7):
+      参见“google::protobuf::RepeatedField<uint64_t>”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\extension_set.h(1063,25): warning C4251: “google::protobuf::internal::RepeatedPrimitiveDefaults::default_repeated_field_double_”:“google::protobuf::RepeatedField<double>”需要有 dll 接口以供“google::protobuf::internal::RepeatedPrimitiveDefaults”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\repeated_field.h(109,7):
+      参见“google::protobuf::RepeatedField<double>”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\extension_set.h(1064,24): warning C4251: “google::protobuf::internal::RepeatedPrimitiveDefaults::default_repeated_field_float_”:“google::protobuf::RepeatedField<float>”需要有 dll 接口以供“google::protobuf::internal::RepeatedPrimitiveDefaults”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\repeated_field.h(109,7):
+      参见“google::protobuf::RepeatedField<float>”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\extension_set.h(1065,23): warning C4251: “google::protobuf::internal::RepeatedPrimitiveDefaults::default_repeated_field_bool_”:“google::protobuf::RepeatedField<bool>”需要有 dll 接口以供“google::protobuf::internal::RepeatedPrimitiveDefaults”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\repeated_field.h(109,7):
+      参见“google::protobuf::RepeatedField<bool>”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\descriptor.h(2461,27): warning C4251: “google::protobuf::DescriptorPool::tables_”:“std::unique_ptr<google::protobuf::DescriptorPool::Tables,std::default_delete<google::protobuf::DescriptorPool::Tables>>”需要有 dll 接口以供“google::protobuf::DescriptorPool”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Soft\VS2022\VC\Tools\MSVC\14.44.35207\include\memory(3347,7):
+      参见“std::unique_ptr<google::protobuf::DescriptorPool::Tables,std::default_delete<google::protobuf::DescriptorPool::Tables>>”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\descriptor.h(2474,42): warning C4251: “google::protobuf::DescriptorPool::unused_import_track_files_”:“absl::lts_20240722::flat_hash_map<std::string,bool,absl::lts_20240722::container_internal::StringHash,absl::lts_20240722::container_internal::StringEq,std::allocator<std::pair<const K,V>>>”需要有 dll 接口以供“google::protobuf::DescriptorPool”的客户端使用
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\descriptor.h(2474,42): warning C4251:         with
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\descriptor.h(2474,42): warning C4251:         [
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\descriptor.h(2474,42): warning C4251:             K=std::string,
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\descriptor.h(2474,42): warning C4251:             V=bool
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\descriptor.h(2474,42): warning C4251:         ]
+  (编译源文件“assistserver.cpp”)
+      D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\absl\container\flat_hash_map.h(128,37):
+      参见“absl::lts_20240722::flat_hash_map<std::string,bool,absl::lts_20240722::container_internal::StringHash,absl::lts_20240722::container_internal::StringEq,std::allocator<std::pair<const K,V>>>”的声明
+          with
+          [
+              K=std::string,
+              V=bool
+          ]
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\descriptor.h(2478,39): warning C4251: “google::protobuf::DescriptorPool::feature_set_defaults_spec_”:“std::unique_ptr<google::protobuf::FeatureSetDefaults,std::default_delete<google::protobuf::FeatureSetDefaults>>”需要有 dll 接口以供“google::protobuf::DescriptorPool”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Soft\VS2022\VC\Tools\MSVC\14.44.35207\include\memory(3347,7):
+      参见“std::unique_ptr<google::protobuf::FeatureSetDefaults,std::default_delete<google::protobuf::FeatureSetDefaults>>”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\io\zero_copy_stream_impl_lite.h(234,30): warning C4251: “google::protobuf::io::CopyingInputStreamAdaptor::buffer_”:“std::unique_ptr<uint8_t [],std::default_delete<uint8_t []>>”需要有 dll 接口以供“google::protobuf::io::CopyingInputStreamAdaptor”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Soft\VS2022\VC\Tools\MSVC\14.44.35207\include\memory(3486,7):
+      参见“std::unique_ptr<uint8_t [],std::default_delete<uint8_t []>>”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\io\zero_copy_stream_impl_lite.h(328,30): warning C4251: “google::protobuf::io::CopyingOutputStreamAdaptor::buffer_”:“std::unique_ptr<uint8_t [],std::default_delete<uint8_t []>>”需要有 dll 接口以供“google::protobuf::io::CopyingOutputStreamAdaptor”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Soft\VS2022\VC\Tools\MSVC\14.44.35207\include\memory(3486,7):
+      参见“std::unique_ptr<uint8_t [],std::default_delete<uint8_t []>>”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\io\zero_copy_stream_impl_lite.h(402,28): warning C4251: “google::protobuf::io::CordInputStream::it_”:“absl::lts_20240722::Cord::CharIterator”需要有 dll 接口以供“google::protobuf::io::CordInputStream”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\absl\strings\cord.h(629,9):
+      参见“absl::lts_20240722::Cord::CharIterator”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\io\zero_copy_stream_impl_lite.h(486,14): warning C4251: “google::protobuf::io::CordOutputStream::cord_”:“absl::lts_20240722::Cord”需要有 dll 接口以供“google::protobuf::io::CordOutputStream”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\absl\strings\cord.h(174,7):
+      参见“absl::lts_20240722::Cord”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\io\zero_copy_stream_impl_lite.h(489,20): warning C4251: “google::protobuf::io::CordOutputStream::buffer_”:“absl::lts_20240722::CordBuffer”需要有 dll 接口以供“google::protobuf::io::CordOutputStream”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\absl\strings\cord_buffer.h(105,7):
+      参见“absl::lts_20240722::CordBuffer”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\unknown_field_set.h(190,29): warning C4251: “google::protobuf::UnknownFieldSet::fields_”:“std::vector<google::protobuf::UnknownField,std::allocator<google::protobuf::UnknownField>>”需要有 dll 接口以供“google::protobuf::UnknownFieldSet”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Soft\VS2022\VC\Tools\MSVC\14.44.35207\include\vector(442,7):
+      参见“std::vector<google::protobuf::UnknownField,std::allocator<google::protobuf::UnknownField>>”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\map.h(773,13): warning C4251: “google::protobuf::internal::UntypedMapBase::alloc_”:“google::protobuf::internal::MapAllocator<void *>”需要有 dll 接口以供“google::protobuf::internal::UntypedMapBase”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\map.h(98,7):
+      参见“google::protobuf::internal::MapAllocator<void *>”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\map.h(689,19): warning C4244: “初始化”: 从“uintptr_t”转换到“google::protobuf::internal::map_index_t”，可能丢失数据
+  (编译源文件“assistserver.cpp”)
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\google\protobuf\message.h(1027,27): warning C4251: “google::protobuf::Reflection::tcparse_table_once_”:“absl::lts_20240722::once_flag”需要有 dll 接口以供“google::protobuf::Reflection”的客户端使用
+  (编译源文件“assistserver.cpp”)
+      D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\absl\base\call_once.h(87,7):
+      参见“absl::lts_20240722::once_flag”的声明
+  
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\assistserver.cpp(41,39): warning C4267: “参数”: 从“size_t”转换到“int32_t”，可能丢失数据
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\assistserver.cpp(43,27): warning C4267: “初始化”: 从“size_t”转换到“unsigned int”，可能丢失数据
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\assistserver.cpp(51,17): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\assistserver.cpp(468,95): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\assistserver.cpp(581,100): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+  assistserver.vcxproj -> D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\x64\Debug\assistserver.exe
+  'pwsh.exe' 不是内部或外部命令，也不是可运行的程序
+  或批处理文件。

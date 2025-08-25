@@ -1,0 +1,10 @@
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\assistserver.cpp;D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\x64\Debug\assistserver.obj
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\pb\pb_common.pb.cc;D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\x64\Debug\pb_common.pb.obj
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\redispool\redisclient.cpp;D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\x64\Debug\redisclient.obj
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\redispool\redispool.cpp;D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\x64\Debug\redispool.obj
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\redispool\redis\async.c;D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\x64\Debug\async.obj
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\redispool\redis\dict.c;D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\x64\Debug\dict.obj
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\redispool\redis\hiredis.c;D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\x64\Debug\hiredis.obj
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\redispool\redis\net.c;D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\x64\Debug\net.obj
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\redispool\redis\sds.c;D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\x64\Debug\sds.obj
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\redispool\redis\win32fixes.c;D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\x64\Debug\win32fixes.obj

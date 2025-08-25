@@ -314,7 +314,7 @@ public:
         if (frame_sync[userid] <= frameid) {
             frame_sync[userid] = frameid;
         }
-        printf_s("recv userid %d frameid %d frameid_svr %d opecode %d\n", userid, frameid, currentFrame, frame.opecode());
+        //printf_s("recv userid %d frameid %d frameid_svr %d opecode %d\n", userid, frameid, currentFrame, frame.opecode());
         frames_[currentFrame][userid].insert(std::make_pair(frameid, frame));
     }
 
@@ -580,6 +580,7 @@ void gameroom::start_game(gameserver* pServer) {
             }
             pServer->udp_send(userid, pb_common::protocol_code::protocol_frame, frames.ByteSizeLong(), frames.SerializeAsString());
         }
+        printf_s("server frame id %d\n", frameid);
     }
 }
 
