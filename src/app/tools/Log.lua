@@ -98,7 +98,7 @@ end
 
 function HLog:getLocalFileName()
     local filePath = cc.FileUtils:getInstance():getWritablePath()
-    local fileName = USERID .. "log.txt"
+    local fileName = USERID .. "_log.txt"
     return filePath .. fileName
 end
 

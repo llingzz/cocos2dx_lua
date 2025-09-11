@@ -75,12 +75,14 @@ message data_ope
 	optional int32 userid = 1;
 	optional int32 frameid = 2;
 	optional int32 opecode = 3;
+	optional int32 ackframeid = 4;
 }
 
 message data_frame
 {
 	optional int32 userid = 1;
-	repeated int32 opecode = 2;
+	optional int32 frameid = 2;
+	optional int32 opecode = 3;
 }
 
 message data_ope_frames

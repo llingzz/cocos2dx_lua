@@ -177,11 +177,12 @@ D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x6
       D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\vcpkg_installed\x64-windows\x64-windows\include\absl\base\call_once.h(87,7):
       参见“absl::lts_20240722::once_flag”的声明
   
-D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\assistserver.cpp(41,39): warning C4267: “参数”: 从“size_t”转换到“int32_t”，可能丢失数据
-D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\assistserver.cpp(43,27): warning C4267: “初始化”: 从“size_t”转换到“unsigned int”，可能丢失数据
-D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\assistserver.cpp(51,17): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
-D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\assistserver.cpp(468,95): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
-D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\assistserver.cpp(581,100): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\assistserver.cpp(48,39): warning C4267: “参数”: 从“size_t”转换到“int32_t”，可能丢失数据
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\assistserver.cpp(50,27): warning C4267: “初始化”: 从“size_t”转换到“unsigned int”，可能丢失数据
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\assistserver.cpp(58,17): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\assistserver.cpp(350,31): warning C4244: “+=”: 从“time_t”转换到“int”，可能丢失数据
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\assistserver.cpp(473,95): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\assistserver\assistserver.cpp(594,100): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
   assistserver.vcxproj -> D:\Work\Client\Cocos2dx\cocos2dx_lua\assistserver\x64\Debug\assistserver.exe
   'pwsh.exe' 不是内部或外部命令，也不是可运行的程序
   或批处理文件。

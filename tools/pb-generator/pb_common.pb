@@ -1,5 +1,5 @@
 
-ø
+²
 pb_common.proto	pb_common"l
 	data_head#
 protocol_code (RprotocolCode
@@ -30,15 +30,19 @@ returnCodeJ	"C
 
 data_begin
 	rand_seed (RrandSeed
-userids (Ruserids"V
+userids (Ruserids"v
 data_ope
 userid (Ruserid
 frameid (Rframeid
-opecode (Ropecode">
+opecode (Ropecode
+
+ackframeid (R
+ackframeid"X
 
 data_frame
 userid (Ruserid
-opecode (Ropecode"Z
+frameid (Rframeid
+opecode (Ropecode"Z
 data_ope_frames
 frameid (Rframeid-
 frames (2.pb_common.data_frameRframes"A

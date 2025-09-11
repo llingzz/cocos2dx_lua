@@ -70,9 +70,14 @@ end
 function NodeEntity:capturePlayerOpts()
     self.parent:sendUdpData(protobuf.enum_id("pb_common.protocol_code","protocol_frame"),protobuf.encode('pb_common.data_ope', {
         userid = self.token,
-        frameid = self.parent.syncFrameId,
-        opecode = self.opeCode
+        frameid = self.parent.frameId,
+        opecode = self.opeCode,
+        ackframeid = self.parent.syncFrameId
     }))
+end
+
+function NodeEntity:getOpeCode()
+    return self.opeCode
 end
 
 function NodeEntity:setToken(INtoken)
@@ -86,47 +91,6 @@ function NodeEntity:convertOpeCode(INopeCode)
     if bit._and(INopeCode,0x04) > 0 then rotation = rotation - 1 end
     if bit._and(INopeCode,0x08) > 0 then rotation = rotation + 1 end
     return ahead, rotation
-end
-
-function NodeEntity:applyInput(INframe,INopeCode)
-    if self.frameid > INframe then return end
-    self.ahead, self.rotation = self:convertOpeCode(INopeCode)
-    self.frameid = INframe
-    self.syncOpeCode = INopeCode
-end
-
-function NodeEntity:predictUpdate(INahead,INrotation)
-    if INrotation ~= 0 then
-        self.predictRat = self.predictRat + INrotation*15
-    end
-    if INahead ~= 0 then
-        local dir = dir_table[math.round(self.predictRat%360)]
-        self.predictPos.x = self.predictPos.x + dir.x*INahead*200
-        self.predictPos.y = self.predictPos.y + dir.y*INahead*200
-    end
-end
-
-function NodeEntity:logicUpdate(dt)
-    if self.rotation ~= 0 then
-        self.logicRat = self.logicRat + self.rotation*15
-        --print(string.format("logicRat %d",self.logicRat))
-    end
-    if self.ahead ~= 0 then
-        local dir = dir_table[math.round(self.logicRat%360)]
-        self.logicPos.x = self.logicPos.x + dir.x*self.ahead*200
-        self.logicPos.y = self.logicPos.y + dir.y*self.ahead*200
-        --print(string.format("logicPox.x %d logicPos.y %d",self.logicPos.x,self.logicPos.y))
-    end
-    if bit._and(self.syncOpeCode,0x10) > 0 then
-        self:fireBullet()
-    end
-end
-
-function NodeEntity:renderUpdate(dt)
-    self:setRotation(HelpTools:lerp(self:getRotation(),self.predictRat,0.067))
-    self:setPosition(cc.pLerp(cc.p(self:getPosition()),cc.p(self.predictPos.x/1000,self.predictPos.y/1000),0.067))
-    -- self:setRotation(HelpTools:lerp(self:getRotation(),self.logicRat,0.067))
-    -- self:setPosition(cc.pLerp(cc.p(self:getPosition()),cc.p(self.logicPos.x/1000,self.logicPos.y/1000),0.067))
 end
 
 function NodeEntity:fireBullet()

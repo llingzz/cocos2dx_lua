@@ -12,6 +12,13 @@
 #include <queue>
 #include <asio.hpp>
 
+static
+time_t getMs() {
+    std::chrono::time_point<std::chrono::system_clock, std::chrono::milliseconds> tp = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
+    auto tmp = std::chrono::duration_cast<std::chrono::milliseconds>(tp.time_since_epoch());
+    return tmp.count();
+}
+
 using asio::ip::tcp;
 class session : public std::enable_shared_from_this<session> {
 public:
@@ -275,7 +282,7 @@ public:
 public:
     udp::socket socket_;
     udp::endpoint sender_endpoint_;
-    enum { max_length = 1024 };
+    enum { max_length = 10240 };
     char data_[max_length];
     std::function<void(const std::string&,const udp::endpoint&)> m_callback;
     std::mutex lock_udp;
@@ -309,12 +316,12 @@ public:
     void input_frame(int userid, int frameid, const pb_common::data_ope& frame) {
         std::lock_guard<std::mutex> lk(lock_frames);
         if (frame_sync.find(userid) == frame_sync.end()) {
-            frame_sync.insert(std::make_pair(userid, frameid));
+            frame_sync.insert(std::make_pair(userid, frame.ackframeid()));
         }
-        if (frame_sync[userid] <= frameid) {
-            frame_sync[userid] = frameid;
+        if (frame_sync[userid] < frame.ackframeid()) {
+            frame_sync[userid] = frame.ackframeid();
         }
-        //printf_s("recv userid %d frameid %d frameid_svr %d opecode %d\n", userid, frameid, currentFrame, frame.opecode());
+        printf_s("[recv] userid %d frameid %d acked_frameid %d frameid_svr %d opecode %d\n", userid, frameid, frame.ackframeid(), currentFrame, frame.opecode());
         frames_[currentFrame][userid].insert(std::make_pair(frameid, frame));
     }
 
@@ -335,13 +342,19 @@ public:
         m_pRedisPool = RedisPool::create("127.0.0.1", 6379, "");
         m_pRedisPool->initConnection(3);
         m_pLogicThread = std::make_unique<std::thread>([=]() {
-            auto fps = 1000 / 15;
+            auto delta = 0;
+            auto tick = getMs();
+            auto fps = 1000 / 12;
             while (true) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(fps));
+                auto now = getMs();
+                delta += (now - tick);
+                tick = now;
+                while(delta >= fps)
                 {
+                    delta -= fps;
                     std::lock_guard<std::mutex> lk(lock_room);
                     for (auto& iter : m_mapRoom) {
-                        if (iter.second->all_ready || iter.second->m_mapPlayer.size() <= 0) {
+                        if (iter.second->all_ready || iter.second->m_mapPlayer.size() <= 1) {
                             continue;
                         }
                         iter.second->all_ready = true;
@@ -358,6 +371,7 @@ public:
                         }
                     }
                 }
+                std::this_thread::sleep_for(std::chrono::microseconds(1));
             }
         });
         register_tcp_callback(pb_common::protocol_code::protocol_register, [&](LONG token, int protocol, const std::string& real_data) {
@@ -366,19 +380,10 @@ public:
             pb_common::data_user_register_response rsp;
             rsp.set_return_code(0);
             std::string ani;
-            auto res = m_pRedisPool->get(0)->RedisCommand(ani, "HGET username_userid %s", _register.username().c_str());
             do {
-                if (REDIS_REPLY_ERROR == atoi(res.c_str())) {
-                    break;
-                }
-                else if (REDIS_REPLY_NIL == atoi(res.c_str())) {
-                    res = m_pRedisPool->get(0)->RedisCommand(ani, "INCRBY user_id_generator 1");
-                    if (REDIS_REPLY_ERROR == atoi(res.c_str())) { break; }
-                }
+                auto res = m_pRedisPool->get(0)->RedisCommand(ani, "INCRBY user_id_generator 1");
                 rsp.set_return_code(1);
                 rsp.set_userid(atoi(ani.c_str()));
-                m_pRedisPool->get(0)->RedisCommand(ani, "HSET username_userid %s %d", _register.username().c_str(), rsp.userid());
-                m_pRedisPool->get(0)->RedisCommand(ani, "HSET username_password %s %s", _register.username().c_str(), _register.password().c_str());
                 {
                     std::lock_guard<std::mutex> lklk(lock_token);
                     m_mapTokenUserId[token] = rsp.userid();
@@ -451,7 +456,6 @@ public:
             pb_common::data_ope frame;
             if (!frame.ParseFromString(data)) { return; }
             auto userid = frame.userid();
-            update_udp_session(userid, ed);
             std::lock_guard<std::mutex> lk(lock_room);
             for (auto& iter : m_mapRoom) {
                 if (iter.second->game_start && iter.second->m_mapPlayer.find(userid) != iter.second->m_mapPlayer.end()) {
@@ -465,6 +469,7 @@ public:
             if (!ping.ParseFromString(data)) { return; }
             pb_common::data_pong pong;
             pong.set_userid(ping.userid());
+            update_udp_session(ping.userid(), ed);
             udp_send(ping.userid(), pb_common::protocol_code::protocol_pong, ping.ByteSizeLong(), ping.SerializeAsString());
         });
     }
@@ -560,27 +565,37 @@ void gameroom::start_game(gameserver* pServer) {
         std::lock_guard<std::mutex> lk(lock_frames);
         int frameid = currentFrame++;
         for (auto& it : m_mapPlayer) {
+            std::string strLog = "";
             int userid = it.second->m_userid;
             pb_common::data_frames frames;
             auto begin_frame = frame_sync[userid] < 0 ? 0 : frame_sync[userid];
-            for (auto i = begin_frame; i <= frameid; ++i) {
+            for (auto i = begin_frame+1; i <= frameid-1; ++i) {
                 auto frame = frames.add_frames();
                 frame->set_frameid(i);
-                if (frames_.find(frameid) != frames_.end()) {
-                    for (auto& iter : frames_[frameid]) {
+                if (frames_.find(i) != frames_.end()) {
+                    for (auto& iter : frames_[i]) {
+                        strLog += std::to_string(iter.first);
+                        strLog += std::string("|");
                         auto user_frame = frame->add_frames();
                         if (user_frame) {
-                            user_frame->set_userid(iter.first);
                             for (auto& it : iter.second) {
-                                user_frame->add_opecode(it.second.opecode());
+                                user_frame->set_userid(iter.first);
+                                user_frame->set_frameid(it.first);
+                                user_frame->set_opecode(it.second.opecode());
+                                strLog += std::to_string(it.first);
+                                strLog += std::string(":");
+                                strLog += std::to_string(it.second.opecode());
+                                strLog += std::string("&");
                             }
                         }
                     }
                 }
             }
             pServer->udp_send(userid, pb_common::protocol_code::protocol_frame, frames.ByteSizeLong(), frames.SerializeAsString());
+            if (strLog != "") {
+                printf_s("[send] server send to userid %d frame info %s\n", userid, strLog.c_str());
+            }
         }
-        printf_s("server frame id %d\n", frameid);
     }
 }
 

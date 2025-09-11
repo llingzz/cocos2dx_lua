@@ -2398,6 +2398,7 @@ class data_ope final :
     kUseridFieldNumber = 1,
     kFrameidFieldNumber = 2,
     kOpecodeFieldNumber = 3,
+    kAckframeidFieldNumber = 4,
   };
   // optional int32 userid = 1;
   bool has_userid() const;
@@ -2432,13 +2433,24 @@ class data_ope final :
   void _internal_set_opecode(::int32_t value);
 
   public:
+  // optional int32 ackframeid = 4;
+  bool has_ackframeid() const;
+  void clear_ackframeid() ;
+  ::int32_t ackframeid() const;
+  void set_ackframeid(::int32_t value);
+
+  private:
+  ::int32_t _internal_ackframeid() const;
+  void _internal_set_ackframeid(::int32_t value);
+
+  public:
   // @@protoc_insertion_point(class_scope:pb_common.data_ope)
  private:
   class _Internal;
 
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      2, 3, 0,
+      2, 4, 0,
       0, 2>
       _table_;
   friend class ::google::protobuf::MessageLite;
@@ -2460,6 +2472,7 @@ class data_ope final :
     ::int32_t userid_;
     ::int32_t frameid_;
     ::int32_t opecode_;
+    ::int32_t ackframeid_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -2807,27 +2820,10 @@ class data_frame final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kOpecodeFieldNumber = 2,
     kUseridFieldNumber = 1,
+    kFrameidFieldNumber = 2,
+    kOpecodeFieldNumber = 3,
   };
-  // repeated int32 opecode = 2;
-  int opecode_size() const;
-  private:
-  int _internal_opecode_size() const;
-
-  public:
-  void clear_opecode() ;
-  ::int32_t opecode(int index) const;
-  void set_opecode(int index, ::int32_t value);
-  void add_opecode(::int32_t value);
-  const ::google::protobuf::RepeatedField<::int32_t>& opecode() const;
-  ::google::protobuf::RepeatedField<::int32_t>* mutable_opecode();
-
-  private:
-  const ::google::protobuf::RepeatedField<::int32_t>& _internal_opecode() const;
-  ::google::protobuf::RepeatedField<::int32_t>* _internal_mutable_opecode();
-
-  public:
   // optional int32 userid = 1;
   bool has_userid() const;
   void clear_userid() ;
@@ -2839,13 +2835,35 @@ class data_frame final :
   void _internal_set_userid(::int32_t value);
 
   public:
+  // optional int32 frameid = 2;
+  bool has_frameid() const;
+  void clear_frameid() ;
+  ::int32_t frameid() const;
+  void set_frameid(::int32_t value);
+
+  private:
+  ::int32_t _internal_frameid() const;
+  void _internal_set_frameid(::int32_t value);
+
+  public:
+  // optional int32 opecode = 3;
+  bool has_opecode() const;
+  void clear_opecode() ;
+  ::int32_t opecode() const;
+  void set_opecode(::int32_t value);
+
+  private:
+  ::int32_t _internal_opecode() const;
+  void _internal_set_opecode(::int32_t value);
+
+  public:
   // @@protoc_insertion_point(class_scope:pb_common.data_frame)
  private:
   class _Internal;
 
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      1, 2, 0,
+      2, 3, 0,
       0, 2>
       _table_;
   friend class ::google::protobuf::MessageLite;
@@ -2864,8 +2882,9 @@ class data_frame final :
                               ::google::protobuf::Arena* arena, const Impl_& from);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     mutable ::google::protobuf::internal::CachedSize _cached_size_;
-    ::google::protobuf::RepeatedField<::int32_t> opecode_;
     ::int32_t userid_;
+    ::int32_t frameid_;
+    ::int32_t opecode_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -4203,6 +4222,34 @@ inline void data_ope::_internal_set_opecode(::int32_t value) {
   _impl_.opecode_ = value;
 }
 
+// optional int32 ackframeid = 4;
+inline bool data_ope::has_ackframeid() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000008u) != 0;
+  return value;
+}
+inline void data_ope::clear_ackframeid() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.ackframeid_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000008u;
+}
+inline ::int32_t data_ope::ackframeid() const {
+  // @@protoc_insertion_point(field_get:pb_common.data_ope.ackframeid)
+  return _internal_ackframeid();
+}
+inline void data_ope::set_ackframeid(::int32_t value) {
+  _internal_set_ackframeid(value);
+  // @@protoc_insertion_point(field_set:pb_common.data_ope.ackframeid)
+}
+inline ::int32_t data_ope::_internal_ackframeid() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.ackframeid_;
+}
+inline void data_ope::_internal_set_ackframeid(::int32_t value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_._has_bits_[0] |= 0x00000008u;
+  _impl_.ackframeid_ = value;
+}
+
 // -------------------------------------------------------------------
 
 // data_frame
@@ -4235,49 +4282,60 @@ inline void data_frame::_internal_set_userid(::int32_t value) {
   _impl_.userid_ = value;
 }
 
-// repeated int32 opecode = 2;
-inline int data_frame::_internal_opecode_size() const {
-  return _internal_opecode().size();
+// optional int32 frameid = 2;
+inline bool data_frame::has_frameid() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
+  return value;
 }
-inline int data_frame::opecode_size() const {
-  return _internal_opecode_size();
+inline void data_frame::clear_frameid() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.frameid_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000002u;
+}
+inline ::int32_t data_frame::frameid() const {
+  // @@protoc_insertion_point(field_get:pb_common.data_frame.frameid)
+  return _internal_frameid();
+}
+inline void data_frame::set_frameid(::int32_t value) {
+  _internal_set_frameid(value);
+  // @@protoc_insertion_point(field_set:pb_common.data_frame.frameid)
+}
+inline ::int32_t data_frame::_internal_frameid() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.frameid_;
+}
+inline void data_frame::_internal_set_frameid(::int32_t value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_._has_bits_[0] |= 0x00000002u;
+  _impl_.frameid_ = value;
+}
+
+// optional int32 opecode = 3;
+inline bool data_frame::has_opecode() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000004u) != 0;
+  return value;
 }
 inline void data_frame::clear_opecode() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.opecode_.Clear();
+  _impl_.opecode_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000004u;
 }
-inline ::int32_t data_frame::opecode(int index) const {
+inline ::int32_t data_frame::opecode() const {
   // @@protoc_insertion_point(field_get:pb_common.data_frame.opecode)
-  return _internal_opecode().Get(index);
-}
-inline void data_frame::set_opecode(int index, ::int32_t value) {
-  _internal_mutable_opecode()->Set(index, value);
-  // @@protoc_insertion_point(field_set:pb_common.data_frame.opecode)
-}
-inline void data_frame::add_opecode(::int32_t value) {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _internal_mutable_opecode()->Add(value);
-  // @@protoc_insertion_point(field_add:pb_common.data_frame.opecode)
-}
-inline const ::google::protobuf::RepeatedField<::int32_t>& data_frame::opecode() const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:pb_common.data_frame.opecode)
   return _internal_opecode();
 }
-inline ::google::protobuf::RepeatedField<::int32_t>* data_frame::mutable_opecode()
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable_list:pb_common.data_frame.opecode)
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  return _internal_mutable_opecode();
+inline void data_frame::set_opecode(::int32_t value) {
+  _internal_set_opecode(value);
+  // @@protoc_insertion_point(field_set:pb_common.data_frame.opecode)
 }
-inline const ::google::protobuf::RepeatedField<::int32_t>& data_frame::_internal_opecode()
-    const {
+inline ::int32_t data_frame::_internal_opecode() const {
   PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
   return _impl_.opecode_;
 }
-inline ::google::protobuf::RepeatedField<::int32_t>* data_frame::_internal_mutable_opecode() {
-  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
-  return &_impl_.opecode_;
+inline void data_frame::_internal_set_opecode(::int32_t value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_._has_bits_[0] |= 0x00000004u;
+  _impl_.opecode_ = value;
 }
 
 // -------------------------------------------------------------------
