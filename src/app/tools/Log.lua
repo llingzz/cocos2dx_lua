@@ -98,7 +98,11 @@ end
 
 function HLog:getLocalFileName()
     local filePath = cc.FileUtils:getInstance():getWritablePath()
-    local fileName = USERID .. "_log.txt"
+    filePath = filePath .. "//log//"
+    if not cc.FileUtils:getInstance():isDirectoryExist(filePath) then
+        cc.FileUtils:getInstance():createDirectory(filePath)
+    end
+    local fileName = math.floor(START_TIME * 10000) .. ".log"
     return filePath .. fileName
 end
 

@@ -9,6 +9,7 @@ end
 
 require "cocos.init"
 cc.FileUtils:getInstance():setPopupNotify(false)
+cc.exports.START_TIME = socket.gettime()
 cc.exports.HLog = require "app.tools.Log"
 cc.exports.StateMachine = require "app.tools.StateMachine"
 cc.exports.EventProtocol = require "app.tools.EventProtocol"
@@ -36,6 +37,7 @@ local function main()
         local HandlerSceneMain = require("src.app.scenes.SceneMain")
         display.runScene(HandlerSceneMain.new())
     end
+    HLog:printf("game started")
 end
 
 local status, msg = xpcall(main, __G__TRACKBACK__)

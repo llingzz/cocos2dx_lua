@@ -344,7 +344,7 @@ public:
         m_pLogicThread = std::make_unique<std::thread>([=]() {
             auto delta = 0;
             auto tick = getMs();
-            auto fps = 1000 / 12;
+            auto fps = 1000 / 15;
             while (true) {
                 auto now = getMs();
                 delta += (now - tick);
@@ -354,7 +354,7 @@ public:
                     delta -= fps;
                     std::lock_guard<std::mutex> lk(lock_room);
                     for (auto& iter : m_mapRoom) {
-                        if (iter.second->all_ready || iter.second->m_mapPlayer.size() <= 1) {
+                        if (iter.second->all_ready || iter.second->m_mapPlayer.size() <= 0) {
                             continue;
                         }
                         iter.second->all_ready = true;
@@ -569,7 +569,7 @@ void gameroom::start_game(gameserver* pServer) {
             int userid = it.second->m_userid;
             pb_common::data_frames frames;
             auto begin_frame = frame_sync[userid] < 0 ? 0 : frame_sync[userid];
-            for (auto i = begin_frame+1; i <= frameid-1; ++i) {
+            for (auto i = begin_frame+1; i <= frameid; ++i) {
                 auto frame = frames.add_frames();
                 frame->set_frameid(i);
                 if (frames_.find(i) != frames_.end()) {

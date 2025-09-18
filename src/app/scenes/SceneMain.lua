@@ -102,7 +102,7 @@ function SceneMain:ctor()
     if CC_SHOW_PHYSIC_MASK then self:getPhysicsWorld():setDebugDrawMask(cc.PhysicsWorld.DEBUGDRAW_ALL) end
     self.tickPhysicWorld = Scheduler:scheduleGlobal(handler(self, self.tickUpdate), 0.02)
     self:scheduleUpdate(handler(self,self.update))
-    self.tickLogic = Scheduler:scheduleGlobal(handler(self, self.tickLogic), 1.0/15)
+    --self.tickLogic = Scheduler:scheduleGlobal(handler(self, self.tickLogic), 1.0/15)
     self.tickPing = Scheduler:scheduleGlobal(handler(self,self.ping),1)
 
     self.lastRecv = nil
@@ -361,8 +361,47 @@ function SceneMain:createEntity(INtoken)
     self.entities[INtoken] = entity
 end
 
+function SceneMain:lerpConstantSpeed(currentPos, targetPos, speed, dt)
+    if not targetPos then return currentPos end
+    local dx = targetPos.x - currentPos.x
+    local dy = targetPos.y - currentPos.y
+    local distance = math.sqrt(dx * dx + dy * dy)
+
+    if distance <= 0.1 then
+        return targetPos
+    end
+
+    local moveDistance = speed * dt
+    if moveDistance >= distance then
+        return targetPos
+    end
+
+    local ratio = moveDistance / distance
+    return cc.p(currentPos.x + dx * ratio, currentPos.y + dy * ratio)
+end
+
 function SceneMain:update(dt)
     if not self.begin then return end
+    if not self.updateTick then self.updateTick = 0 end
+    local const_dt = 1.0/15
+    if self.updateTick >= const_dt then
+        self.updateTick = self.updateTick - const_dt
+        self:tickLogic(const_dt)
+    end
+    for k,v in pairs(self.entities) do
+        if v then
+            if k == self.token then
+                local currentPos = cc.p(v:getPosition())
+                local newPos = self:lerpConstantSpeed(currentPos, self.lastestPos, 100*0.2*15, dt)
+                v:setPosition(newPos)
+            else
+                local currentPos = cc.p(v:getPosition())
+                local newPos = self:lerpConstantSpeed(currentPos, self.otherPos, 100*0.2*15, dt)
+                v:setPosition(newPos)
+            end
+        end
+    end
+    self.updateTick = self.updateTick + dt
 end
 
 function SceneMain:tickUpdate(dt)
@@ -415,7 +454,7 @@ function SceneMain:tickLogic(dt)
                         end
                     end
                 end
-                HLog:printf(string.format("player userid %d apply frameid %d opecode %d logicPos %f:%f aheadPos %f:%f", self.token,v.frameid,v.opecode,self.syncStates.x,self.syncStates.y,self.lastestPos.x,self.lastestPos.y))
+                --HLog:printf(string.format("player userid %d apply frameid %d opecode %d logicPos %f:%f aheadPos %f:%f", self.token,v.frameid,v.opecode,self.syncStates.x,self.syncStates.y,self.lastestPos.x,self.lastestPos.y))
             else
                 if v.frameid > self.otherFrameid then
                     self.otherFrameid = v.frameid
@@ -424,7 +463,7 @@ function SceneMain:tickLogic(dt)
                         self.otherPos.x = self.otherPos.x + y * 100* 0.2
                         self.otherPos.y = self.otherPos.y + x * 100* 0.2
                     end
-                    HLog:printf(string.format("userid %d frame %d opecode %d logicPos %f:%f",v.userid,self.otherFrameid,v.opecode,self.otherPos.x,self.otherPos.y))
+                    --HLog:printf(string.format("userid %d frame %d opecode %d logicPos %f:%f",v.userid,self.otherFrameid,v.opecode,self.otherPos.x,self.otherPos.y))
                 end
             end
         end
@@ -433,9 +472,9 @@ function SceneMain:tickLogic(dt)
     for k,v in pairs(self.entities) do
         if v then
             if k == self.token then
-                v:setPosition(cc.p(self.lastestPos.x,self.lastestPos.y))
+                --v:setPosition(cc.p(self.lastestPos.x,self.lastestPos.y))
             else
-                v:setPosition(cc.p(self.otherPos.x,self.otherPos.y))
+                --v:setPosition(cc.p(self.otherPos.x,self.otherPos.y))
             end
         end
     end
