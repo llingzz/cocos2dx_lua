@@ -103,8 +103,7 @@ function SceneMain:ctor()
     self.tickPhysicWorld = Scheduler:scheduleGlobal(handler(self, self.tickUpdate), 0.02)
     self:scheduleUpdate(handler(self,self.update))
     --self.tickLogic = Scheduler:scheduleGlobal(handler(self, self.tickLogic), 1.0/15)
-    self.tickPing = Scheduler:scheduleGlobal(handler(self,self.ping),1)
-
+    self.tickPing = Scheduler:scheduleGlobal(handler(self,self.ping),5)
     self.lastRecv = nil
 end
 
@@ -198,6 +197,7 @@ function SceneMain:onEventData(INdata)
             if dataInfo.return_code ~= 1 then return end
             cc.exports.USERID = dataInfo.userid
             self.token = dataInfo.userid
+            self:ping()
             local pData = protobuf.encode('pb_common.data_user_join_room', {
                 userid = self.token
             })
@@ -268,29 +268,34 @@ function SceneMain:sendData(INprotocal,INdata)
     self.tcp:send(str .. pData)
 end
 
-function SceneMain:sendUdpData(INprotocal,INdata)
+function SceneMain:sendUdpData(INprotocal,INdata,INpkLoss)
     local pData = protobuf.encode('pb_common.data_head', {
         protocol_code = INprotocal,
         data_len = string.len(INdata),
         data_str = INdata
     })
+    local rand = math.random(0,10)
+    if INpkLoss and rand <= 0 then
+        return true
+    end
     self.udp:send(pData)
 end
 
 function SceneMain:ping()
     if not self.token or -1 == self.token then return end
-    local total,count,delay = 0,0,"+999ms"
-    for i=1,10 do
+    local total,count,packcount,delay = 0,0,10,"+999"
+    for i=1,packcount do
         if self.tblPong[i] and self.tblPong[i].endtime then
-            total = total + (self.tblPong[i].endtime-self.tblPong[i].time)/2
+            total = total + (self.tblPong[i].endtime-self.tblPong[i].time)
             count = count + 1
         end
     end
-    if count ~= 0 then delay = tostring(total*1000.0/count) end
+    if count ~= 0 then delay = tostring(math.floor(total*1000.0/count)) end
+    print("lag:"..delay.."ms")
     self.tblPong = {}
-    for i=1,10 do
+    for i=1,packcount do
         self.tblPong[i] = {time=socket.gettime()}
-        self:sendUdpData(protobuf.enum_id("pb_common.protocol_code","protocol_ping"),protobuf.encode('pb_common.data_ping', {
+        self:sendUdpData(12,protobuf.encode('pb_common.data_ping', {
             userid = self.token,
             idx = i
         }))
@@ -412,18 +417,20 @@ function SceneMain:tickUpdate(dt)
 end
 
 function SceneMain:tickLogic(dt)
-    --self:ping()
     if not self.begin then return end
     if not self.lastestPos then self.lastestPos = cc.p(self.entity:getPosition()) end
     if not self.syncStates then self.syncStates = cc.p(display.cx,display.cy) end
     self.frameId = self.frameId + 1
     local opeCodes = self.entity:getOpeCode()
-    self:sendUdpData(8,protobuf.encode('pb_common.data_ope', {
+    local ret = self:sendUdpData(8,protobuf.encode('pb_common.data_ope', {
         userid = self.token,
         frameid = self.frameId,
         opecode = opeCodes,
         ackframeid = self.syncFrameId
-    }))
+    }),true)
+    if ret then
+        --HLog:printf(string.format("player packet loss frameid:%d opeCode:%d",self.frameId,opeCodes))
+    end
     if not self.inputsPending[self.frameId] then self.inputsPending[self.frameId] = {} end
     self.inputsPending[self.frameId] = opeCodes
     local x,y = self:convertOpeCode(opeCodes)
@@ -434,6 +441,9 @@ function SceneMain:tickLogic(dt)
 
     while(self.serverFrames[self.syncFrameId+1]) do
         local frames = self.serverFrames[self.syncFrameId+1]
+        if 0 == #frames then
+            --HLog:printf(string.format("frames empty frameid:%d",self.syncFrameId+1))
+        end
         for m=1,#frames do
             local v = frames[m]
             if v.userid == self.token then
@@ -445,6 +455,7 @@ function SceneMain:tickLogic(dt)
                     self.lastestPos.y = self.lastestPos.y + x * 100* 0.2
                 end
                 self.syncStates = cc.p(self.lastestPos.x, self.lastestPos.y)
+                --HLog:printf(string.format("[%04d]player userid %d apply frameid %04d opecode %04d logicPos %f:%f aheadPos %f:%f", self.syncFrameId+1,self.token,v.frameid,v.opecode,self.syncStates.x,self.syncStates.y,self.lastestPos.x,self.lastestPos.y))
                 for i=v.frameid+1,self.frameId do
                     if self.inputsPending[i] then
                         x,y = self:convertOpeCode(self.inputsPending[i])
@@ -454,7 +465,6 @@ function SceneMain:tickLogic(dt)
                         end
                     end
                 end
-                --HLog:printf(string.format("player userid %d apply frameid %d opecode %d logicPos %f:%f aheadPos %f:%f", self.token,v.frameid,v.opecode,self.syncStates.x,self.syncStates.y,self.lastestPos.x,self.lastestPos.y))
             else
                 if v.frameid > self.otherFrameid then
                     self.otherFrameid = v.frameid
@@ -468,15 +478,6 @@ function SceneMain:tickLogic(dt)
             end
         end
         self.syncFrameId = self.syncFrameId + 1
-    end
-    for k,v in pairs(self.entities) do
-        if v then
-            if k == self.token then
-                --v:setPosition(cc.p(self.lastestPos.x,self.lastestPos.y))
-            else
-                --v:setPosition(cc.p(self.otherPos.x,self.otherPos.y))
-            end
-        end
     end
     --print(string.format("predict frame %d acked frameid %d syncPos %f:%f localPos %f:%f",self.frameId,self.syncFrameId,self.syncStates.x,self.syncStates.y,self.lastestPos.x,self.lastestPos.y))
 end

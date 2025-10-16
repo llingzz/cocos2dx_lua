@@ -260,10 +260,14 @@ public:
 
     void send_data(int token, const std::string& data)
     {
-        std::lock_guard<std::mutex> lk(lock_udp);
-        if (udp_sessions.find(token) == udp_sessions.end()) { return; }
+        udp::endpoint ed;
+        {
+            std::lock_guard<std::mutex> lk(lock_udp);
+            if (udp_sessions.find(token) == udp_sessions.end()) { return; }
+			ed = udp_sessions[token];
+        }
         //socket_.send_to(asio::buffer(data.c_str(), data.size()), ed);
-        socket_.async_send_to(asio::buffer(data.c_str(), data.size()), udp_sessions[token],
+        socket_.async_send_to(asio::buffer(data.c_str(), data.size()), ed,
             [this](asio::error_code /*ec*/, std::size_t /*bytes_sent*/) {
                 // do nothing
             }
@@ -312,7 +316,7 @@ public:
     ~gameroom() {
 
     }
-    void start_game(gameserver* pServer);
+    void start_game(gameserver* pServer, int playercount);
     void input_frame(int userid, int frameid, const pb_common::data_ope& frame) {
         std::lock_guard<std::mutex> lk(lock_frames);
         if (frame_sync.find(userid) == frame_sync.end()) {
@@ -342,6 +346,7 @@ public:
         m_pRedisPool = RedisPool::create("127.0.0.1", 6379, "");
         m_pRedisPool->initConnection(3);
         m_pLogicThread = std::make_unique<std::thread>([=]() {
+            auto playercount = 1;
             auto delta = 0;
             auto tick = getMs();
             auto fps = 1000 / 15;
@@ -354,7 +359,7 @@ public:
                     delta -= fps;
                     std::lock_guard<std::mutex> lk(lock_room);
                     for (auto& iter : m_mapRoom) {
-                        if (iter.second->all_ready || iter.second->m_mapPlayer.size() <= 0) {
+                        if (iter.second->all_ready || iter.second->m_mapPlayer.size() < playercount) {
                             continue;
                         }
                         iter.second->all_ready = true;
@@ -367,7 +372,7 @@ public:
                     }
                     for (auto& iter : m_mapRoom) {
                         if (iter.second->all_ready) {
-                            iter.second->start_game(this);
+                            iter.second->start_game(this, playercount);
                         }
                     }
                 }
@@ -548,7 +553,7 @@ public:
     std::map<LONG, int> m_mapTokenUserId;
 };
 
-void gameroom::start_game(gameserver* pServer) {
+void gameroom::start_game(gameserver* pServer, int playercount) {
     if (!pServer) { return; }
     if (!game_start) {
         game_start = true;
@@ -563,6 +568,7 @@ void gameroom::start_game(gameserver* pServer) {
     }
     if (game_start) {
         std::lock_guard<std::mutex> lk(lock_frames);
+        if (frame_sync.size() < playercount) { return; }
         int frameid = currentFrame++;
         for (auto& it : m_mapPlayer) {
             std::string strLog = "";
@@ -572,6 +578,8 @@ void gameroom::start_game(gameserver* pServer) {
             for (auto i = begin_frame+1; i <= frameid; ++i) {
                 auto frame = frames.add_frames();
                 frame->set_frameid(i);
+                strLog += std::to_string(i);
+                strLog += std::string("#");
                 if (frames_.find(i) != frames_.end()) {
                     for (auto& iter : frames_[i]) {
                         strLog += std::to_string(iter.first);
@@ -591,9 +599,17 @@ void gameroom::start_game(gameserver* pServer) {
                     }
                 }
             }
-            pServer->udp_send(userid, pb_common::protocol_code::protocol_frame, frames.ByteSizeLong(), frames.SerializeAsString());
+            bool pkLoss = (rand() % 10) == 0;
+            if (!pkLoss) {
+                pServer->udp_send(userid, pb_common::protocol_code::protocol_frame, frames.ByteSizeLong(), frames.SerializeAsString());
+            }
             if (strLog != "") {
-                printf_s("[send] server send to userid %d frame info %s\n", userid, strLog.c_str());
+                if (!pkLoss) {
+                    printf_s("[send] server send to userid %d frame info %s\n", userid, strLog.c_str());
+                }
+                else {
+                    printf_s("[send] !!loss!! server send to userid %d frame info %s\n", userid, strLog.c_str());
+                }
             }
         }
     }
