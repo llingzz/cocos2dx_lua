@@ -264,7 +264,7 @@ public:
         {
             std::lock_guard<std::mutex> lk(lock_udp);
             if (udp_sessions.find(token) == udp_sessions.end()) { return; }
-			ed = udp_sessions[token];
+            ed = udp_sessions[token];
         }
         //socket_.send_to(asio::buffer(data.c_str(), data.size()), ed);
         socket_.async_send_to(asio::buffer(data.c_str(), data.size()), ed,
@@ -474,8 +474,8 @@ public:
             if (!ping.ParseFromString(data)) { return; }
             pb_common::data_pong pong;
             pong.set_userid(ping.userid());
-            update_udp_session(ping.userid(), ed);
             udp_send(ping.userid(), pb_common::protocol_code::protocol_pong, ping.ByteSizeLong(), ping.SerializeAsString());
+            update_udp_session(ping.userid(), ed);
         });
     }
 
@@ -599,7 +599,7 @@ void gameroom::start_game(gameserver* pServer, int playercount) {
                     }
                 }
             }
-            bool pkLoss = (rand() % 10) == 0;
+            bool pkLoss = (rand() % 10) == 0 && false;
             if (!pkLoss) {
                 pServer->udp_send(userid, pb_common::protocol_code::protocol_frame, frames.ByteSizeLong(), frames.SerializeAsString());
             }

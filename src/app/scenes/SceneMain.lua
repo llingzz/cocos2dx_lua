@@ -73,7 +73,6 @@ function SceneMain:ctor()
     self.entity = nil
     self.entities = {}
     self.begin = false
-    self.standalone = false
     self.roomid = 0
 
     -- 服务端下发的帧数据
@@ -103,7 +102,7 @@ function SceneMain:ctor()
     self.tickPhysicWorld = Scheduler:scheduleGlobal(handler(self, self.tickUpdate), 0.02)
     self:scheduleUpdate(handler(self,self.update))
     --self.tickLogic = Scheduler:scheduleGlobal(handler(self, self.tickLogic), 1.0/15)
-    self.tickPing = Scheduler:scheduleGlobal(handler(self,self.ping),5)
+    self.tickPing = Scheduler:scheduleGlobal(handler(self,self.ping),0.5)
     self.lastRecv = nil
 end
 
@@ -153,7 +152,7 @@ function SceneMain:onEventUdpData(INdata)
     local dataInfo = protobuf.decode("pb_common.data_head", INdata.data)
     protobuf.extract(dataInfo)
     --coroutine.resume(self.co, self.index, {type="udp",data=dataInfo})
-    self:onEventData( {type="udp",data=dataInfo})
+    self:onEventData({type="udp",data=dataInfo})
 end
 
 function SceneMain:onEventTcpData(INdata)
@@ -169,7 +168,7 @@ function SceneMain:onEventTcpData(INdata)
             protobuf.extract(dataInfo)
             self.index = self.index + 1
             --coroutine.resume(self.co, self.index, {type="tcp",data=dataInfo})
-            self:onEventData( {type="tcp",data=dataInfo})
+            self:onEventData({type="tcp",data=dataInfo})
             self.recvStr = string.sub(self.recvStr,head_len + data_len+1,strlen)
             strlen = string.len(self.recvStr)
         else
@@ -282,65 +281,28 @@ function SceneMain:sendUdpData(INprotocal,INdata,INpkLoss)
 end
 
 function SceneMain:ping()
+    if not self.pingIdx then self.pingIdx = 1 end
     if not self.token or -1 == self.token then return end
-    local total,count,packcount,delay = 0,0,10,"+999"
-    for i=1,packcount do
-        if self.tblPong[i] and self.tblPong[i].endtime then
-            total = total + (self.tblPong[i].endtime-self.tblPong[i].time)
-            count = count + 1
+    if self.pingIdx%10 == 0 and self.tblPong then
+        local total,count = 0,0
+        for k,v in pairs(self.tblPong) do
+            if v and v.endtime and v.time then
+                total = total + (v.endtime-v.time)
+                count = count + 1
+            end
         end
+        self.tblPong = {}
+        print("lag:"..math.floor(total*1000/count).."ms")
     end
-    if count ~= 0 then delay = tostring(math.floor(total*1000.0/count)) end
-    print("lag:"..delay.."ms")
-    self.tblPong = {}
-    for i=1,packcount do
-        self.tblPong[i] = {time=socket.gettime()}
-        self:sendUdpData(12,protobuf.encode('pb_common.data_ping', {
-            userid = self.token,
-            idx = i
-        }))
-    end
+    self:sendUdpData(12,protobuf.encode('pb_common.data_ping', {
+        userid = self.token,
+        idx = self.pingIdx
+    }))
+    self.tblPong[self.pingIdx] = {time=socket.gettime()}
+    self.pingIdx = self.pingIdx + 1
 end
 
 function SceneMain:onKeyEventPressed(INkey,INrender)
-    if INkey == cc.KeyCode.KEY_P then
-        self.begin = true
-        self.standalone = true
-        local HandlerEntity = require "src.app.modules.map.NodeEntity"
-        self.entity = HandlerEntity.new(self)
-        self.entity:addTo(self)
-        self.entity:setPosition(cc.p(display.cx,display.cy))
-        self.entity:setToken(1)
-        self.token = 1
-        self.entities[1] = self.entity
-    end
-    if INkey == cc.KeyCode.KEY_F1 then
-        local pData = protobuf.encode('pb_common.data_user_register', {
-            username = "test001",
-            password = "test001"
-        })
-        self:sendData(protobuf.enum_id("pb_common.protocol_code","protocol_register"),pData)
-    end
-    if INkey == cc.KeyCode.KEY_F2 then
-        local pData = protobuf.encode('pb_common.data_user_register', {
-            username = "test002",
-            password = "test002"
-        })
-        self:sendData(protobuf.enum_id("pb_common.protocol_code","protocol_register"),pData)
-    end
-    if INkey == cc.KeyCode.KEY_J then
-        local pData = protobuf.encode('pb_common.data_user_join_room', {
-            userid = self.token
-        })
-        self:sendData(protobuf.enum_id("pb_common.protocol_code","protocol_join_room"),pData)
-    end
-    if INkey == cc.KeyCode.KEY_R then
-        local pData = protobuf.encode('pb_common.data_ready', {
-            userid = self.token,
-            roomid = self.roomid,
-        })
-        self:sendData(protobuf.enum_id("pb_common.protocol_code","protocol_ready"),pData)
-    end
     if self.entity then self.entity:getKeyboardEvent("onKeyEventPressed",INkey) end
 end
 
@@ -427,7 +389,7 @@ function SceneMain:tickLogic(dt)
         frameid = self.frameId,
         opecode = opeCodes,
         ackframeid = self.syncFrameId
-    }),true)
+    }),false)
     if ret then
         --HLog:printf(string.format("player packet loss frameid:%d opeCode:%d",self.frameId,opeCodes))
     end

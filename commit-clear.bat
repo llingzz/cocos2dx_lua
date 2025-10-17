@@ -1,6 +1,7 @@
 @echo off
 cd D:
 cd %~dp0
+rmdir /s /q %~dp0\log
 rmdir /s /q %~dp0\simulator\win32\Resources
 rmdir /s /q %~dp0\assistserver\Debug
 rmdir /s /q %~dp0\assistserver\assistserver\Debug

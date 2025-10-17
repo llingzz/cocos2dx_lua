@@ -9,6 +9,7 @@ end
 
 require "cocos.init"
 cc.FileUtils:getInstance():setPopupNotify(false)
+cc.exports.FPS = 60.0
 cc.exports.START_TIME = socket.gettime()
 cc.exports.HLog = require "app.tools.Log"
 cc.exports.StateMachine = require "app.tools.StateMachine"
@@ -27,6 +28,7 @@ local buffer = read_protobuf_file_c("src/app/pbfiles/pb_common.pb")
 protobuf.register(buffer)
 
 local function main()
+    cc.Director:getInstance():setAnimationInterval(1/FPS)
     cc.FileUtils:getInstance():purgeCachedEntries()
     local list = cc.FileUtils:getInstance():getSearchPaths()
     dump (list, "list")
