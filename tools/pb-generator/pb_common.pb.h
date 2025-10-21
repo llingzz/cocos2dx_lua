@@ -108,6 +108,15 @@ extern data_user_registerDefaultTypeInternal _data_user_register_default_instanc
 class data_user_register_response;
 struct data_user_register_responseDefaultTypeInternal;
 extern data_user_register_responseDefaultTypeInternal _data_user_register_response_default_instance_;
+class ope_detail;
+struct ope_detailDefaultTypeInternal;
+extern ope_detailDefaultTypeInternal _ope_detail_default_instance_;
+class ope_fire_bullet;
+struct ope_fire_bulletDefaultTypeInternal;
+extern ope_fire_bulletDefaultTypeInternal _ope_fire_bullet_default_instance_;
+class ope_move;
+struct ope_moveDefaultTypeInternal;
+extern ope_moveDefaultTypeInternal _ope_move_default_instance_;
 }  // namespace pb_common
 namespace google {
 namespace protobuf {
@@ -155,11 +164,642 @@ inline bool protocol_code_Parse(absl::string_view name, protocol_code* value) {
   return ::google::protobuf::internal::ParseNamedEnum<protocol_code>(
       protocol_code_descriptor(), name, value);
 }
+enum ope_type : int {
+  opeMove = 1,
+  opeFireBullet = 2,
+};
+
+bool ope_type_IsValid(int value);
+extern const uint32_t ope_type_internal_data_[];
+constexpr ope_type ope_type_MIN = static_cast<ope_type>(1);
+constexpr ope_type ope_type_MAX = static_cast<ope_type>(2);
+constexpr int ope_type_ARRAYSIZE = 2 + 1;
+const ::google::protobuf::EnumDescriptor*
+ope_type_descriptor();
+template <typename T>
+const std::string& ope_type_Name(T value) {
+  static_assert(std::is_same<T, ope_type>::value ||
+                    std::is_integral<T>::value,
+                "Incorrect type passed to ope_type_Name().");
+  return ope_type_Name(static_cast<ope_type>(value));
+}
+template <>
+inline const std::string& ope_type_Name(ope_type value) {
+  return ::google::protobuf::internal::NameOfDenseEnum<ope_type_descriptor,
+                                                 1, 2>(
+      static_cast<int>(value));
+}
+inline bool ope_type_Parse(absl::string_view name, ope_type* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<ope_type>(
+      ope_type_descriptor(), name, value);
+}
 
 // ===================================================================
 
 
 // -------------------------------------------------------------------
+
+class ope_move final :
+    public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pb_common.ope_move) */ {
+ public:
+  inline ope_move() : ope_move(nullptr) {}
+  ~ope_move() override;
+  template<typename = void>
+  explicit PROTOBUF_CONSTEXPR ope_move(::google::protobuf::internal::ConstantInitialized);
+
+  inline ope_move(const ope_move& from)
+      : ope_move(nullptr, from) {}
+  ope_move(ope_move&& from) noexcept
+    : ope_move() {
+    *this = ::std::move(from);
+  }
+
+  inline ope_move& operator=(const ope_move& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline ope_move& operator=(ope_move&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetArena() == from.GetArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const ope_move& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const ope_move* internal_default_instance() {
+    return reinterpret_cast<const ope_move*>(
+               &_ope_move_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    8;
+
+  friend void swap(ope_move& a, ope_move& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(ope_move* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() != nullptr &&
+        GetArena() == other->GetArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() == other->GetArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(ope_move* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  ope_move* New(::google::protobuf::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<ope_move>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const ope_move& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom( const ope_move& from) {
+    ope_move::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  ::size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::google::protobuf::internal::ParseContext* ctx) final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target, ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  ::google::protobuf::internal::CachedSize* AccessCachedSize() const final;
+  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedDtor();
+  void InternalSwap(ope_move* other);
+
+  private:
+  friend class ::google::protobuf::internal::AnyMetadata;
+  static ::absl::string_view FullMessageName() {
+    return "pb_common.ope_move";
+  }
+  protected:
+  explicit ope_move(::google::protobuf::Arena* arena);
+  ope_move(::google::protobuf::Arena* arena, const ope_move& from);
+  public:
+
+  static const ClassData _class_data_;
+  const ::google::protobuf::Message::ClassData*GetClassData() const final;
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kMovexFieldNumber = 1,
+    kMoveyFieldNumber = 2,
+  };
+  // required int32 movex = 1;
+  bool has_movex() const;
+  void clear_movex() ;
+  ::int32_t movex() const;
+  void set_movex(::int32_t value);
+
+  private:
+  ::int32_t _internal_movex() const;
+  void _internal_set_movex(::int32_t value);
+
+  public:
+  // required int32 movey = 2;
+  bool has_movey() const;
+  void clear_movey() ;
+  ::int32_t movey() const;
+  void set_movey(::int32_t value);
+
+  private:
+  ::int32_t _internal_movey() const;
+  void _internal_set_movey(::int32_t value);
+
+  public:
+  // @@protoc_insertion_point(class_scope:pb_common.ope_move)
+ private:
+  class _Internal;
+
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      1, 2, 0,
+      0, 2>
+      _table_;
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+
+        inline explicit constexpr Impl_(
+            ::google::protobuf::internal::ConstantInitialized) noexcept;
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena);
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena, const Impl_& from);
+    ::google::protobuf::internal::HasBits<1> _has_bits_;
+    mutable ::google::protobuf::internal::CachedSize _cached_size_;
+    ::int32_t movex_;
+    ::int32_t movey_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_pb_5fcommon_2eproto;
+};// -------------------------------------------------------------------
+
+class ope_fire_bullet final :
+    public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pb_common.ope_fire_bullet) */ {
+ public:
+  inline ope_fire_bullet() : ope_fire_bullet(nullptr) {}
+  ~ope_fire_bullet() override;
+  template<typename = void>
+  explicit PROTOBUF_CONSTEXPR ope_fire_bullet(::google::protobuf::internal::ConstantInitialized);
+
+  inline ope_fire_bullet(const ope_fire_bullet& from)
+      : ope_fire_bullet(nullptr, from) {}
+  ope_fire_bullet(ope_fire_bullet&& from) noexcept
+    : ope_fire_bullet() {
+    *this = ::std::move(from);
+  }
+
+  inline ope_fire_bullet& operator=(const ope_fire_bullet& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline ope_fire_bullet& operator=(ope_fire_bullet&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetArena() == from.GetArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const ope_fire_bullet& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const ope_fire_bullet* internal_default_instance() {
+    return reinterpret_cast<const ope_fire_bullet*>(
+               &_ope_fire_bullet_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    9;
+
+  friend void swap(ope_fire_bullet& a, ope_fire_bullet& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(ope_fire_bullet* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() != nullptr &&
+        GetArena() == other->GetArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() == other->GetArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(ope_fire_bullet* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  ope_fire_bullet* New(::google::protobuf::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<ope_fire_bullet>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const ope_fire_bullet& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom( const ope_fire_bullet& from) {
+    ope_fire_bullet::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  ::size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::google::protobuf::internal::ParseContext* ctx) final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target, ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  ::google::protobuf::internal::CachedSize* AccessCachedSize() const final;
+  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedDtor();
+  void InternalSwap(ope_fire_bullet* other);
+
+  private:
+  friend class ::google::protobuf::internal::AnyMetadata;
+  static ::absl::string_view FullMessageName() {
+    return "pb_common.ope_fire_bullet";
+  }
+  protected:
+  explicit ope_fire_bullet(::google::protobuf::Arena* arena);
+  ope_fire_bullet(::google::protobuf::Arena* arena, const ope_fire_bullet& from);
+  public:
+
+  static const ClassData _class_data_;
+  const ::google::protobuf::Message::ClassData*GetClassData() const final;
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kStartposxFieldNumber = 1,
+    kStartposyFieldNumber = 2,
+    kDirectionxFieldNumber = 3,
+    kDirectionyFieldNumber = 4,
+  };
+  // required int32 startposx = 1;
+  bool has_startposx() const;
+  void clear_startposx() ;
+  ::int32_t startposx() const;
+  void set_startposx(::int32_t value);
+
+  private:
+  ::int32_t _internal_startposx() const;
+  void _internal_set_startposx(::int32_t value);
+
+  public:
+  // required int32 startposy = 2;
+  bool has_startposy() const;
+  void clear_startposy() ;
+  ::int32_t startposy() const;
+  void set_startposy(::int32_t value);
+
+  private:
+  ::int32_t _internal_startposy() const;
+  void _internal_set_startposy(::int32_t value);
+
+  public:
+  // required int32 directionx = 3;
+  bool has_directionx() const;
+  void clear_directionx() ;
+  ::int32_t directionx() const;
+  void set_directionx(::int32_t value);
+
+  private:
+  ::int32_t _internal_directionx() const;
+  void _internal_set_directionx(::int32_t value);
+
+  public:
+  // required int32 directiony = 4;
+  bool has_directiony() const;
+  void clear_directiony() ;
+  ::int32_t directiony() const;
+  void set_directiony(::int32_t value);
+
+  private:
+  ::int32_t _internal_directiony() const;
+  void _internal_set_directiony(::int32_t value);
+
+  public:
+  // @@protoc_insertion_point(class_scope:pb_common.ope_fire_bullet)
+ private:
+  class _Internal;
+
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      2, 4, 0,
+      0, 2>
+      _table_;
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+
+        inline explicit constexpr Impl_(
+            ::google::protobuf::internal::ConstantInitialized) noexcept;
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena);
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena, const Impl_& from);
+    ::google::protobuf::internal::HasBits<1> _has_bits_;
+    mutable ::google::protobuf::internal::CachedSize _cached_size_;
+    ::int32_t startposx_;
+    ::int32_t startposy_;
+    ::int32_t directionx_;
+    ::int32_t directiony_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_pb_5fcommon_2eproto;
+};// -------------------------------------------------------------------
+
+class ope_detail final :
+    public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pb_common.ope_detail) */ {
+ public:
+  inline ope_detail() : ope_detail(nullptr) {}
+  ~ope_detail() override;
+  template<typename = void>
+  explicit PROTOBUF_CONSTEXPR ope_detail(::google::protobuf::internal::ConstantInitialized);
+
+  inline ope_detail(const ope_detail& from)
+      : ope_detail(nullptr, from) {}
+  ope_detail(ope_detail&& from) noexcept
+    : ope_detail() {
+    *this = ::std::move(from);
+  }
+
+  inline ope_detail& operator=(const ope_detail& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline ope_detail& operator=(ope_detail&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetArena() == from.GetArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const ope_detail& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const ope_detail* internal_default_instance() {
+    return reinterpret_cast<const ope_detail*>(
+               &_ope_detail_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    10;
+
+  friend void swap(ope_detail& a, ope_detail& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(ope_detail* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() != nullptr &&
+        GetArena() == other->GetArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() == other->GetArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(ope_detail* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  ope_detail* New(::google::protobuf::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<ope_detail>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const ope_detail& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom( const ope_detail& from) {
+    ope_detail::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  ::size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::google::protobuf::internal::ParseContext* ctx) final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target, ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  ::google::protobuf::internal::CachedSize* AccessCachedSize() const final;
+  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedDtor();
+  void InternalSwap(ope_detail* other);
+
+  private:
+  friend class ::google::protobuf::internal::AnyMetadata;
+  static ::absl::string_view FullMessageName() {
+    return "pb_common.ope_detail";
+  }
+  protected:
+  explicit ope_detail(::google::protobuf::Arena* arena);
+  ope_detail(::google::protobuf::Arena* arena, const ope_detail& from);
+  public:
+
+  static const ClassData _class_data_;
+  const ::google::protobuf::Message::ClassData*GetClassData() const final;
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kOpestringFieldNumber = 2,
+    kOpetypeFieldNumber = 1,
+  };
+  // optional bytes opestring = 2;
+  bool has_opestring() const;
+  void clear_opestring() ;
+  const std::string& opestring() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_opestring(Arg_&& arg, Args_... args);
+  std::string* mutable_opestring();
+  PROTOBUF_NODISCARD std::string* release_opestring();
+  void set_allocated_opestring(std::string* value);
+
+  private:
+  const std::string& _internal_opestring() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_opestring(
+      const std::string& value);
+  std::string* _internal_mutable_opestring();
+
+  public:
+  // optional int32 opetype = 1;
+  bool has_opetype() const;
+  void clear_opetype() ;
+  ::int32_t opetype() const;
+  void set_opetype(::int32_t value);
+
+  private:
+  ::int32_t _internal_opetype() const;
+  void _internal_set_opetype(::int32_t value);
+
+  public:
+  // @@protoc_insertion_point(class_scope:pb_common.ope_detail)
+ private:
+  class _Internal;
+
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      1, 2, 0,
+      0, 2>
+      _table_;
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+
+        inline explicit constexpr Impl_(
+            ::google::protobuf::internal::ConstantInitialized) noexcept;
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena);
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena, const Impl_& from);
+    ::google::protobuf::internal::HasBits<1> _has_bits_;
+    mutable ::google::protobuf::internal::CachedSize _cached_size_;
+    ::google::protobuf::internal::ArenaStringPtr opestring_;
+    ::int32_t opetype_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_pb_5fcommon_2eproto;
+};// -------------------------------------------------------------------
 
 class data_user_register_response final :
     public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pb_common.data_user_register_response) */ {
@@ -612,7 +1252,7 @@ class data_user_leave_room_response final :
                &_data_user_leave_room_response_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    14;
+    17;
 
   friend void swap(data_user_leave_room_response& a, data_user_leave_room_response& b) {
     a.Swap(&b);
@@ -802,7 +1442,7 @@ class data_user_leave_room final :
                &_data_user_leave_room_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    13;
+    16;
 
   friend void swap(data_user_leave_room& a, data_user_leave_room& b) {
     a.Swap(&b);
@@ -1359,7 +1999,7 @@ class data_tcp_close final :
                &_data_tcp_close_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    12;
+    15;
 
   friend void swap(data_tcp_close& a, data_tcp_close& b) {
     a.Swap(&b);
@@ -1942,7 +2582,7 @@ class data_pong final :
                &_data_pong_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    16;
+    19;
 
   friend void swap(data_pong& a, data_pong& b) {
     a.Swap(&b);
@@ -2132,7 +2772,7 @@ class data_ping final :
                &_data_ping_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    15;
+    18;
 
   friend void swap(data_ping& a, data_ping& b) {
     a.Swap(&b);
@@ -2257,222 +2897,6 @@ class data_ping final :
     mutable ::google::protobuf::internal::CachedSize _cached_size_;
     ::int32_t userid_;
     ::int32_t idx_;
-    PROTOBUF_TSAN_DECLARE_MEMBER
-  };
-  union { Impl_ _impl_; };
-  friend struct ::TableStruct_pb_5fcommon_2eproto;
-};// -------------------------------------------------------------------
-
-class data_ope final :
-    public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pb_common.data_ope) */ {
- public:
-  inline data_ope() : data_ope(nullptr) {}
-  ~data_ope() override;
-  template<typename = void>
-  explicit PROTOBUF_CONSTEXPR data_ope(::google::protobuf::internal::ConstantInitialized);
-
-  inline data_ope(const data_ope& from)
-      : data_ope(nullptr, from) {}
-  data_ope(data_ope&& from) noexcept
-    : data_ope() {
-    *this = ::std::move(from);
-  }
-
-  inline data_ope& operator=(const data_ope& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline data_ope& operator=(data_ope&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetArena() == from.GetArena()
-  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
-        && GetArena() != nullptr
-  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
-    ) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
-  }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::google::protobuf::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const data_ope& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const data_ope* internal_default_instance() {
-    return reinterpret_cast<const data_ope*>(
-               &_data_ope_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    8;
-
-  friend void swap(data_ope& a, data_ope& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(data_ope* other) {
-    if (other == this) return;
-  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetArena() != nullptr &&
-        GetArena() == other->GetArena()) {
-   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetArena() == other->GetArena()) {
-  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
-      InternalSwap(other);
-    } else {
-      ::google::protobuf::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(data_ope* other) {
-    if (other == this) return;
-    ABSL_DCHECK(GetArena() == other->GetArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  data_ope* New(::google::protobuf::Arena* arena = nullptr) const final {
-    return CreateMaybeMessage<data_ope>(arena);
-  }
-  using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const data_ope& from);
-  using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom( const data_ope& from) {
-    data_ope::MergeImpl(*this, from);
-  }
-  private:
-  static void MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg);
-  public:
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  ::size_t ByteSizeLong() const final;
-  const char* _InternalParse(const char* ptr, ::google::protobuf::internal::ParseContext* ctx) final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target, ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
-  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
-
-  private:
-  ::google::protobuf::internal::CachedSize* AccessCachedSize() const final;
-  void SharedCtor(::google::protobuf::Arena* arena);
-  void SharedDtor();
-  void InternalSwap(data_ope* other);
-
-  private:
-  friend class ::google::protobuf::internal::AnyMetadata;
-  static ::absl::string_view FullMessageName() {
-    return "pb_common.data_ope";
-  }
-  protected:
-  explicit data_ope(::google::protobuf::Arena* arena);
-  data_ope(::google::protobuf::Arena* arena, const data_ope& from);
-  public:
-
-  static const ClassData _class_data_;
-  const ::google::protobuf::Message::ClassData*GetClassData() const final;
-
-  ::google::protobuf::Metadata GetMetadata() const final;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  enum : int {
-    kUseridFieldNumber = 1,
-    kFrameidFieldNumber = 2,
-    kOpecodeFieldNumber = 3,
-    kAckframeidFieldNumber = 4,
-  };
-  // optional int32 userid = 1;
-  bool has_userid() const;
-  void clear_userid() ;
-  ::int32_t userid() const;
-  void set_userid(::int32_t value);
-
-  private:
-  ::int32_t _internal_userid() const;
-  void _internal_set_userid(::int32_t value);
-
-  public:
-  // optional int32 frameid = 2;
-  bool has_frameid() const;
-  void clear_frameid() ;
-  ::int32_t frameid() const;
-  void set_frameid(::int32_t value);
-
-  private:
-  ::int32_t _internal_frameid() const;
-  void _internal_set_frameid(::int32_t value);
-
-  public:
-  // optional int32 opecode = 3;
-  bool has_opecode() const;
-  void clear_opecode() ;
-  ::int32_t opecode() const;
-  void set_opecode(::int32_t value);
-
-  private:
-  ::int32_t _internal_opecode() const;
-  void _internal_set_opecode(::int32_t value);
-
-  public:
-  // optional int32 ackframeid = 4;
-  bool has_ackframeid() const;
-  void clear_ackframeid() ;
-  ::int32_t ackframeid() const;
-  void set_ackframeid(::int32_t value);
-
-  private:
-  ::int32_t _internal_ackframeid() const;
-  void _internal_set_ackframeid(::int32_t value);
-
-  public:
-  // @@protoc_insertion_point(class_scope:pb_common.data_ope)
- private:
-  class _Internal;
-
-  friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      2, 4, 0,
-      0, 2>
-      _table_;
-  friend class ::google::protobuf::MessageLite;
-  friend class ::google::protobuf::Arena;
-  template <typename T>
-  friend class ::google::protobuf::Arena::InternalHelper;
-  using InternalArenaConstructable_ = void;
-  using DestructorSkippable_ = void;
-  struct Impl_ {
-
-        inline explicit constexpr Impl_(
-            ::google::protobuf::internal::ConstantInitialized) noexcept;
-        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                              ::google::protobuf::Arena* arena);
-        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                              ::google::protobuf::Arena* arena, const Impl_& from);
-    ::google::protobuf::internal::HasBits<1> _has_bits_;
-    mutable ::google::protobuf::internal::CachedSize _cached_size_;
-    ::int32_t userid_;
-    ::int32_t frameid_;
-    ::int32_t opecode_;
-    ::int32_t ackframeid_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -2688,209 +3112,6 @@ class data_head final :
   friend struct ::TableStruct_pb_5fcommon_2eproto;
 };// -------------------------------------------------------------------
 
-class data_frame final :
-    public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pb_common.data_frame) */ {
- public:
-  inline data_frame() : data_frame(nullptr) {}
-  ~data_frame() override;
-  template<typename = void>
-  explicit PROTOBUF_CONSTEXPR data_frame(::google::protobuf::internal::ConstantInitialized);
-
-  inline data_frame(const data_frame& from)
-      : data_frame(nullptr, from) {}
-  data_frame(data_frame&& from) noexcept
-    : data_frame() {
-    *this = ::std::move(from);
-  }
-
-  inline data_frame& operator=(const data_frame& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline data_frame& operator=(data_frame&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetArena() == from.GetArena()
-  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
-        && GetArena() != nullptr
-  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
-    ) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
-  }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::google::protobuf::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const data_frame& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const data_frame* internal_default_instance() {
-    return reinterpret_cast<const data_frame*>(
-               &_data_frame_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    9;
-
-  friend void swap(data_frame& a, data_frame& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(data_frame* other) {
-    if (other == this) return;
-  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetArena() != nullptr &&
-        GetArena() == other->GetArena()) {
-   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetArena() == other->GetArena()) {
-  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
-      InternalSwap(other);
-    } else {
-      ::google::protobuf::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(data_frame* other) {
-    if (other == this) return;
-    ABSL_DCHECK(GetArena() == other->GetArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  data_frame* New(::google::protobuf::Arena* arena = nullptr) const final {
-    return CreateMaybeMessage<data_frame>(arena);
-  }
-  using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const data_frame& from);
-  using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom( const data_frame& from) {
-    data_frame::MergeImpl(*this, from);
-  }
-  private:
-  static void MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg);
-  public:
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  ::size_t ByteSizeLong() const final;
-  const char* _InternalParse(const char* ptr, ::google::protobuf::internal::ParseContext* ctx) final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target, ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
-  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
-
-  private:
-  ::google::protobuf::internal::CachedSize* AccessCachedSize() const final;
-  void SharedCtor(::google::protobuf::Arena* arena);
-  void SharedDtor();
-  void InternalSwap(data_frame* other);
-
-  private:
-  friend class ::google::protobuf::internal::AnyMetadata;
-  static ::absl::string_view FullMessageName() {
-    return "pb_common.data_frame";
-  }
-  protected:
-  explicit data_frame(::google::protobuf::Arena* arena);
-  data_frame(::google::protobuf::Arena* arena, const data_frame& from);
-  public:
-
-  static const ClassData _class_data_;
-  const ::google::protobuf::Message::ClassData*GetClassData() const final;
-
-  ::google::protobuf::Metadata GetMetadata() const final;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  enum : int {
-    kUseridFieldNumber = 1,
-    kFrameidFieldNumber = 2,
-    kOpecodeFieldNumber = 3,
-  };
-  // optional int32 userid = 1;
-  bool has_userid() const;
-  void clear_userid() ;
-  ::int32_t userid() const;
-  void set_userid(::int32_t value);
-
-  private:
-  ::int32_t _internal_userid() const;
-  void _internal_set_userid(::int32_t value);
-
-  public:
-  // optional int32 frameid = 2;
-  bool has_frameid() const;
-  void clear_frameid() ;
-  ::int32_t frameid() const;
-  void set_frameid(::int32_t value);
-
-  private:
-  ::int32_t _internal_frameid() const;
-  void _internal_set_frameid(::int32_t value);
-
-  public:
-  // optional int32 opecode = 3;
-  bool has_opecode() const;
-  void clear_opecode() ;
-  ::int32_t opecode() const;
-  void set_opecode(::int32_t value);
-
-  private:
-  ::int32_t _internal_opecode() const;
-  void _internal_set_opecode(::int32_t value);
-
-  public:
-  // @@protoc_insertion_point(class_scope:pb_common.data_frame)
- private:
-  class _Internal;
-
-  friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      2, 3, 0,
-      0, 2>
-      _table_;
-  friend class ::google::protobuf::MessageLite;
-  friend class ::google::protobuf::Arena;
-  template <typename T>
-  friend class ::google::protobuf::Arena::InternalHelper;
-  using InternalArenaConstructable_ = void;
-  using DestructorSkippable_ = void;
-  struct Impl_ {
-
-        inline explicit constexpr Impl_(
-            ::google::protobuf::internal::ConstantInitialized) noexcept;
-        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                              ::google::protobuf::Arena* arena);
-        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                              ::google::protobuf::Arena* arena, const Impl_& from);
-    ::google::protobuf::internal::HasBits<1> _has_bits_;
-    mutable ::google::protobuf::internal::CachedSize _cached_size_;
-    ::int32_t userid_;
-    ::int32_t frameid_;
-    ::int32_t opecode_;
-    PROTOBUF_TSAN_DECLARE_MEMBER
-  };
-  union { Impl_ _impl_; };
-  friend struct ::TableStruct_pb_5fcommon_2eproto;
-};// -------------------------------------------------------------------
-
 class data_begin final :
     public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pb_common.data_begin) */ {
  public:
@@ -3088,6 +3309,439 @@ class data_begin final :
   friend struct ::TableStruct_pb_5fcommon_2eproto;
 };// -------------------------------------------------------------------
 
+class data_ope final :
+    public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pb_common.data_ope) */ {
+ public:
+  inline data_ope() : data_ope(nullptr) {}
+  ~data_ope() override;
+  template<typename = void>
+  explicit PROTOBUF_CONSTEXPR data_ope(::google::protobuf::internal::ConstantInitialized);
+
+  inline data_ope(const data_ope& from)
+      : data_ope(nullptr, from) {}
+  data_ope(data_ope&& from) noexcept
+    : data_ope() {
+    *this = ::std::move(from);
+  }
+
+  inline data_ope& operator=(const data_ope& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline data_ope& operator=(data_ope&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetArena() == from.GetArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const data_ope& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const data_ope* internal_default_instance() {
+    return reinterpret_cast<const data_ope*>(
+               &_data_ope_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    11;
+
+  friend void swap(data_ope& a, data_ope& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(data_ope* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() != nullptr &&
+        GetArena() == other->GetArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() == other->GetArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(data_ope* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  data_ope* New(::google::protobuf::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<data_ope>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const data_ope& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom( const data_ope& from) {
+    data_ope::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  ::size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::google::protobuf::internal::ParseContext* ctx) final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target, ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  ::google::protobuf::internal::CachedSize* AccessCachedSize() const final;
+  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedDtor();
+  void InternalSwap(data_ope* other);
+
+  private:
+  friend class ::google::protobuf::internal::AnyMetadata;
+  static ::absl::string_view FullMessageName() {
+    return "pb_common.data_ope";
+  }
+  protected:
+  explicit data_ope(::google::protobuf::Arena* arena);
+  data_ope(::google::protobuf::Arena* arena, const data_ope& from);
+  public:
+
+  static const ClassData _class_data_;
+  const ::google::protobuf::Message::ClassData*GetClassData() const final;
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kOpecodeFieldNumber = 3,
+    kUseridFieldNumber = 1,
+    kFrameidFieldNumber = 2,
+    kAckframeidFieldNumber = 4,
+  };
+  // repeated .pb_common.ope_detail opecode = 3;
+  int opecode_size() const;
+  private:
+  int _internal_opecode_size() const;
+
+  public:
+  void clear_opecode() ;
+  ::pb_common::ope_detail* mutable_opecode(int index);
+  ::google::protobuf::RepeatedPtrField< ::pb_common::ope_detail >*
+      mutable_opecode();
+  private:
+  const ::google::protobuf::RepeatedPtrField<::pb_common::ope_detail>& _internal_opecode() const;
+  ::google::protobuf::RepeatedPtrField<::pb_common::ope_detail>* _internal_mutable_opecode();
+  public:
+  const ::pb_common::ope_detail& opecode(int index) const;
+  ::pb_common::ope_detail* add_opecode();
+  const ::google::protobuf::RepeatedPtrField< ::pb_common::ope_detail >&
+      opecode() const;
+  // optional int32 userid = 1;
+  bool has_userid() const;
+  void clear_userid() ;
+  ::int32_t userid() const;
+  void set_userid(::int32_t value);
+
+  private:
+  ::int32_t _internal_userid() const;
+  void _internal_set_userid(::int32_t value);
+
+  public:
+  // optional int32 frameid = 2;
+  bool has_frameid() const;
+  void clear_frameid() ;
+  ::int32_t frameid() const;
+  void set_frameid(::int32_t value);
+
+  private:
+  ::int32_t _internal_frameid() const;
+  void _internal_set_frameid(::int32_t value);
+
+  public:
+  // optional int32 ackframeid = 4;
+  bool has_ackframeid() const;
+  void clear_ackframeid() ;
+  ::int32_t ackframeid() const;
+  void set_ackframeid(::int32_t value);
+
+  private:
+  ::int32_t _internal_ackframeid() const;
+  void _internal_set_ackframeid(::int32_t value);
+
+  public:
+  // @@protoc_insertion_point(class_scope:pb_common.data_ope)
+ private:
+  class _Internal;
+
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      2, 4, 1,
+      0, 2>
+      _table_;
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+
+        inline explicit constexpr Impl_(
+            ::google::protobuf::internal::ConstantInitialized) noexcept;
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena);
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena, const Impl_& from);
+    ::google::protobuf::internal::HasBits<1> _has_bits_;
+    mutable ::google::protobuf::internal::CachedSize _cached_size_;
+    ::google::protobuf::RepeatedPtrField< ::pb_common::ope_detail > opecode_;
+    ::int32_t userid_;
+    ::int32_t frameid_;
+    ::int32_t ackframeid_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_pb_5fcommon_2eproto;
+};// -------------------------------------------------------------------
+
+class data_frame final :
+    public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pb_common.data_frame) */ {
+ public:
+  inline data_frame() : data_frame(nullptr) {}
+  ~data_frame() override;
+  template<typename = void>
+  explicit PROTOBUF_CONSTEXPR data_frame(::google::protobuf::internal::ConstantInitialized);
+
+  inline data_frame(const data_frame& from)
+      : data_frame(nullptr, from) {}
+  data_frame(data_frame&& from) noexcept
+    : data_frame() {
+    *this = ::std::move(from);
+  }
+
+  inline data_frame& operator=(const data_frame& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline data_frame& operator=(data_frame&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetArena() == from.GetArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const data_frame& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const data_frame* internal_default_instance() {
+    return reinterpret_cast<const data_frame*>(
+               &_data_frame_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    12;
+
+  friend void swap(data_frame& a, data_frame& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(data_frame* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() != nullptr &&
+        GetArena() == other->GetArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() == other->GetArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(data_frame* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  data_frame* New(::google::protobuf::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<data_frame>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const data_frame& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom( const data_frame& from) {
+    data_frame::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  ::size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::google::protobuf::internal::ParseContext* ctx) final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target, ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  ::google::protobuf::internal::CachedSize* AccessCachedSize() const final;
+  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedDtor();
+  void InternalSwap(data_frame* other);
+
+  private:
+  friend class ::google::protobuf::internal::AnyMetadata;
+  static ::absl::string_view FullMessageName() {
+    return "pb_common.data_frame";
+  }
+  protected:
+  explicit data_frame(::google::protobuf::Arena* arena);
+  data_frame(::google::protobuf::Arena* arena, const data_frame& from);
+  public:
+
+  static const ClassData _class_data_;
+  const ::google::protobuf::Message::ClassData*GetClassData() const final;
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kOpecodeFieldNumber = 3,
+    kUseridFieldNumber = 1,
+    kFrameidFieldNumber = 2,
+  };
+  // repeated .pb_common.ope_detail opecode = 3;
+  int opecode_size() const;
+  private:
+  int _internal_opecode_size() const;
+
+  public:
+  void clear_opecode() ;
+  ::pb_common::ope_detail* mutable_opecode(int index);
+  ::google::protobuf::RepeatedPtrField< ::pb_common::ope_detail >*
+      mutable_opecode();
+  private:
+  const ::google::protobuf::RepeatedPtrField<::pb_common::ope_detail>& _internal_opecode() const;
+  ::google::protobuf::RepeatedPtrField<::pb_common::ope_detail>* _internal_mutable_opecode();
+  public:
+  const ::pb_common::ope_detail& opecode(int index) const;
+  ::pb_common::ope_detail* add_opecode();
+  const ::google::protobuf::RepeatedPtrField< ::pb_common::ope_detail >&
+      opecode() const;
+  // optional int32 userid = 1;
+  bool has_userid() const;
+  void clear_userid() ;
+  ::int32_t userid() const;
+  void set_userid(::int32_t value);
+
+  private:
+  ::int32_t _internal_userid() const;
+  void _internal_set_userid(::int32_t value);
+
+  public:
+  // optional int32 frameid = 2;
+  bool has_frameid() const;
+  void clear_frameid() ;
+  ::int32_t frameid() const;
+  void set_frameid(::int32_t value);
+
+  private:
+  ::int32_t _internal_frameid() const;
+  void _internal_set_frameid(::int32_t value);
+
+  public:
+  // @@protoc_insertion_point(class_scope:pb_common.data_frame)
+ private:
+  class _Internal;
+
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      2, 3, 1,
+      0, 2>
+      _table_;
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+
+        inline explicit constexpr Impl_(
+            ::google::protobuf::internal::ConstantInitialized) noexcept;
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena);
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena, const Impl_& from);
+    ::google::protobuf::internal::HasBits<1> _has_bits_;
+    mutable ::google::protobuf::internal::CachedSize _cached_size_;
+    ::google::protobuf::RepeatedPtrField< ::pb_common::ope_detail > opecode_;
+    ::int32_t userid_;
+    ::int32_t frameid_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_pb_5fcommon_2eproto;
+};// -------------------------------------------------------------------
+
 class data_ope_frames final :
     public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pb_common.data_ope_frames) */ {
  public:
@@ -3147,7 +3801,7 @@ class data_ope_frames final :
                &_data_ope_frames_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    10;
+    13;
 
   friend void swap(data_ope_frames& a, data_ope_frames& b) {
     a.Swap(&b);
@@ -3344,7 +3998,7 @@ class data_frames final :
                &_data_frames_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    11;
+    14;
 
   friend void swap(data_frames& a, data_frames& b) {
     a.Swap(&b);
@@ -4136,6 +4790,285 @@ inline ::google::protobuf::RepeatedField<::int32_t>* data_begin::_internal_mutab
 
 // -------------------------------------------------------------------
 
+// ope_move
+
+// required int32 movex = 1;
+inline bool ope_move::has_movex() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
+  return value;
+}
+inline void ope_move::clear_movex() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.movex_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline ::int32_t ope_move::movex() const {
+  // @@protoc_insertion_point(field_get:pb_common.ope_move.movex)
+  return _internal_movex();
+}
+inline void ope_move::set_movex(::int32_t value) {
+  _internal_set_movex(value);
+  // @@protoc_insertion_point(field_set:pb_common.ope_move.movex)
+}
+inline ::int32_t ope_move::_internal_movex() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.movex_;
+}
+inline void ope_move::_internal_set_movex(::int32_t value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  _impl_.movex_ = value;
+}
+
+// required int32 movey = 2;
+inline bool ope_move::has_movey() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
+  return value;
+}
+inline void ope_move::clear_movey() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.movey_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000002u;
+}
+inline ::int32_t ope_move::movey() const {
+  // @@protoc_insertion_point(field_get:pb_common.ope_move.movey)
+  return _internal_movey();
+}
+inline void ope_move::set_movey(::int32_t value) {
+  _internal_set_movey(value);
+  // @@protoc_insertion_point(field_set:pb_common.ope_move.movey)
+}
+inline ::int32_t ope_move::_internal_movey() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.movey_;
+}
+inline void ope_move::_internal_set_movey(::int32_t value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_._has_bits_[0] |= 0x00000002u;
+  _impl_.movey_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// ope_fire_bullet
+
+// required int32 startposx = 1;
+inline bool ope_fire_bullet::has_startposx() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
+  return value;
+}
+inline void ope_fire_bullet::clear_startposx() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.startposx_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline ::int32_t ope_fire_bullet::startposx() const {
+  // @@protoc_insertion_point(field_get:pb_common.ope_fire_bullet.startposx)
+  return _internal_startposx();
+}
+inline void ope_fire_bullet::set_startposx(::int32_t value) {
+  _internal_set_startposx(value);
+  // @@protoc_insertion_point(field_set:pb_common.ope_fire_bullet.startposx)
+}
+inline ::int32_t ope_fire_bullet::_internal_startposx() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.startposx_;
+}
+inline void ope_fire_bullet::_internal_set_startposx(::int32_t value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  _impl_.startposx_ = value;
+}
+
+// required int32 startposy = 2;
+inline bool ope_fire_bullet::has_startposy() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
+  return value;
+}
+inline void ope_fire_bullet::clear_startposy() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.startposy_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000002u;
+}
+inline ::int32_t ope_fire_bullet::startposy() const {
+  // @@protoc_insertion_point(field_get:pb_common.ope_fire_bullet.startposy)
+  return _internal_startposy();
+}
+inline void ope_fire_bullet::set_startposy(::int32_t value) {
+  _internal_set_startposy(value);
+  // @@protoc_insertion_point(field_set:pb_common.ope_fire_bullet.startposy)
+}
+inline ::int32_t ope_fire_bullet::_internal_startposy() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.startposy_;
+}
+inline void ope_fire_bullet::_internal_set_startposy(::int32_t value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_._has_bits_[0] |= 0x00000002u;
+  _impl_.startposy_ = value;
+}
+
+// required int32 directionx = 3;
+inline bool ope_fire_bullet::has_directionx() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000004u) != 0;
+  return value;
+}
+inline void ope_fire_bullet::clear_directionx() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.directionx_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000004u;
+}
+inline ::int32_t ope_fire_bullet::directionx() const {
+  // @@protoc_insertion_point(field_get:pb_common.ope_fire_bullet.directionx)
+  return _internal_directionx();
+}
+inline void ope_fire_bullet::set_directionx(::int32_t value) {
+  _internal_set_directionx(value);
+  // @@protoc_insertion_point(field_set:pb_common.ope_fire_bullet.directionx)
+}
+inline ::int32_t ope_fire_bullet::_internal_directionx() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.directionx_;
+}
+inline void ope_fire_bullet::_internal_set_directionx(::int32_t value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_._has_bits_[0] |= 0x00000004u;
+  _impl_.directionx_ = value;
+}
+
+// required int32 directiony = 4;
+inline bool ope_fire_bullet::has_directiony() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000008u) != 0;
+  return value;
+}
+inline void ope_fire_bullet::clear_directiony() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.directiony_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000008u;
+}
+inline ::int32_t ope_fire_bullet::directiony() const {
+  // @@protoc_insertion_point(field_get:pb_common.ope_fire_bullet.directiony)
+  return _internal_directiony();
+}
+inline void ope_fire_bullet::set_directiony(::int32_t value) {
+  _internal_set_directiony(value);
+  // @@protoc_insertion_point(field_set:pb_common.ope_fire_bullet.directiony)
+}
+inline ::int32_t ope_fire_bullet::_internal_directiony() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.directiony_;
+}
+inline void ope_fire_bullet::_internal_set_directiony(::int32_t value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_._has_bits_[0] |= 0x00000008u;
+  _impl_.directiony_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// ope_detail
+
+// optional int32 opetype = 1;
+inline bool ope_detail::has_opetype() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
+  return value;
+}
+inline void ope_detail::clear_opetype() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.opetype_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000002u;
+}
+inline ::int32_t ope_detail::opetype() const {
+  // @@protoc_insertion_point(field_get:pb_common.ope_detail.opetype)
+  return _internal_opetype();
+}
+inline void ope_detail::set_opetype(::int32_t value) {
+  _internal_set_opetype(value);
+  // @@protoc_insertion_point(field_set:pb_common.ope_detail.opetype)
+}
+inline ::int32_t ope_detail::_internal_opetype() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.opetype_;
+}
+inline void ope_detail::_internal_set_opetype(::int32_t value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_._has_bits_[0] |= 0x00000002u;
+  _impl_.opetype_ = value;
+}
+
+// optional bytes opestring = 2;
+inline bool ope_detail::has_opestring() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
+  return value;
+}
+inline void ope_detail::clear_opestring() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.opestring_.ClearToEmpty();
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline const std::string& ope_detail::opestring() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:pb_common.ope_detail.opestring)
+  return _internal_opestring();
+}
+template <typename Arg_, typename... Args_>
+inline PROTOBUF_ALWAYS_INLINE void ope_detail::set_opestring(Arg_&& arg,
+                                                     Args_... args) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  _impl_.opestring_.SetBytes(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:pb_common.ope_detail.opestring)
+}
+inline std::string* ope_detail::mutable_opestring() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_opestring();
+  // @@protoc_insertion_point(field_mutable:pb_common.ope_detail.opestring)
+  return _s;
+}
+inline const std::string& ope_detail::_internal_opestring() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.opestring_.Get();
+}
+inline void ope_detail::_internal_set_opestring(const std::string& value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  _impl_.opestring_.Set(value, GetArena());
+}
+inline std::string* ope_detail::_internal_mutable_opestring() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  return _impl_.opestring_.Mutable( GetArena());
+}
+inline std::string* ope_detail::release_opestring() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  // @@protoc_insertion_point(field_release:pb_common.ope_detail.opestring)
+  if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
+    return nullptr;
+  }
+  _impl_._has_bits_[0] &= ~0x00000001u;
+  auto* released = _impl_.opestring_.Release();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  _impl_.opestring_.Set("", GetArena());
+  #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  return released;
+}
+inline void ope_detail::set_allocated_opestring(std::string* value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (value != nullptr) {
+    _impl_._has_bits_[0] |= 0x00000001u;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000001u;
+  }
+  _impl_.opestring_.SetAllocated(value, GetArena());
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+        if (_impl_.opestring_.IsDefault()) {
+          _impl_.opestring_.Set("", GetArena());
+        }
+  #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:pb_common.ope_detail.opestring)
+}
+
+// -------------------------------------------------------------------
+
 // data_ope
 
 // optional int32 userid = 1;
@@ -4194,43 +5127,64 @@ inline void data_ope::_internal_set_frameid(::int32_t value) {
   _impl_.frameid_ = value;
 }
 
-// optional int32 opecode = 3;
-inline bool data_ope::has_opecode() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000004u) != 0;
-  return value;
+// repeated .pb_common.ope_detail opecode = 3;
+inline int data_ope::_internal_opecode_size() const {
+  return _internal_opecode().size();
+}
+inline int data_ope::opecode_size() const {
+  return _internal_opecode_size();
 }
 inline void data_ope::clear_opecode() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.opecode_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000004u;
+  _impl_.opecode_.Clear();
 }
-inline ::int32_t data_ope::opecode() const {
+inline ::pb_common::ope_detail* data_ope::mutable_opecode(int index)
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable:pb_common.data_ope.opecode)
+  return _internal_mutable_opecode()->Mutable(index);
+}
+inline ::google::protobuf::RepeatedPtrField<::pb_common::ope_detail>* data_ope::mutable_opecode()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable_list:pb_common.data_ope.opecode)
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  return _internal_mutable_opecode();
+}
+inline const ::pb_common::ope_detail& data_ope::opecode(int index) const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   // @@protoc_insertion_point(field_get:pb_common.data_ope.opecode)
+  return _internal_opecode().Get(index);
+}
+inline ::pb_common::ope_detail* data_ope::add_opecode() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ::pb_common::ope_detail* _add = _internal_mutable_opecode()->Add();
+  // @@protoc_insertion_point(field_add:pb_common.data_ope.opecode)
+  return _add;
+}
+inline const ::google::protobuf::RepeatedPtrField<::pb_common::ope_detail>& data_ope::opecode() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_list:pb_common.data_ope.opecode)
   return _internal_opecode();
 }
-inline void data_ope::set_opecode(::int32_t value) {
-  _internal_set_opecode(value);
-  // @@protoc_insertion_point(field_set:pb_common.data_ope.opecode)
-}
-inline ::int32_t data_ope::_internal_opecode() const {
+inline const ::google::protobuf::RepeatedPtrField<::pb_common::ope_detail>&
+data_ope::_internal_opecode() const {
   PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
   return _impl_.opecode_;
 }
-inline void data_ope::_internal_set_opecode(::int32_t value) {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_._has_bits_[0] |= 0x00000004u;
-  _impl_.opecode_ = value;
+inline ::google::protobuf::RepeatedPtrField<::pb_common::ope_detail>*
+data_ope::_internal_mutable_opecode() {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return &_impl_.opecode_;
 }
 
 // optional int32 ackframeid = 4;
 inline bool data_ope::has_ackframeid() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000008u) != 0;
+  bool value = (_impl_._has_bits_[0] & 0x00000004u) != 0;
   return value;
 }
 inline void data_ope::clear_ackframeid() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   _impl_.ackframeid_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000008u;
+  _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::int32_t data_ope::ackframeid() const {
   // @@protoc_insertion_point(field_get:pb_common.data_ope.ackframeid)
@@ -4246,7 +5200,7 @@ inline ::int32_t data_ope::_internal_ackframeid() const {
 }
 inline void data_ope::_internal_set_ackframeid(::int32_t value) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_._has_bits_[0] |= 0x00000008u;
+  _impl_._has_bits_[0] |= 0x00000004u;
   _impl_.ackframeid_ = value;
 }
 
@@ -4310,32 +5264,53 @@ inline void data_frame::_internal_set_frameid(::int32_t value) {
   _impl_.frameid_ = value;
 }
 
-// optional int32 opecode = 3;
-inline bool data_frame::has_opecode() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000004u) != 0;
-  return value;
+// repeated .pb_common.ope_detail opecode = 3;
+inline int data_frame::_internal_opecode_size() const {
+  return _internal_opecode().size();
+}
+inline int data_frame::opecode_size() const {
+  return _internal_opecode_size();
 }
 inline void data_frame::clear_opecode() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.opecode_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000004u;
+  _impl_.opecode_.Clear();
 }
-inline ::int32_t data_frame::opecode() const {
+inline ::pb_common::ope_detail* data_frame::mutable_opecode(int index)
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable:pb_common.data_frame.opecode)
+  return _internal_mutable_opecode()->Mutable(index);
+}
+inline ::google::protobuf::RepeatedPtrField<::pb_common::ope_detail>* data_frame::mutable_opecode()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable_list:pb_common.data_frame.opecode)
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  return _internal_mutable_opecode();
+}
+inline const ::pb_common::ope_detail& data_frame::opecode(int index) const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   // @@protoc_insertion_point(field_get:pb_common.data_frame.opecode)
+  return _internal_opecode().Get(index);
+}
+inline ::pb_common::ope_detail* data_frame::add_opecode() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ::pb_common::ope_detail* _add = _internal_mutable_opecode()->Add();
+  // @@protoc_insertion_point(field_add:pb_common.data_frame.opecode)
+  return _add;
+}
+inline const ::google::protobuf::RepeatedPtrField<::pb_common::ope_detail>& data_frame::opecode() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_list:pb_common.data_frame.opecode)
   return _internal_opecode();
 }
-inline void data_frame::set_opecode(::int32_t value) {
-  _internal_set_opecode(value);
-  // @@protoc_insertion_point(field_set:pb_common.data_frame.opecode)
-}
-inline ::int32_t data_frame::_internal_opecode() const {
+inline const ::google::protobuf::RepeatedPtrField<::pb_common::ope_detail>&
+data_frame::_internal_opecode() const {
   PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
   return _impl_.opecode_;
 }
-inline void data_frame::_internal_set_opecode(::int32_t value) {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_._has_bits_[0] |= 0x00000004u;
-  _impl_.opecode_ = value;
+inline ::google::protobuf::RepeatedPtrField<::pb_common::ope_detail>*
+data_frame::_internal_mutable_opecode() {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return &_impl_.opecode_;
 }
 
 // -------------------------------------------------------------------
@@ -4788,6 +5763,12 @@ struct is_proto_enum<::pb_common::protocol_code> : std::true_type {};
 template <>
 inline const EnumDescriptor* GetEnumDescriptor<::pb_common::protocol_code>() {
   return ::pb_common::protocol_code_descriptor();
+}
+template <>
+struct is_proto_enum<::pb_common::ope_type> : std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor<::pb_common::ope_type>() {
+  return ::pb_common::ope_type_descriptor();
 }
 
 }  // namespace protobuf

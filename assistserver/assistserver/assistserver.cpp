@@ -325,7 +325,24 @@ public:
         if (frame_sync[userid] < frame.ackframeid()) {
             frame_sync[userid] = frame.ackframeid();
         }
-        printf_s("[recv] userid %d frameid %d acked_frameid %d frameid_svr %d opecode %d\n", userid, frameid, frame.ackframeid(), currentFrame, frame.opecode());
+        std::string strLog = "";
+        for (const auto& iter : frame.opecode()) {
+            if (1 == iter.opetype()) {
+				pb_common::ope_move move;
+				move.ParseFromString(iter.opestring());
+                char szLog[1024] = { 0 };
+				sprintf_s(szLog, sizeof(szLog), "%d:%d&%d|", iter.opetype(), move.movex(), move.movey());
+                strLog += std::string(szLog);
+			}
+			else if (2 == iter.opetype()) {
+                pb_common::ope_fire_bullet fire;
+                fire.ParseFromString(iter.opestring());
+                char szLog[1024] = { 0 };
+				sprintf_s(szLog, sizeof(szLog), "%d:%d&%d&%d&%d|", iter.opetype(), fire.startposx(), fire.startposy(), fire.directionx(), fire.directiony());
+                strLog += std::string(szLog);
+            }
+        }
+        printf_s("[recv] userid %d frameid %d acked_frameid %d frameid_svr %d opecode %s\n", userid, frameid, frame.ackframeid(), currentFrame, strLog.c_str());
         frames_[currentFrame][userid].insert(std::make_pair(frameid, frame));
     }
 
@@ -346,7 +363,7 @@ public:
         m_pRedisPool = RedisPool::create("127.0.0.1", 6379, "");
         m_pRedisPool->initConnection(3);
         m_pLogicThread = std::make_unique<std::thread>([=]() {
-            auto playercount = 1;
+            auto playercount = 2;
             auto delta = 0;
             auto tick = getMs();
             auto fps = 1000 / 15;
@@ -569,6 +586,7 @@ void gameroom::start_game(gameserver* pServer, int playercount) {
     if (game_start) {
         std::lock_guard<std::mutex> lk(lock_frames);
         if (frame_sync.size() < playercount) { return; }
+		auto ms = getMs();
         int frameid = currentFrame++;
         for (auto& it : m_mapPlayer) {
             std::string strLog = "";
@@ -589,17 +607,28 @@ void gameroom::start_game(gameserver* pServer, int playercount) {
                             for (auto& it : iter.second) {
                                 user_frame->set_userid(iter.first);
                                 user_frame->set_frameid(it.first);
-                                user_frame->set_opecode(it.second.opecode());
+                                std::string strSub = "";
+                                for (auto& itIn : it.second.opecode()) {
+                                    auto opecode = user_frame->add_opecode();
+                                    if (opecode) {
+                                        opecode->set_opetype(itIn.opetype());
+                                        opecode->set_opestring(itIn.opestring());
+                                        strSub += std::to_string(itIn.opetype());
+                                        strSub += std::string(">");
+                                        strSub += std::string(itIn.opestring());
+                                        strSub += std::string("<");
+                                    }
+                                }
                                 strLog += std::to_string(it.first);
                                 strLog += std::string(":");
-                                strLog += std::to_string(it.second.opecode());
+                                strLog += strSub;
                                 strLog += std::string("&");
                             }
                         }
                     }
                 }
             }
-            bool pkLoss = (rand() % 10) == 0 && false;
+            bool pkLoss = (rand() % 5) == 0 && false;
             if (!pkLoss) {
                 pServer->udp_send(userid, pb_common::protocol_code::protocol_frame, frames.ByteSizeLong(), frames.SerializeAsString());
             }

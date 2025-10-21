@@ -1,5 +1,5 @@
 
-≤
+õ
 pb_common.proto	pb_common"l
 	data_head#
 protocol_code (RprotocolCode
@@ -30,19 +30,35 @@ returnCodeJ	"C
 
 data_begin
 	rand_seed (RrandSeed
-userids (Ruserids"v
+userids (Ruserids"6
+ope_move
+movex (Rmovex
+movey (Rmovey"ç
+ope_fire_bullet
+	startposx (R	startposx
+	startposy (R	startposy
+
+directionx (R
+directionx
+
+directiony (R
+directiony"D
+
+ope_detail
+opetype (Ropetype
+	opestring (R	opestring"ç
 data_ope
 userid (Ruserid
-frameid (Rframeid
-opecode (Ropecode
+frameid (Rframeid/
+opecode (2.pb_common.ope_detailRopecode
 
 ackframeid (R
-ackframeid"X
+ackframeid"o
 
 data_frame
 userid (Ruserid
-frameid (Rframeid
-opecode (Ropecode"Z
+frameid (Rframeid/
+opecode (2.pb_common.ope_detailRopecode"Z
 data_ope_frames
 frameid (Rframeid-
 frames (2.pb_common.data_frameRframes"A
@@ -77,4 +93,7 @@ data_frame
  
 protocol_leave_room_response
 protocol_ping
-protocol_pong
+protocol_pong**
+ope_type
+opeMove
+opeFireBullet

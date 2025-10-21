@@ -39,7 +39,6 @@ local function main()
         local HandlerSceneMain = require("src.app.scenes.SceneMain")
         display.runScene(HandlerSceneMain.new())
     end
-    HLog:printf("game started")
 end
 
 local status, msg = xpcall(main, __G__TRACKBACK__)

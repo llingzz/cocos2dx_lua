@@ -12,16 +12,8 @@ function NodeEntity:ctor(INparent)
     self.rotation = 0
     self.entity = display.newSprite("res/entity.png")
     self.entity:addTo(self)
-
-    self.frameid = 0
     self.opeCode = 0x00
-    self.lastOpeCode = 0x00
-    self.syncOpeCode = 0x00
-
-    self.logicRat = 0
-    self.logicPos = cc.p(display.cx*1000,display.cy*1000)
-    self.predictRat = 0
-    self.predictPos = cc.p(display.cx*1000,display.cy*1000)
+    self.lastFire = socket.gettime()
     --self:createPhysicBody()
 end
 
@@ -67,36 +59,24 @@ function NodeEntity:getKeyboardEvent(INType,INeventCode)
     end
 end
 
-function NodeEntity:capturePlayerOpts()
-    self.parent:sendUdpData(protobuf.enum_id("pb_common.protocol_code","protocol_frame"),protobuf.encode('pb_common.data_ope', {
-        userid = self.token,
-        frameid = self.parent.frameId,
-        opecode = self.opeCode,
-        ackframeid = self.parent.syncFrameId
-    }))
-end
-
 function NodeEntity:getOpeCode()
-    return self.opeCode
+    local opeCode = self.opeCode
+    if bit._and(opeCode,0x10) > 0 then
+        local now = socket.gettime()
+        if now - self.lastFire < 0.3 then
+            opeCode = bit._and(opeCode,0xef)
+        else
+            self.lastFire = now
+        end
+    end
+    return opeCode
 end
 
 function NodeEntity:setToken(INtoken)
     self.token = INtoken or -1
 end
 
-function NodeEntity:convertOpeCode(INopeCode)
-    local ahead, rotation = 0, 0
-    if bit._and(INopeCode,0x01) > 0 then ahead = ahead + 1 end
-    if bit._and(INopeCode,0x02) > 0 then ahead = ahead - 1 end
-    if bit._and(INopeCode,0x04) > 0 then rotation = rotation - 1 end
-    if bit._and(INopeCode,0x08) > 0 then rotation = rotation + 1 end
-    return ahead, rotation
-end
-
 function NodeEntity:fireBullet()
-    if not self.lastFire then self.lastFire = socket.gettime() - 1 end
-    if socket.gettime() - self.lastFire <= 0.3 then return end
-    self.lastFire = socket.gettime()
     local HandlerBullet = require "app.modules.map.NodeBullet"
     local bullet = HandlerBullet.new(self:getRotation())
     bullet:addTo(self.parent)

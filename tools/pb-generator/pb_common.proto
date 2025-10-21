@@ -70,11 +70,35 @@ message data_begin
 	repeated int32 userids = 2;
 }
 
+enum ope_type
+{
+	opeMove = 1;
+	opeFireBullet = 2;
+}
+message ope_move
+{
+	required int32 movex = 1;
+	required int32 movey = 2;
+}
+message ope_fire_bullet
+{
+	required int32 startposx = 1;
+	required int32 startposy = 2;
+	required int32 directionx = 3;
+	required int32 directiony = 4;
+}
+
+message ope_detail
+{
+	optional int32 opetype = 1;
+	optional bytes opestring = 2;
+}
+
 message data_ope
 {
 	optional int32 userid = 1;
 	optional int32 frameid = 2;
-	optional int32 opecode = 3;
+	repeated ope_detail opecode = 3;
 	optional int32 ackframeid = 4;
 }
 
@@ -82,7 +106,7 @@ message data_frame
 {
 	optional int32 userid = 1;
 	optional int32 frameid = 2;
-	optional int32 opecode = 3;
+	repeated ope_detail opecode = 3;
 }
 
 message data_ope_frames

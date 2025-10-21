@@ -19,4 +19,8 @@ function HelpTools:lerp(from, to, t)
     return from + (to - from) * self:clamp(t, 0, 1)
 end
 
+function HelpTools:toFixed(INnum)
+    return math.floor(INnum*math.pow(10,4))/math.pow(10,4)
+end
+
 return HelpTools

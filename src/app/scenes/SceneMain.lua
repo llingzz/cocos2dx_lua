@@ -87,6 +87,9 @@ function SceneMain:ctor()
     self.otherFrameid = 0
     self.otherPos = cc.p(display.cx,display.cy)
 
+    self.bullets = {}
+    self.nodeBullets = {}
+
     local keyBoardListener = cc.EventListenerKeyboard:create()
     keyBoardListener:registerScriptHandler(handler(self,self.onKeyEventPressed), cc.Handler.EVENT_KEYBOARD_PRESSED)
     keyBoardListener:registerScriptHandler(handler(self,self.onKeyEventReleased), cc.Handler.EVENT_KEYBOARD_RELEASED)
@@ -101,7 +104,6 @@ function SceneMain:ctor()
     if CC_SHOW_PHYSIC_MASK then self:getPhysicsWorld():setDebugDrawMask(cc.PhysicsWorld.DEBUGDRAW_ALL) end
     self.tickPhysicWorld = Scheduler:scheduleGlobal(handler(self, self.tickUpdate), 0.02)
     self:scheduleUpdate(handler(self,self.update))
-    --self.tickLogic = Scheduler:scheduleGlobal(handler(self, self.tickLogic), 1.0/15)
     self.tickPing = Scheduler:scheduleGlobal(handler(self,self.ping),0.5)
     self.lastRecv = nil
 end
@@ -132,10 +134,6 @@ function SceneMain:onExit()
     if self.tickPhysicWorld then
         Scheduler:unscheduleGlobal(self.tickPhysicWorld)
         self.tickPhysicWorld = nil
-    end
-    if self.tickLogic then
-        Scheduler:unscheduleGlobal(self.tickLogic)
-        self.tickLogic = nil
     end
     if self.tickPing then
         Scheduler:unscheduleGlobal(self.tickPing)
@@ -180,7 +178,6 @@ end
 function SceneMain:onEventData(INdata)
     if not INdata then return end
     if "tcp" == INdata.type then
-        -- protobuf.enum_id比较耗时
         if protobuf.enum_id("pb_common.protocol_code","protocol_begin") == INdata.data.protocol_code then
             local dataInfo = protobuf.decode("pb_common.data_begin", INdata.data.data_str)
             protobuf.extract(dataInfo)
@@ -234,10 +231,27 @@ function SceneMain:onEventData(INdata)
         if 8 == INdata.data.protocol_code then
             local dataInfo = protobuf.decode("pb_common.data_frames", INdata.data.data_str)
             protobuf.extract(dataInfo)
+            local frameid = 0
             for i=1,#dataInfo.frames do
-                local frameid = dataInfo.frames[i].frameid
+                frameid = dataInfo.frames[i].frameid
                 if self.syncFrameId < frameid then
                     self.serverFrames[frameid] = dataInfo.frames[i].frames
+                    for k,v in pairs(self.serverFrames[frameid]) do
+                        v.cmds = {}
+                        for kk,vv in pairs(v.opecode) do
+                            if 1 == vv.opetype then
+                                local cmd = protobuf.decode("pb_common.ope_move", vv.opestring)
+                                protobuf.extract(cmd)
+                                cmd.opetype = 1
+                                table.insert(v.cmds,cmd)
+                            elseif 2 == vv.opetype then
+                                local cmd = protobuf.decode("pb_common.ope_fire_bullet", vv.opestring)
+                                protobuf.extract(cmd)
+                                cmd.opetype = 2
+                                table.insert(v.cmds,cmd)
+                            end
+                        end
+                    end
                 end
             end
         elseif 13 == INdata.data.protocol_code then
@@ -310,13 +324,43 @@ function SceneMain:onKeyEventReleased(INkey,INrender)
     if self.entity then self.entity:getKeyboardEvent("onKeyEventReleased",INkey) end
 end
 
-function SceneMain:convertOpeCode(INopeCode)
-    local ahead, rotation = 0, 0
+function SceneMain:convertOpeCode(INopeCode,INpack)
+    local ahead, rotation, fire = 0, 0, false
     if bit._and(INopeCode,0x01) > 0 then ahead = ahead + 1 end
     if bit._and(INopeCode,0x02) > 0 then ahead = ahead - 1 end
     if bit._and(INopeCode,0x04) > 0 then rotation = rotation - 1 end
     if bit._and(INopeCode,0x08) > 0 then rotation = rotation + 1 end
-    return ahead, rotation
+    if bit._and(INopeCode,0x10) > 0 then fire = true end
+    local ope_move = {
+        movex = ahead,
+        movey = rotation
+    }
+    local ope_fire_bullet = nil
+    if fire then
+        local curPos = cc.p(self.entity:getPosition())
+        ope_fire_bullet = {
+            startposx = HelpTools:toFixed(curPos.x),
+            startposy = HelpTools:toFixed(curPos.y+20),
+            directionx = 0,
+            directiony = 1,
+        }
+    end
+    local resData = {}
+    if INpack then
+        if ope_move then
+            table.insert(resData,{
+                opetype = 1,
+                opestring = protobuf.encode('pb_common.ope_move', ope_move)
+            })
+        end
+        if ope_fire_bullet then
+            table.insert(resData,{
+                opetype = 2,
+                opestring = protobuf.encode('pb_common.ope_fire_bullet', ope_fire_bullet)
+            })
+        end
+    end
+    return ope_move,ope_fire_bullet,resData
 end
 
 function SceneMain:createEntity(INtoken)
@@ -368,6 +412,17 @@ function SceneMain:update(dt)
             end
         end
     end
+    for k,v in pairs(self.bullets) do
+        if not self.nodeBullets[v.id] then
+            local bullet = display.newSprite("res/bullet.png")
+            bullet:addTo(self)
+            bullet:setPosition(cc.p(v.startpos))
+            self.nodeBullets[v.id] = bullet
+        end
+        local currentPos = cc.p(self.nodeBullets[v.id]:getPosition())
+        local newPos = self:lerpConstantSpeed(currentPos, v.targetpos, 100*0.2*2*15, dt)
+        self.nodeBullets[v.id]:setPosition(newPos)
+    end
     self.updateTick = self.updateTick + dt
 end
 
@@ -384,62 +439,96 @@ function SceneMain:tickLogic(dt)
     if not self.syncStates then self.syncStates = cc.p(display.cx,display.cy) end
     self.frameId = self.frameId + 1
     local opeCodes = self.entity:getOpeCode()
+    local ope_move,ope_fire_bullet,data = self:convertOpeCode(opeCodes,true)
     local ret = self:sendUdpData(8,protobuf.encode('pb_common.data_ope', {
         userid = self.token,
         frameid = self.frameId,
-        opecode = opeCodes,
+        opecode = data,
         ackframeid = self.syncFrameId
     }),false)
-    if ret then
-        --HLog:printf(string.format("player packet loss frameid:%d opeCode:%d",self.frameId,opeCodes))
-    end
+    --if ret then HLog:printf(string.format("player packet loss frameid:%d opeCode:%d",self.frameId,opeCodes)) end
     if not self.inputsPending[self.frameId] then self.inputsPending[self.frameId] = {} end
-    self.inputsPending[self.frameId] = opeCodes
-    local x,y = self:convertOpeCode(opeCodes)
-    if x ~= 0 or y ~= 0 then
-        self.lastestPos.x = self.lastestPos.x + y * 100* 0.2
-        self.lastestPos.y = self.lastestPos.y + x * 100* 0.2
+    self.inputsPending[self.frameId] = {
+        move=ope_move,
+        fire=ope_fire_bullet
+    }
+    if ope_move.movex ~= 0 or ope_move.movey ~= 0 then
+        self.lastestPos.x = self.lastestPos.x + ope_move.movey * 100* 0.2
+        self.lastestPos.y = self.lastestPos.y + ope_move.movex * 100* 0.2
     end
 
     while(self.serverFrames[self.syncFrameId+1]) do
         local frames = self.serverFrames[self.syncFrameId+1]
-        if 0 == #frames then
-            --HLog:printf(string.format("frames empty frameid:%d",self.syncFrameId+1))
-        end
+        --if 0 == #frames then HLog:printf(string.format("frames empty frameid:%d",self.syncFrameId+1)) end
         for m=1,#frames do
             local v = frames[m]
             if v.userid == self.token then
                 self.lastestPos.x = self.syncStates.x
                 self.lastestPos.y = self.syncStates.y
-                local x,y = self:convertOpeCode(v.opecode)
-                if x ~= 0 or y ~= 0 then
-                    self.lastestPos.x = self.lastestPos.x + y * 100* 0.2
-                    self.lastestPos.y = self.lastestPos.y + x * 100* 0.2
+                for n=1,#v.cmds do
+                    local vv = v.cmds[n]
+                    if 1 == vv.opetype then
+                        self.lastestPos.x = self.lastestPos.x + vv.movey * 100* 0.2
+                        self.lastestPos.y = self.lastestPos.y + vv.movex * 100* 0.2
+                    elseif 2 == vv.opetype then
+                        local curPos = cc.p(self.entity:getPosition())
+                        local bullet = {
+                            id = v.userid*1000000+v.frameid,
+                            owner = v.userid,
+                            frameid = v.frameid,
+                            startpos = cc.p(curPos.x,curPos.y+20),
+                            targetpos = cc.p(vv.startposx,vv.startposy),
+                            direction = cc.p(vv.directionx,vv.directiony)
+                        }
+                        table.insert(self.bullets,bullet)
+                    end
                 end
                 self.syncStates = cc.p(self.lastestPos.x, self.lastestPos.y)
                 --HLog:printf(string.format("[%04d]player userid %d apply frameid %04d opecode %04d logicPos %f:%f aheadPos %f:%f", self.syncFrameId+1,self.token,v.frameid,v.opecode,self.syncStates.x,self.syncStates.y,self.lastestPos.x,self.lastestPos.y))
                 for i=v.frameid+1,self.frameId do
                     if self.inputsPending[i] then
-                        x,y = self:convertOpeCode(self.inputsPending[i])
-                        if x ~= 0 or y ~= 0 then
-                            self.lastestPos.x = self.lastestPos.x + y * 100* 0.2
-                            self.lastestPos.y = self.lastestPos.y + x * 100* 0.2
+                        local premove = self.inputsPending[i].move
+                        if premove and (premove.movex ~= 0 or premove.movey ~= 0) then
+                            self.lastestPos.x = self.lastestPos.x + premove.movey * 100* 0.2
+                            self.lastestPos.y = self.lastestPos.y + premove.movex * 100* 0.2
                         end
                     end
                 end
             else
                 if v.frameid > self.otherFrameid then
                     self.otherFrameid = v.frameid
-                    local x,y = self:convertOpeCode(v.opecode)
-                    if x ~= 0 or y ~= 0 then
-                        self.otherPos.x = self.otherPos.x + y * 100* 0.2
-                        self.otherPos.y = self.otherPos.y + x * 100* 0.2
+                    for n=1,#v.cmds do
+                        local vv = v.cmds[n]
+                        if 1 == vv.opetype then
+                            self.otherPos.x = self.otherPos.x + vv.movey * 100* 0.2
+                            self.otherPos.y = self.otherPos.y + vv.movex * 100* 0.2
+                        elseif 2 == vv.opetype then
+                            local bullet = {
+                                id = v.userid*1000000+v.frameid,
+                                owner = v.userid,
+                                frameid = v.frameid,
+                                startpos = cc.p(vv.startposx,vv.startposy),
+                                targetpos = cc.p(vv.startposx,vv.startposy),
+                                direction = cc.p(vv.directionx,vv.directiony)
+                            }
+                            table.insert(self.bullets,bullet)
+                        end
                     end
                     --HLog:printf(string.format("userid %d frame %d opecode %d logicPos %f:%f",v.userid,self.otherFrameid,v.opecode,self.otherPos.x,self.otherPos.y))
                 end
-            end
+            end    
         end
         self.syncFrameId = self.syncFrameId + 1
+    end
+
+    for k,v in pairs(self.bullets) do
+        if v.frameid < self.syncFrameId then
+            local inter = self.syncFrameId - v.frameid
+            v.targetpos.x = v.targetpos.x + HelpTools:toFixed(v.direction.x*100*0.2*2*inter)
+            v.targetpos.y = v.targetpos.y + HelpTools:toFixed(v.direction.y*100*0.2*2*inter)
+            HLog:printf("bullet update id %d old frameid %d new frameid %d x %d y %d",v.id,v.frameid,self.syncFrameId,v.targetpos.x,v.targetpos.y)
+            v.frameid = self.syncFrameId
+        end
     end
     --print(string.format("predict frame %d acked frameid %d syncPos %f:%f localPos %f:%f",self.frameId,self.syncFrameId,self.syncStates.x,self.syncStates.y,self.lastestPos.x,self.lastestPos.y))
 end
