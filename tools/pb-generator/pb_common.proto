@@ -79,6 +79,7 @@ message ope_move
 {
 	required int32 movex = 1;
 	required int32 movey = 2;
+	required int32 turn = 3;
 }
 message ope_fire_bullet
 {

@@ -26,7 +26,8 @@ inline constexpr ope_move::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
         movex_{0},
-        movey_{0} {}
+        movey_{0},
+        turn_{0} {}
 
 template <typename>
 PROTOBUF_CONSTEXPR ope_move::ope_move(::_pbi::ConstantInitialized)
@@ -549,8 +550,10 @@ const ::uint32_t TableStruct_pb_5fcommon_2eproto::offsets[] PROTOBUF_SECTION_VAR
     ~0u,  // no sizeof(Split)
     PROTOBUF_FIELD_OFFSET(::pb_common::ope_move, _impl_.movex_),
     PROTOBUF_FIELD_OFFSET(::pb_common::ope_move, _impl_.movey_),
+    PROTOBUF_FIELD_OFFSET(::pb_common::ope_move, _impl_.turn_),
     0,
     1,
+    2,
     PROTOBUF_FIELD_OFFSET(::pb_common::ope_fire_bullet, _impl_._has_bits_),
     PROTOBUF_FIELD_OFFSET(::pb_common::ope_fire_bullet, _internal_metadata_),
     ~0u,  // no _extensions_
@@ -702,18 +705,18 @@ static const ::_pbi::MigrationSchema
         {60, 70, -1, sizeof(::pb_common::data_ready)},
         {72, 83, -1, sizeof(::pb_common::data_ready_response)},
         {86, 96, -1, sizeof(::pb_common::data_begin)},
-        {98, 108, -1, sizeof(::pb_common::ope_move)},
-        {110, 122, -1, sizeof(::pb_common::ope_fire_bullet)},
-        {126, 136, -1, sizeof(::pb_common::ope_detail)},
-        {138, 150, -1, sizeof(::pb_common::data_ope)},
-        {154, 165, -1, sizeof(::pb_common::data_frame)},
-        {168, 178, -1, sizeof(::pb_common::data_ope_frames)},
-        {180, -1, -1, sizeof(::pb_common::data_frames)},
-        {189, 199, -1, sizeof(::pb_common::data_tcp_close)},
-        {201, 211, -1, sizeof(::pb_common::data_user_leave_room)},
-        {213, 223, -1, sizeof(::pb_common::data_user_leave_room_response)},
-        {225, 235, -1, sizeof(::pb_common::data_ping)},
-        {237, 247, -1, sizeof(::pb_common::data_pong)},
+        {98, 109, -1, sizeof(::pb_common::ope_move)},
+        {112, 124, -1, sizeof(::pb_common::ope_fire_bullet)},
+        {128, 138, -1, sizeof(::pb_common::ope_detail)},
+        {140, 152, -1, sizeof(::pb_common::data_ope)},
+        {156, 167, -1, sizeof(::pb_common::data_frame)},
+        {170, 180, -1, sizeof(::pb_common::data_ope_frames)},
+        {182, -1, -1, sizeof(::pb_common::data_frames)},
+        {191, 201, -1, sizeof(::pb_common::data_tcp_close)},
+        {203, 213, -1, sizeof(::pb_common::data_user_leave_room)},
+        {215, 225, -1, sizeof(::pb_common::data_user_leave_room_response)},
+        {227, 237, -1, sizeof(::pb_common::data_ping)},
+        {239, 249, -1, sizeof(::pb_common::data_pong)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -752,41 +755,42 @@ const char descriptor_table_protodef_pb_5fcommon_2eproto[] PROTOBUF_SECTION_VARI
     "y_response\022\016\n\006userid\030\001 \001(\005\022\016\n\006roomid\030\002 \001"
     "(\005\022\023\n\013return_code\030\003 \001(\005J\004\010\004\020\t\"0\n\ndata_be"
     "gin\022\021\n\trand_seed\030\001 \001(\r\022\017\n\007userids\030\002 \003(\005\""
-    "(\n\010ope_move\022\r\n\005movex\030\001 \002(\005\022\r\n\005movey\030\002 \002("
-    "\005\"_\n\017ope_fire_bullet\022\021\n\tstartposx\030\001 \002(\005\022"
-    "\021\n\tstartposy\030\002 \002(\005\022\022\n\ndirectionx\030\003 \002(\005\022\022"
-    "\n\ndirectiony\030\004 \002(\005\"0\n\nope_detail\022\017\n\007opet"
-    "ype\030\001 \001(\005\022\021\n\topestring\030\002 \001(\014\"g\n\010data_ope"
-    "\022\016\n\006userid\030\001 \001(\005\022\017\n\007frameid\030\002 \001(\005\022&\n\007ope"
-    "code\030\003 \003(\0132\025.pb_common.ope_detail\022\022\n\nack"
-    "frameid\030\004 \001(\005\"U\n\ndata_frame\022\016\n\006userid\030\001 "
-    "\001(\005\022\017\n\007frameid\030\002 \001(\005\022&\n\007opecode\030\003 \003(\0132\025."
-    "pb_common.ope_detail\"I\n\017data_ope_frames\022"
-    "\017\n\007frameid\030\001 \001(\005\022%\n\006frames\030\002 \003(\0132\025.pb_co"
-    "mmon.data_frame\"9\n\013data_frames\022*\n\006frames"
-    "\030\001 \003(\0132\032.pb_common.data_ope_frames\"/\n\016da"
-    "ta_tcp_close\022\016\n\006userid\030\001 \001(\005\022\r\n\005token\030\002 "
-    "\001(\005\"6\n\024data_user_leave_room\022\016\n\006userid\030\001 "
-    "\001(\005\022\016\n\006roomid\030\002 \001(\005\"\?\n\035data_user_leave_r"
-    "oom_response\022\016\n\006userid\030\001 \001(\005\022\016\n\006roomid\030\002"
-    " \001(\005\"(\n\tdata_ping\022\016\n\006userid\030\001 \001(\005\022\013\n\003idx"
-    "\030\002 \001(\005\"(\n\tdata_pong\022\016\n\006userid\030\001 \001(\005\022\013\n\003i"
-    "dx\030\002 \001(\005*\321\002\n\rprotocol_code\022\025\n\021protocol_r"
-    "egister\020\001\022\036\n\032protocol_register_response\020"
-    "\002\022\026\n\022protocol_join_room\020\003\022\037\n\033protocol_jo"
-    "in_room_response\020\004\022\022\n\016protocol_ready\020\005\022\033"
-    "\n\027protocol_ready_response\020\006\022\022\n\016protocol_"
-    "begin\020\007\022\022\n\016protocol_frame\020\010\022\026\n\022protocol_"
-    "tcp_close\020\t\022\027\n\023protocol_leave_room\020\n\022 \n\034"
-    "protocol_leave_room_response\020\013\022\021\n\rprotoc"
-    "ol_ping\020\014\022\021\n\rprotocol_pong\020\r**\n\010ope_type"
-    "\022\013\n\007opeMove\020\001\022\021\n\ropeFireBullet\020\002"
+    "6\n\010ope_move\022\r\n\005movex\030\001 \002(\005\022\r\n\005movey\030\002 \002("
+    "\005\022\014\n\004turn\030\003 \002(\005\"_\n\017ope_fire_bullet\022\021\n\tst"
+    "artposx\030\001 \002(\005\022\021\n\tstartposy\030\002 \002(\005\022\022\n\ndire"
+    "ctionx\030\003 \002(\005\022\022\n\ndirectiony\030\004 \002(\005\"0\n\nope_"
+    "detail\022\017\n\007opetype\030\001 \001(\005\022\021\n\topestring\030\002 \001"
+    "(\014\"g\n\010data_ope\022\016\n\006userid\030\001 \001(\005\022\017\n\007framei"
+    "d\030\002 \001(\005\022&\n\007opecode\030\003 \003(\0132\025.pb_common.ope"
+    "_detail\022\022\n\nackframeid\030\004 \001(\005\"U\n\ndata_fram"
+    "e\022\016\n\006userid\030\001 \001(\005\022\017\n\007frameid\030\002 \001(\005\022&\n\007op"
+    "ecode\030\003 \003(\0132\025.pb_common.ope_detail\"I\n\017da"
+    "ta_ope_frames\022\017\n\007frameid\030\001 \001(\005\022%\n\006frames"
+    "\030\002 \003(\0132\025.pb_common.data_frame\"9\n\013data_fr"
+    "ames\022*\n\006frames\030\001 \003(\0132\032.pb_common.data_op"
+    "e_frames\"/\n\016data_tcp_close\022\016\n\006userid\030\001 \001"
+    "(\005\022\r\n\005token\030\002 \001(\005\"6\n\024data_user_leave_roo"
+    "m\022\016\n\006userid\030\001 \001(\005\022\016\n\006roomid\030\002 \001(\005\"\?\n\035dat"
+    "a_user_leave_room_response\022\016\n\006userid\030\001 \001"
+    "(\005\022\016\n\006roomid\030\002 \001(\005\"(\n\tdata_ping\022\016\n\006useri"
+    "d\030\001 \001(\005\022\013\n\003idx\030\002 \001(\005\"(\n\tdata_pong\022\016\n\006use"
+    "rid\030\001 \001(\005\022\013\n\003idx\030\002 \001(\005*\321\002\n\rprotocol_code"
+    "\022\025\n\021protocol_register\020\001\022\036\n\032protocol_regi"
+    "ster_response\020\002\022\026\n\022protocol_join_room\020\003\022"
+    "\037\n\033protocol_join_room_response\020\004\022\022\n\016prot"
+    "ocol_ready\020\005\022\033\n\027protocol_ready_response\020"
+    "\006\022\022\n\016protocol_begin\020\007\022\022\n\016protocol_frame\020"
+    "\010\022\026\n\022protocol_tcp_close\020\t\022\027\n\023protocol_le"
+    "ave_room\020\n\022 \n\034protocol_leave_room_respon"
+    "se\020\013\022\021\n\rprotocol_ping\020\014\022\021\n\rprotocol_pong"
+    "\020\r**\n\010ope_type\022\013\n\007opeMove\020\001\022\021\n\ropeFireBu"
+    "llet\020\002"
 };
 static ::absl::once_flag descriptor_table_pb_5fcommon_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_pb_5fcommon_2eproto = {
     false,
     false,
-    1672,
+    1686,
     descriptor_table_protodef_pb_5fcommon_2eproto,
     "pb_common.proto",
     &descriptor_table_pb_5fcommon_2eproto_once,
@@ -2695,8 +2699,11 @@ class ope_move::_Internal {
   static void set_has_movey(HasBits* has_bits) {
     (*has_bits)[0] |= 2u;
   }
+  static void set_has_turn(HasBits* has_bits) {
+    (*has_bits)[0] |= 4u;
+  }
   static bool MissingRequiredFields(const HasBits& has_bits) {
-    return ((has_bits[0] & 0x00000003) ^ 0x00000003) != 0;
+    return ((has_bits[0] & 0x00000007) ^ 0x00000007) != 0;
   }
 };
 
@@ -2720,9 +2727,9 @@ inline void ope_move::SharedCtor(::_pb::Arena* arena) {
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, movex_),
            0,
-           offsetof(Impl_, movey_) -
+           offsetof(Impl_, turn_) -
                offsetof(Impl_, movex_) +
-               sizeof(Impl_::movey_));
+               sizeof(Impl_::turn_));
 }
 ope_move::~ope_move() {
   // @@protoc_insertion_point(destructor:pb_common.ope_move)
@@ -2742,10 +2749,10 @@ PROTOBUF_NOINLINE void ope_move::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
+  if (cached_has_bits & 0x00000007u) {
     ::memset(&_impl_.movex_, 0, static_cast<::size_t>(
-        reinterpret_cast<char*>(&_impl_.movey_) -
-        reinterpret_cast<char*>(&_impl_.movex_)) + sizeof(_impl_.movey_));
+        reinterpret_cast<char*>(&_impl_.turn_) -
+        reinterpret_cast<char*>(&_impl_.movex_)) + sizeof(_impl_.turn_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -2759,26 +2766,30 @@ const char* ope_move::_InternalParse(
 
 
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 0, 0, 2> ope_move::_table_ = {
+const ::_pbi::TcParseTable<2, 3, 0, 0, 2> ope_move::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(ope_move, _impl_._has_bits_),
     0, // no _extensions_
-    2, 8,  // max_field_number, fast_idx_mask
+    3, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967292,  // skipmap
+    4294967288,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    2,  // num_field_entries
+    3,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     &_ope_move_default_instance_._instance,
     ::_pbi::TcParser::GenericFallback,  // fallback
   }, {{
-    // required int32 movey = 2;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(ope_move, _impl_.movey_), 1>(),
-     {16, 1, 0, PROTOBUF_FIELD_OFFSET(ope_move, _impl_.movey_)}},
+    {::_pbi::TcParser::MiniParse, {}},
     // required int32 movex = 1;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(ope_move, _impl_.movex_), 0>(),
      {8, 0, 0, PROTOBUF_FIELD_OFFSET(ope_move, _impl_.movex_)}},
+    // required int32 movey = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(ope_move, _impl_.movey_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(ope_move, _impl_.movey_)}},
+    // required int32 turn = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(ope_move, _impl_.turn_), 2>(),
+     {24, 2, 0, PROTOBUF_FIELD_OFFSET(ope_move, _impl_.turn_)}},
   }}, {{
     65535, 65535
   }}, {{
@@ -2787,6 +2798,9 @@ const ::_pbi::TcParseTable<1, 2, 0, 0, 2> ope_move::_table_ = {
     (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
     // required int32 movey = 2;
     {PROTOBUF_FIELD_OFFSET(ope_move, _impl_.movey_), _Internal::kHasBitsOffset + 1, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // required int32 turn = 3;
+    {PROTOBUF_FIELD_OFFSET(ope_move, _impl_.turn_), _Internal::kHasBitsOffset + 2, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
   }},
   // no aux_entries
@@ -2816,6 +2830,13 @@ const ::_pbi::TcParseTable<1, 2, 0, 0, 2> ope_move::_table_ = {
             stream, this->_internal_movey(), target);
   }
 
+  // required int32 turn = 3;
+  if (cached_has_bits & 0x00000004u) {
+    target = ::google::protobuf::internal::WireFormatLite::
+        WriteInt32ToArrayWithField<3>(
+            stream, this->_internal_turn(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target =
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
@@ -2834,7 +2855,7 @@ const ::_pbi::TcParseTable<1, 2, 0, 0, 2> ope_move::_table_ = {
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
+  if (cached_has_bits & 0x00000007u) {
     // required int32 movex = 1;
     if (cached_has_bits & 0x00000001u) {
       total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
@@ -2845,6 +2866,12 @@ const ::_pbi::TcParseTable<1, 2, 0, 0, 2> ope_move::_table_ = {
     if (cached_has_bits & 0x00000002u) {
       total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
           this->_internal_movey());
+    }
+
+    // required int32 turn = 3;
+    if (cached_has_bits & 0x00000004u) {
+      total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+          this->_internal_turn());
     }
 
   }
@@ -2868,12 +2895,15 @@ void ope_move::MergeImpl(::google::protobuf::Message& to_msg, const ::google::pr
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
+  if (cached_has_bits & 0x00000007u) {
     if (cached_has_bits & 0x00000001u) {
       _this->_impl_.movex_ = from._impl_.movex_;
     }
     if (cached_has_bits & 0x00000002u) {
       _this->_impl_.movey_ = from._impl_.movey_;
+    }
+    if (cached_has_bits & 0x00000004u) {
+      _this->_impl_.turn_ = from._impl_.turn_;
     }
     _this->_impl_._has_bits_[0] |= cached_has_bits;
   }
@@ -2902,8 +2932,8 @@ void ope_move::InternalSwap(ope_move* PROTOBUF_RESTRICT other) {
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
   ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(ope_move, _impl_.movey_)
-      + sizeof(ope_move::_impl_.movey_)
+      PROTOBUF_FIELD_OFFSET(ope_move, _impl_.turn_)
+      + sizeof(ope_move::_impl_.turn_)
       - PROTOBUF_FIELD_OFFSET(ope_move, _impl_.movex_)>(
           reinterpret_cast<char*>(&_impl_.movex_),
           reinterpret_cast<char*>(&other->_impl_.movex_));

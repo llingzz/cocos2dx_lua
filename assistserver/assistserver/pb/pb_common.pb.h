@@ -333,6 +333,7 @@ class ope_move final :
   enum : int {
     kMovexFieldNumber = 1,
     kMoveyFieldNumber = 2,
+    kTurnFieldNumber = 3,
   };
   // required int32 movex = 1;
   bool has_movex() const;
@@ -356,13 +357,24 @@ class ope_move final :
   void _internal_set_movey(::int32_t value);
 
   public:
+  // required int32 turn = 3;
+  bool has_turn() const;
+  void clear_turn() ;
+  ::int32_t turn() const;
+  void set_turn(::int32_t value);
+
+  private:
+  ::int32_t _internal_turn() const;
+  void _internal_set_turn(::int32_t value);
+
+  public:
   // @@protoc_insertion_point(class_scope:pb_common.ope_move)
  private:
   class _Internal;
 
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      1, 2, 0,
+      2, 3, 0,
       0, 2>
       _table_;
   friend class ::google::protobuf::MessageLite;
@@ -383,6 +395,7 @@ class ope_move final :
     mutable ::google::protobuf::internal::CachedSize _cached_size_;
     ::int32_t movex_;
     ::int32_t movey_;
+    ::int32_t turn_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -4846,6 +4859,34 @@ inline void ope_move::_internal_set_movey(::int32_t value) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   _impl_._has_bits_[0] |= 0x00000002u;
   _impl_.movey_ = value;
+}
+
+// required int32 turn = 3;
+inline bool ope_move::has_turn() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000004u) != 0;
+  return value;
+}
+inline void ope_move::clear_turn() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.turn_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000004u;
+}
+inline ::int32_t ope_move::turn() const {
+  // @@protoc_insertion_point(field_get:pb_common.ope_move.turn)
+  return _internal_turn();
+}
+inline void ope_move::set_turn(::int32_t value) {
+  _internal_set_turn(value);
+  // @@protoc_insertion_point(field_set:pb_common.ope_move.turn)
+}
+inline ::int32_t ope_move::_internal_turn() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.turn_;
+}
+inline void ope_move::_internal_set_turn(::int32_t value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_._has_bits_[0] |= 0x00000004u;
+  _impl_.turn_ = value;
 }
 
 // -------------------------------------------------------------------

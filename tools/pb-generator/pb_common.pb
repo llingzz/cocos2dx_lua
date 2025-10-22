@@ -1,5 +1,5 @@
 
-õ
+Ø
 pb_common.proto	pb_common"l
 	data_head#
 protocol_code (RprotocolCode
@@ -30,10 +30,11 @@ returnCodeJ	"C
 
 data_begin
 	rand_seed (RrandSeed
-userids (Ruserids"6
+userids (Ruserids"J
 ope_move
 movex (Rmovex
-movey (Rmovey"ç
+movey (Rmovey
+turn (Rturn"ç
 ope_fire_bullet
 	startposx (R	startposx
 	startposy (R	startposy
