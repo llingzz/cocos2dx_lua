@@ -296,8 +296,8 @@ public:
 class gameserver;
 class gameplayer {
 public:
-    gameplayer(int userid, LONG token, int state) :
-        m_userid(userid), m_token(token), m_state(state) {
+    gameplayer(int userid, LONG token, int state, int index) :
+        m_userid(userid), m_token(token), m_state(state), m_index(index) {
 
     }
     ~gameplayer() {
@@ -306,6 +306,7 @@ public:
     int m_userid;
     int m_token;
     int m_state;
+    int m_index;
 };
 class gameroom {
 public:
@@ -429,7 +430,8 @@ public:
                     rsp.set_roomid(m_nIncrRoomId++);
                     m_mapRoom.insert(std::make_pair(rsp.roomid(), std::make_shared<gameroom>()));
                 }
-                auto player = std::make_shared<gameplayer>(_room.userid(), token, 0);
+				auto index = m_mapRoom[rsp.roomid()]->m_mapPlayer.size() + 1;
+                auto player = std::make_shared<gameplayer>(_room.userid(), token, 0, index);
                 m_mapRoom[rsp.roomid()]->m_mapPlayer.insert(std::make_pair(_room.userid(), player));
             }
             tcp_send(token, pb_common::protocol_code::protocol_join_room_response, rsp.SerializeAsString());
@@ -577,7 +579,16 @@ void gameroom::start_game(gameserver* pServer, int playercount) {
         pb_common::data_begin begin;
         begin.set_rand_seed((uint32_t)time(nullptr));
         for (auto& iter : m_mapPlayer) {
-            begin.mutable_userids()->Add(iter.first);
+			auto playerinfo = begin.add_playerinfos();
+            auto player = iter.second.get();
+            if (playerinfo && player) {
+                playerinfo->set_userid(iter.second.get()->m_userid);
+                playerinfo->set_index(iter.second.get()->m_index);
+            }
+            else {
+                game_start = false;
+                break;
+            }
         }
         for (auto& iter : m_mapPlayer) {
             pServer->tcp_send(iter.second->m_token, pb_common::protocol_code::protocol_begin, begin.SerializeAsString());

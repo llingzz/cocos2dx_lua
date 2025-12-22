@@ -10,7 +10,15 @@ end
 require "cocos.init"
 cc.FileUtils:getInstance():setPopupNotify(false)
 cc.exports.FPS = 60.0
+cc.exports.LOGIC_FPS = 15
+cc.exports.ENTITY_MOVE_SPEED = 100*0.2
+cc.exports.ENTITY_ROTATE_SPEED = 10
+cc.exports.BULLET_MOVE_SPEED = 100*0.2*2
+cc.exports.ENTITY_RADIUS = 15
+cc.exports.BULLET_RADIUS = 2.5
+cc.exports.ENTITY_ORIGIN_POS = cc.p(400,400)
 cc.exports.START_TIME = socket.gettime()
+cc.exports.OrderedTable = require "app.tools.OrderedTable"
 cc.exports.HLog = require "app.tools.Log"
 cc.exports.StateMachine = require "app.tools.StateMachine"
 cc.exports.EventProtocol = require "app.tools.EventProtocol"

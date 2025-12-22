@@ -1,5 +1,5 @@
 
-Ø
+≤
 pb_common.proto	pb_common"l
 	data_head#
 protocol_code (RprotocolCode
@@ -26,15 +26,18 @@ data_ready
 userid (Ruserid
 roomid (Rroomid
 return_code (R
-returnCodeJ	"C
+returnCodeJ	"@
+data_player_info
+userid (Ruserid
+index (Rindex"h
 
 data_begin
-	rand_seed (RrandSeed
-userids (Ruserids"J
+	rand_seed (RrandSeed=
+playerinfos (2.pb_common.data_player_infoRplayerinfos"J
 ope_move
 movex (Rmovex
 movey (Rmovey
-turn (Rturn"ç
+turn (Rturn"©
 ope_fire_bullet
 	startposx (R	startposx
 	startposy (R	startposy
@@ -43,7 +46,8 @@ directionx (R
 directionx
 
 directiony (R
-directiony"D
+directiony
+rotation (Rrotation"D
 
 ope_detail
 opetype (Ropetype

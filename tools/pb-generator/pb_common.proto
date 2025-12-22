@@ -64,10 +64,16 @@ message data_ready_response
 	reserved 4 to 8;
 }
 
+message data_player_info
+{
+	optional int32 userid = 1;
+	optional int32 index = 2;
+}
+
 message data_begin
 {
 	optional uint32 rand_seed = 1;
-	repeated int32 userids = 2;
+	repeated data_player_info playerinfos = 2;
 }
 
 enum ope_type
@@ -87,6 +93,7 @@ message ope_fire_bullet
 	required int32 startposy = 2;
 	required int32 directionx = 3;
 	required int32 directiony = 4;
+	required int32 rotation = 5;
 }
 
 message ope_detail

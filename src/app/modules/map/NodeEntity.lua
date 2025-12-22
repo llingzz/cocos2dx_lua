@@ -7,6 +7,7 @@ end)
 
 function NodeEntity:ctor(INparent)
     self.token = -1
+    self.index = 0
     self.parent = INparent
     self.ahead = 0
     self.rotation = 0
@@ -74,6 +75,10 @@ end
 
 function NodeEntity:setToken(INtoken)
     self.token = INtoken or -1
+end
+
+function NodeEntity:setIndex(INindex)
+    self.index = INindex or 0
 end
 
 function NodeEntity:fireBullet()

@@ -71,27 +71,24 @@ function SceneMain:ctor()
 
     self.token = -1
     self.entity = nil
-    self.entities = {}
+    self.entities = OrderedTable:new()
     self.begin = false
     self.roomid = 0
 
     -- 服务端下发的帧数据
-    self.serverFrames = {}
+    self.serverFrames = OrderedTable:new()
     self.frameId = 0
     -- 客户端同步过的帧号
     self.syncFrameId = 0
-    self.inputsPending = {}
+    self.inputsPending = OrderedTable:new()
     self.syncStates = nil
     self.lastestPos = nil
 
     self.otherFrameid = 0
-    self.otherPos = {
-        pos = cc.p(display.cx,display.cy),
-        rotation = 0
-    }
+    self.otherPos = nil
 
-    self.bullets = {}
-    self.nodeBullets = {}
+    self.bullets = OrderedTable:new()
+    self.nodeBullets = OrderedTable:new()
 
     local keyBoardListener = cc.EventListenerKeyboard:create()
     keyBoardListener:registerScriptHandler(handler(self,self.onKeyEventPressed), cc.Handler.EVENT_KEYBOARD_PRESSED)
@@ -108,7 +105,6 @@ function SceneMain:ctor()
     self.tickPhysicWorld = Scheduler:scheduleGlobal(handler(self, self.tickUpdate), 0.02)
     self:scheduleUpdate(handler(self,self.update))
     self.tickPing = Scheduler:scheduleGlobal(handler(self,self.ping),0.5)
-    self.lastRecv = nil
 end
 
 function SceneMain:onEnter()
@@ -145,6 +141,7 @@ function SceneMain:onExit()
     self.tcp:disconnect()
     self.tcp:close()
     self.udp:close()
+    self:unscheduleUpdate()
 end
 
 function SceneMain:onEventUdpData(INdata)
@@ -185,9 +182,9 @@ function SceneMain:onEventData(INdata)
             local dataInfo = protobuf.decode("pb_common.data_begin", INdata.data.data_str)
             protobuf.extract(dataInfo)
             math.randomseed(dataInfo.rand_seed)
-            for k,v in pairs(dataInfo.userids) do
-                if not self.entities[v] then self:createEntity(v) end
-                if v == self.token then self.entity = self.entities[v] end
+            for k,v in ipairs(dataInfo.playerinfos) do
+                if not self.entities:get(v.userid) then self:createEntity(v) end
+                if v.userid == self.token then self.entity = self.entities:get(v.userid) end
             end
             self.begin = true
         elseif protobuf.enum_id("pb_common.protocol_code","protocol_register_response") == INdata.data.protocol_code then
@@ -220,15 +217,15 @@ function SceneMain:onEventData(INdata)
         elseif protobuf.enum_id("pb_common.protocol_code","protocol_tcp_close") == INdata.data.protocol_code then
             local dataInfo = protobuf.decode("pb_common.data_tcp_close", INdata.data.data_str)
             protobuf.extract(dataInfo)
-            if not self.entities[dataInfo.userid] then return end
-            self.entities[dataInfo.userid]:removeFromParent()
-            self.entities[dataInfo.userid] = nil
+            if not self.entities:get(dataInfo.userid) then return end
+            self.entities:get(dataInfo.userid):removeFromParent()
+            self.entities:remove(dataInfo.userid)
         elseif protobuf.enum_id("pb_common.protocol_code","protocol_leave_room_response") == INdata.data.protocol_code then
             local dataInfo = protobuf.decode("pb_common.data_user_leave_room_response", INdata.data.data_str)
             protobuf.extract(dataInfo)
-            if not self.entities[dataInfo.userid] then return end
-            self.entities[dataInfo.userid]:removeFromParent()
-            self.entities[dataInfo.userid] = nil
+            if not self.entities:get(dataInfo.userid) then return end
+            self.entities:get(dataInfo.userid):removeFromParent()
+            self.entities:remove(dataInfo.userid)
         end
     elseif "udp" == INdata.type then
         if 8 == INdata.data.protocol_code then
@@ -238,10 +235,10 @@ function SceneMain:onEventData(INdata)
             for i=1,#dataInfo.frames do
                 frameid = dataInfo.frames[i].frameid
                 if self.syncFrameId < frameid then
-                    self.serverFrames[frameid] = dataInfo.frames[i].frames
-                    for k,v in pairs(self.serverFrames[frameid]) do
+                    self.serverFrames:set(frameid,dataInfo.frames[i].frames)
+                    for k,v in ipairs(self.serverFrames:get(frameid)) do
                         v.cmds = {}
-                        for kk,vv in pairs(v.opecode) do
+                        for kk,vv in ipairs(v.opecode) do
                             if 1 == vv.opetype then
                                 local cmd = protobuf.decode("pb_common.ope_move", vv.opestring)
                                 protobuf.extract(cmd)
@@ -348,11 +345,15 @@ function SceneMain:convertOpeCode(INopeCode,INpack)
     local ope_fire_bullet = nil
     if fire then
         local curPos = cc.p(self.entity:getPosition())
+        local rotation = self.entity:getRotation() % 360
+        local bdir = cc.p(math.sin(rotation*math.pi/180),math.cos(rotation*math.pi/180))
+        bdir = cc.pNormalize(bdir)
         ope_fire_bullet = {
             startposx = HelpTools:toFixed(curPos.x),
-            startposy = HelpTools:toFixed(curPos.y+20),
-            directionx = 0,
-            directiony = 1,
+            startposy = HelpTools:toFixed(curPos.y),
+            directionx = HelpTools:toFixed(bdir.x*1000),
+            directiony = HelpTools:toFixed(bdir.y*1000),
+            rotation = rotation
         }
     end
     local resData = {}
@@ -373,13 +374,21 @@ function SceneMain:convertOpeCode(INopeCode,INpack)
     return ope_move,ope_fire_bullet,resData
 end
 
-function SceneMain:createEntity(INtoken)
+function SceneMain:createEntity(data)
     local HandlerEntity = require "src.app.modules.map.NodeEntity"
     local entity = HandlerEntity.new(self)
-    entity:setToken(INtoken)
+    entity:setToken(data.userid)
+    entity:setIndex(data.index)
     entity:addTo(self)
-    entity:setPosition(cc.p(display.cx,display.cy))
-    self.entities[INtoken] = entity
+    local originPos = cc.p(ENTITY_ORIGIN_POS.x+data.index*100,ENTITY_ORIGIN_POS.y+data.index*100)
+    entity:setPosition(originPos)
+    self.entities:set(data.userid,entity)
+    if data.userid ~= self.token and not self.otherPos then
+        self.otherPos = {
+            pos = originPos,
+            rotation = 0
+        }
+    end
 end
 
 function SceneMain:lerpConstantSpeed(currentPos, targetPos, speed, dt)
@@ -404,44 +413,48 @@ end
 function SceneMain:update(dt)
     if not self.begin then return end
     if not self.updateTick then self.updateTick = 0 end
-    local const_dt = 1.0/15
+    local const_dt = 1.0/LOGIC_FPS
     if self.updateTick >= const_dt then
         self.updateTick = self.updateTick - const_dt
         self:tickLogic(const_dt)
     end
-    for k,v in pairs(self.entities) do
+    for k,v in self.entities:pairs() do
         if v then
             if k == self.token then
                 if self.lastestPos then
                     local currentPos = cc.p(v:getPosition())
-                    local newPos = self:lerpConstantSpeed(currentPos, self.lastestPos.pos, 100*0.2*15, dt)
+                    local newPos = self:lerpConstantSpeed(currentPos, self.lastestPos.pos, ENTITY_MOVE_SPEED*LOGIC_FPS, dt)
                     v:setPosition(newPos)
                     local rotation = v:getRotation()
-                    local newRotation = HelpTools:lerp(rotation,self.lastestPos.rotation,10*15*dt)
+                    local newRotation = HelpTools:lerp(rotation, self.lastestPos.rotation, ENTITY_ROTATE_SPEED*LOGIC_FPS*dt)
                     v:setRotation(newRotation)
                 end
             else
                 if self.otherPos then
                     local currentPos = cc.p(v:getPosition())
-                    local newPos = self:lerpConstantSpeed(currentPos, self.otherPos.pos, 100*0.2*15, dt)
+                    local newPos = self:lerpConstantSpeed(currentPos, self.otherPos.pos, ENTITY_MOVE_SPEED*LOGIC_FPS, dt)
                     v:setPosition(newPos)
                     local rotation = v:getRotation()
-                    local newRotation = HelpTools:lerp(rotation,self.otherPos.rotation,10*15*dt)
+                    local newRotation = HelpTools:lerp(rotation, self.otherPos.rotation, ENTITY_ROTATE_SPEED*LOGIC_FPS*dt)
                     v:setRotation(newRotation)
                 end
             end
         end
     end
-    for k,v in pairs(self.bullets) do
-        if not self.nodeBullets[v.id] then
+    for k,v in self.bullets:pairs() do
+        if not self.nodeBullets:get(v.id) and v.active then
             local bullet = display.newSprite("res/bullet.png")
             bullet:addTo(self)
             bullet:setPosition(cc.p(v.startpos))
-            self.nodeBullets[v.id] = bullet
+            bullet:setRotation(v.rotation)
+            self.nodeBullets:set(v.id,bullet)
         end
-        local currentPos = cc.p(self.nodeBullets[v.id]:getPosition())
-        local newPos = self:lerpConstantSpeed(currentPos, v.targetpos, 100*0.2*2*15, dt)
-        self.nodeBullets[v.id]:setPosition(newPos)
+        local bullet = self.nodeBullets:get(v.id)
+        if bullet then
+            local currentPos = cc.p(bullet:getPosition())
+            local newPos = self:lerpConstantSpeed(currentPos, v.targetpos, BULLET_MOVE_SPEED*LOGIC_FPS, dt)
+            bullet:setPosition(newPos)
+        end
     end
     self.updateTick = self.updateTick + dt
 end
@@ -463,10 +476,30 @@ function SceneMain:tickLogic(dt)
     end
     if not self.syncStates then
         self.syncStates = {
-            pos = cc.p(display.cx,display.cy),
+            pos = cc.p(ENTITY_ORIGIN_POS.x+self.entity.index*100,ENTITY_ORIGIN_POS.y+self.entity.index*100),
             rotation = 0,
         }
     end
+
+    for k,v in self.bullets:pairs() do
+        for kk,vv in self.entities:pairs() do
+            local pos = self.lastestPos.pos
+            if vv.token ~= self.token then pos = self.otherPos.pos end
+            local dtX,dtY = pos.x-v.targetpos.x,pos.y-v.targetpos.y
+            if v.owner~=vv.token and (dtX*dtX+dtY*dtY) < ((ENTITY_RADIUS+BULLET_RADIUS)*(ENTITY_RADIUS+BULLET_RADIUS)) then
+                self.nodeBullets:get(k):removeFromParent()
+                self.nodeBullets:remove(k)
+                self.bullets:remove(k)
+                break
+            elseif math.floor(v.targetpos.x)<0 or math.floor(v.targetpos.x)>display.width or math.floor(v.targetpos.y)<0 or math.floor(v.targetpos.y)>display.height then
+                self.nodeBullets:get(k):removeFromParent()
+                self.nodeBullets:remove(k)
+                self.bullets:remove(k)
+                break
+            end
+        end
+    end
+
     self.frameId = self.frameId + 1
     local opeCodes = self.entity:getOpeCode()
     local ope_move,ope_fire_bullet,data = self:convertOpeCode(opeCodes,true)
@@ -477,19 +510,19 @@ function SceneMain:tickLogic(dt)
         ackframeid = self.syncFrameId
     }),false)
     --if ret then HLog:printf(string.format("player packet loss frameid:%d opeCode:%d",self.frameId,opeCodes)) end
-    if not self.inputsPending[self.frameId] then self.inputsPending[self.frameId] = {} end
-    self.inputsPending[self.frameId] = {
+    if not self.inputsPending:get(self.frameId) then self.inputsPending:set(self.frameId,{}) end
+    self.inputsPending:set(self.frameId,{
         move=ope_move,
         fire=ope_fire_bullet
-    }
+    })
     if ope_move.movex ~= 0 or ope_move.movey ~= 0 or ope_move.turn ~= 0 then
-        self.lastestPos.pos.x = self.lastestPos.pos.x + HelpTools:toFixed(ope_move.movey * 100 * 0.2 / 1000)
-        self.lastestPos.pos.y = self.lastestPos.pos.y + HelpTools:toFixed(ope_move.movex * 100 * 0.2 / 1000)
-        self.lastestPos.rotation = self.lastestPos.rotation + ope_move.turn * 10
+        self.lastestPos.pos.x = self.lastestPos.pos.x + HelpTools:toFixed(ENTITY_MOVE_SPEED * ope_move.movey / 1000)
+        self.lastestPos.pos.y = self.lastestPos.pos.y + HelpTools:toFixed(ENTITY_MOVE_SPEED * ope_move.movex / 1000)
+        self.lastestPos.rotation = self.lastestPos.rotation + ope_move.turn * ENTITY_ROTATE_SPEED
     end
 
-    while(self.serverFrames[self.syncFrameId+1]) do
-        local frames = self.serverFrames[self.syncFrameId+1]
+    while(self.serverFrames:get(self.syncFrameId+1)) do
+        local frames = self.serverFrames:get(self.syncFrameId+1)
         --if 0 == #frames then HLog:printf(string.format("frames empty frameid:%d",self.syncFrameId+1)) end
         for m=1,#frames do
             local v = frames[m]
@@ -500,32 +533,33 @@ function SceneMain:tickLogic(dt)
                 for n=1,#v.cmds do
                     local vv = v.cmds[n]
                     if 1 == vv.opetype then
-                        self.lastestPos.pos.x = self.lastestPos.pos.x + HelpTools:toFixed(vv.movey * 100 * 0.2 / 1000)
-                        self.lastestPos.pos.y = self.lastestPos.pos.y + HelpTools:toFixed(vv.movex * 100 * 0.2 / 1000)
-                        self.lastestPos.rotation = self.lastestPos.rotation + vv.turn * 10
+                        self.lastestPos.pos.x = self.lastestPos.pos.x + HelpTools:toFixed(ENTITY_MOVE_SPEED * vv.movey / 1000)
+                        self.lastestPos.pos.y = self.lastestPos.pos.y + HelpTools:toFixed(ENTITY_MOVE_SPEED * vv.movex / 1000)
+                        self.lastestPos.rotation = self.lastestPos.rotation + vv.turn * ENTITY_ROTATE_SPEED
                     elseif 2 == vv.opetype then
                         local curPos = cc.p(self.entity:getPosition())
                         local bullet = {
                             id = v.userid*1000000+v.frameid,
                             owner = v.userid,
                             frameid = v.frameid,
-                            startpos = cc.p(curPos.x,curPos.y+20),
+                            startpos = cc.p(curPos.x,curPos.y),
                             targetpos = cc.p(vv.startposx,vv.startposy),
-                            direction = cc.p(vv.directionx,vv.directiony)
+                            direction = cc.p(vv.directionx/1000,vv.directiony/1000),
+                            rotation  = vv.rotation
                         }
-                        table.insert(self.bullets,bullet)
+                        self.bullets:set(bullet.id,bullet)
                     end
                 end
                 self.syncStates.pos = cc.p(self.lastestPos.pos.x, self.lastestPos.pos.y)
                 self.syncStates.rotation = self.lastestPos.rotation
                 --HLog:printf(string.format("[%04d]player userid %d apply frameid %04d opecode %04d logicPos %f:%f aheadPos %f:%f", self.syncFrameId+1,self.token,v.frameid,v.opecode,self.syncStates.x,self.syncStates.y,self.lastestPos.x,self.lastestPos.y))
                 for i=v.frameid+1,self.frameId do
-                    if self.inputsPending[i] then
-                        local premove = self.inputsPending[i].move
+                    if self.inputsPending:get(i) then
+                        local premove = self.inputsPending:get(i).move
                         if premove and (premove.movex ~= 0 or premove.movey ~= 0 or premove.turn ~= 0) then
-                            self.lastestPos.pos.x = self.lastestPos.pos.x + HelpTools:toFixed(premove.movey * 100 * 0.2 / 1000)
-                            self.lastestPos.pos.y = self.lastestPos.pos.y + HelpTools:toFixed(premove.movex * 100 * 0.2 / 1000)
-                            self.lastestPos.rotation = self.lastestPos.rotation + premove.turn * 10
+                            self.lastestPos.pos.x = self.lastestPos.pos.x + HelpTools:toFixed(ENTITY_MOVE_SPEED * premove.movey / 1000)
+                            self.lastestPos.pos.y = self.lastestPos.pos.y + HelpTools:toFixed(ENTITY_MOVE_SPEED * premove.movex / 1000)
+                            self.lastestPos.rotation = self.lastestPos.rotation + premove.turn * ENTITY_ROTATE_SPEED
                         end
                     end
                 end
@@ -535,9 +569,9 @@ function SceneMain:tickLogic(dt)
                     for n=1,#v.cmds do
                         local vv = v.cmds[n]
                         if 1 == vv.opetype then
-                            self.otherPos.pos.x = self.otherPos.pos.x + HelpTools:toFixed(vv.movey * 100 * 0.2 / 1000)
-                            self.otherPos.pos.y = self.otherPos.pos.y + HelpTools:toFixed(vv.movex * 100 * 0.2 / 1000)
-                            self.otherPos.rotation = self.otherPos.rotation + vv.turn * 10
+                            self.otherPos.pos.x = self.otherPos.pos.x + HelpTools:toFixed(ENTITY_MOVE_SPEED * vv.movey / 1000)
+                            self.otherPos.pos.y = self.otherPos.pos.y + HelpTools:toFixed(ENTITY_MOVE_SPEED * vv.movex / 1000)
+                            self.otherPos.rotation = self.otherPos.rotation + vv.turn * ENTITY_ROTATE_SPEED
                         elseif 2 == vv.opetype then
                             local bullet = {
                                 id = v.userid*1000000+v.frameid,
@@ -545,32 +579,26 @@ function SceneMain:tickLogic(dt)
                                 frameid = v.frameid,
                                 startpos = cc.p(vv.startposx,vv.startposy),
                                 targetpos = cc.p(vv.startposx,vv.startposy),
-                                direction = cc.p(vv.directionx,vv.directiony)
+                                direction = cc.p(vv.directionx/1000,vv.directiony/1000),
+                                rotation  = vv.rotation
                             }
-                            table.insert(self.bullets,bullet)
+                            self.bullets:set(bullet.id,bullet)
                         end
                     end
                     --HLog:printf(string.format("userid %d frame %d opecode %d logicPos %f:%f",v.userid,self.otherFrameid,v.opecode,self.otherPos.x,self.otherPos.y))
                 end
             end
         end
-        self.serverFrames[self.syncFrameId+1] = nil
+        self.serverFrames:remove(self.syncFrameId+1)
         self.syncFrameId = self.syncFrameId + 1
     end
 
-    for k,v in pairs(self.bullets) do
+    for k,v in self.bullets:pairs() do
         if v.frameid < self.syncFrameId then
+            v.active = true
             local inter = self.syncFrameId - v.frameid
-            v.targetpos.x = v.targetpos.x + HelpTools:toFixed(v.direction.x*100*0.2*2*inter)
-            v.targetpos.y = v.targetpos.y + HelpTools:toFixed(v.direction.y*100*0.2*2*inter)
-            for kk,vv in pairs(self.entities) do
-                local pos = self.lastestPos.pos
-                if vv.token ~= self.token then pos = self.otherPos.pos end
-                local dtX,dtY = pos.x-v.targetpos.x,pos.y-v.targetpos.y
-                if (dtX*dtX+dtY*dtY) < (((30+5)/2)*((30+5)/2)) then
-                elseif math.floor(v.targetpos.x)<0 or math.floor(v.targetpos.x)>display.width or math.floor(v.targetpos.y)<0 or math.floor(v.targetpos.y)>display.height then
-                end
-            end
+            v.targetpos.x = v.targetpos.x + HelpTools:toFixed(v.direction.x*BULLET_MOVE_SPEED*inter)
+            v.targetpos.y = v.targetpos.y + HelpTools:toFixed(v.direction.y*BULLET_MOVE_SPEED*inter)
             --HLog:printf("bullet update id %d old frameid %d new frameid %d x %d y %d",v.id,v.frameid,self.syncFrameId,v.targetpos.x,v.targetpos.y)
             v.frameid = self.syncFrameId
         end
