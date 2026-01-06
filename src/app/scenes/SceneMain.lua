@@ -454,6 +454,12 @@ function SceneMain:update(dt)
             local currentPos = cc.p(bullet:getPosition())
             local newPos = self:lerpConstantSpeed(currentPos, v.targetpos, BULLET_MOVE_SPEED*LOGIC_FPS, dt)
             bullet:setPosition(newPos)
+            local dis = cc.pGetDistance(newPos,v.targetpos)
+            if dis < 0.1 and v.destroy then
+                bullet:removeFromParent()
+                self.nodeBullets:remove(v.id)
+                self.bullets:remove(v.id)
+            end
         end
     end
     self.updateTick = self.updateTick + dt
@@ -479,25 +485,6 @@ function SceneMain:tickLogic(dt)
             pos = cc.p(ENTITY_ORIGIN_POS.x+self.entity.index*100,ENTITY_ORIGIN_POS.y+self.entity.index*100),
             rotation = 0,
         }
-    end
-
-    for k,v in self.bullets:pairs() do
-        for kk,vv in self.entities:pairs() do
-            local pos = self.lastestPos.pos
-            if vv.token ~= self.token then pos = self.otherPos.pos end
-            local dtX,dtY = pos.x-v.targetpos.x,pos.y-v.targetpos.y
-            if v.owner~=vv.token and (dtX*dtX+dtY*dtY) < ((ENTITY_RADIUS+BULLET_RADIUS)*(ENTITY_RADIUS+BULLET_RADIUS)) then
-                self.nodeBullets:get(k):removeFromParent()
-                self.nodeBullets:remove(k)
-                self.bullets:remove(k)
-                break
-            elseif math.floor(v.targetpos.x)<0 or math.floor(v.targetpos.x)>display.width or math.floor(v.targetpos.y)<0 or math.floor(v.targetpos.y)>display.height then
-                self.nodeBullets:get(k):removeFromParent()
-                self.nodeBullets:remove(k)
-                self.bullets:remove(k)
-                break
-            end
-        end
     end
 
     self.frameId = self.frameId + 1
@@ -594,13 +581,27 @@ function SceneMain:tickLogic(dt)
     end
 
     for k,v in self.bullets:pairs() do
-        if v.frameid < self.syncFrameId then
-            v.active = true
-            local inter = self.syncFrameId - v.frameid
-            v.targetpos.x = v.targetpos.x + HelpTools:toFixed(v.direction.x*BULLET_MOVE_SPEED*inter)
-            v.targetpos.y = v.targetpos.y + HelpTools:toFixed(v.direction.y*BULLET_MOVE_SPEED*inter)
+        if v.frameid < self.syncFrameId and not v.destroy then
+            for i=v.frameid,self.syncFrameId-1 do
+                v.active = true
+                v.targetpos.x = v.targetpos.x + HelpTools:toFixed(v.direction.x*BULLET_MOVE_SPEED)
+                v.targetpos.y = v.targetpos.y + HelpTools:toFixed(v.direction.y*BULLET_MOVE_SPEED)
+                for kk,vv in self.entities:pairs() do
+                    local pos = self.lastestPos.pos
+                    if vv.token ~= self.token then pos = self.otherPos.pos end
+                    local dtX,dtY = pos.x-v.targetpos.x,pos.y-v.targetpos.y
+                    if v.owner~=vv.token and (dtX*dtX+dtY*dtY) < ((ENTITY_RADIUS+BULLET_RADIUS)*(ENTITY_RADIUS+BULLET_RADIUS)) then
+                        v.destroy = true
+                        break
+                    elseif math.floor(v.targetpos.x)<0 or math.floor(v.targetpos.x)>display.width or math.floor(v.targetpos.y)<0 or math.floor(v.targetpos.y)>display.height then
+                        v.destroy = true
+                        break
+                    end
+                end
+                v.frameid = self.syncFrameId
+                if v.destroy then break end
+            end
             --HLog:printf("bullet update id %d old frameid %d new frameid %d x %d y %d",v.id,v.frameid,self.syncFrameId,v.targetpos.x,v.targetpos.y)
-            v.frameid = self.syncFrameId
         end
     end
     --print(string.format("predict frame %d acked frameid %d syncPos %f:%f localPos %f:%f",self.frameId,self.syncFrameId,self.syncStates.x,self.syncStates.y,self.lastestPos.x,self.lastestPos.y))

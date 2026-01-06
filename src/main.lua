@@ -27,6 +27,7 @@ cc.exports.SocketUDP = require "app.tools.SocketUDP"
 cc.exports.Scheduler = require "app.tools.Scheduler"
 cc.exports.HelpTools = require "app.tools.HelpTools"
 cc.exports.ResourceManager = require "app.tools.ResourceManager"
+cc.exports.QuadTree = require "app.tools.QuadTree"
 require "app.common.CommonDef"
 
 cc.load('uiloader')
