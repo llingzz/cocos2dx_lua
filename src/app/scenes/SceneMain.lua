@@ -455,7 +455,7 @@ function SceneMain:update(dt)
             local newPos = self:lerpConstantSpeed(currentPos, v.targetpos, BULLET_MOVE_SPEED*LOGIC_FPS, dt)
             bullet:setPosition(newPos)
             local dis = cc.pGetDistance(newPos,v.targetpos)
-            if dis < 0.1 and v.destroy then
+            if dis < 10 and v.destroy then
                 bullet:removeFromParent()
                 self.nodeBullets:remove(v.id)
                 self.bullets:remove(v.id)
@@ -502,10 +502,30 @@ function SceneMain:tickLogic(dt)
         move=ope_move,
         fire=ope_fire_bullet
     })
-    if ope_move.movex ~= 0 or ope_move.movey ~= 0 or ope_move.turn ~= 0 then
+    if ope_fire_bullet then
+        local bulletId = self.token*1000000+self.frameId
+        if not self.bullets:get(bulletId) then
+            local bullet = {
+                id = bulletId,
+                owner = self.token,
+                frameid = self.frameId,
+                startpos = cc.p(self.entity:getPosition()),
+                targetpos = cc.p(ope_fire_bullet.startposx,ope_fire_bullet.startposy),
+                direction = cc.p(ope_fire_bullet.directionx/1000,ope_fire_bullet.directiony/1000),
+                rotation  = ope_fire_bullet.rotation,
+                active = true,
+                syncPos = cc.p(self.entity:getPosition())
+            }
+            self.bullets:set(bulletId,bullet)
+            --HLog:printf(string.format("[bullet][%d][%06d] id:%d begin targetpos:%f,%f",bulletId,self.frameId,self.token,bullet.targetpos.x,bullet.targetpos.y))
+        end
+    end
+    if ope_move.turn ~= 0 then
+        self.lastestPos.rotation = self.lastestPos.rotation + ope_move.turn * ENTITY_ROTATE_SPEED
+    end
+    if ope_move.movex ~= 0 or ope_move.movey ~= 0 then
         self.lastestPos.pos.x = self.lastestPos.pos.x + HelpTools:toFixed(ENTITY_MOVE_SPEED * ope_move.movey / 1000)
         self.lastestPos.pos.y = self.lastestPos.pos.y + HelpTools:toFixed(ENTITY_MOVE_SPEED * ope_move.movex / 1000)
-        self.lastestPos.rotation = self.lastestPos.rotation + ope_move.turn * ENTITY_ROTATE_SPEED
     end
 
     while(self.serverFrames:get(self.syncFrameId+1)) do
@@ -523,20 +543,25 @@ function SceneMain:tickLogic(dt)
                         self.lastestPos.pos.x = self.lastestPos.pos.x + HelpTools:toFixed(ENTITY_MOVE_SPEED * vv.movey / 1000)
                         self.lastestPos.pos.y = self.lastestPos.pos.y + HelpTools:toFixed(ENTITY_MOVE_SPEED * vv.movex / 1000)
                         self.lastestPos.rotation = self.lastestPos.rotation + vv.turn * ENTITY_ROTATE_SPEED
-                    elseif 2 == vv.opetype then
-                        local curPos = cc.p(self.entity:getPosition())
-                        local bullet = {
-                            id = v.userid*1000000+v.frameid,
-                            owner = v.userid,
-                            frameid = v.frameid,
-                            startpos = cc.p(curPos.x,curPos.y),
-                            targetpos = cc.p(vv.startposx,vv.startposy),
-                            direction = cc.p(vv.directionx/1000,vv.directiony/1000),
-                            rotation  = vv.rotation
-                        }
-                        self.bullets:set(bullet.id,bullet)
                     end
                 end
+
+                for bk,bv in self.bullets:pairs() do
+                    if bv.owner == self.token and v.frameid > bv.frameid then
+                        bv.lasttargetpos = cc.p(bv.targetpos.x,bv.targetpos.y)
+                        bv.targetpos.x = bv.syncPos.x
+                        bv.targetpos.y = bv.syncPos.y
+                        for i=bv.frameid+1,v.frameid do
+                            bv.targetpos.x = bv.targetpos.x + HelpTools:toFixed(bv.direction.x*BULLET_MOVE_SPEED)
+                            bv.targetpos.y = bv.targetpos.y + HelpTools:toFixed(bv.direction.y*BULLET_MOVE_SPEED)
+                            bv.frameid = i
+                            --HLog:printf(string.format("[bullet][%d][%06d] id:%d targetpos:%f,%f",bv.id,bv.frameid,self.token,bv.targetpos.x,bv.targetpos.y))
+                        end
+                        bv.syncPos.x = bv.targetpos.x
+                        bv.syncPos.y = bv.targetpos.y
+                    end
+                end
+
                 self.syncStates.pos = cc.p(self.lastestPos.pos.x, self.lastestPos.pos.y)
                 self.syncStates.rotation = self.lastestPos.rotation
                 --HLog:printf(string.format("[%04d]player userid %d apply frameid %04d opecode %04d logicPos %f:%f aheadPos %f:%f", self.syncFrameId+1,self.token,v.frameid,v.opecode,self.syncStates.x,self.syncStates.y,self.lastestPos.x,self.lastestPos.y))
@@ -547,6 +572,14 @@ function SceneMain:tickLogic(dt)
                             self.lastestPos.pos.x = self.lastestPos.pos.x + HelpTools:toFixed(ENTITY_MOVE_SPEED * premove.movey / 1000)
                             self.lastestPos.pos.y = self.lastestPos.pos.y + HelpTools:toFixed(ENTITY_MOVE_SPEED * premove.movex / 1000)
                             self.lastestPos.rotation = self.lastestPos.rotation + premove.turn * ENTITY_ROTATE_SPEED
+                        end
+                    end
+                    for kk,vv in self.bullets:pairs() do
+                        if vv.owner == self.token and not vv.destroy then
+                            vv.lasttargetpos = cc.p(vv.targetpos.x,vv.targetpos.y)
+                            vv.targetpos.x = vv.targetpos.x + HelpTools:toFixed(vv.direction.x*BULLET_MOVE_SPEED)
+                            vv.targetpos.y = vv.targetpos.y + HelpTools:toFixed(vv.direction.y*BULLET_MOVE_SPEED)
+                            --HLog:printf(string.format("[bullet][%d][%06d] id:%d predict targetpos:%f,%f",vv.id,i,self.token,vv.targetpos.x,vv.targetpos.y))
                         end
                     end
                 end
@@ -560,49 +593,41 @@ function SceneMain:tickLogic(dt)
                             self.otherPos.pos.y = self.otherPos.pos.y + HelpTools:toFixed(ENTITY_MOVE_SPEED * vv.movex / 1000)
                             self.otherPos.rotation = self.otherPos.rotation + vv.turn * ENTITY_ROTATE_SPEED
                         elseif 2 == vv.opetype then
-                            local bullet = {
-                                id = v.userid*1000000+v.frameid,
-                                owner = v.userid,
-                                frameid = v.frameid,
-                                startpos = cc.p(vv.startposx,vv.startposy),
-                                targetpos = cc.p(vv.startposx,vv.startposy),
-                                direction = cc.p(vv.directionx/1000,vv.directiony/1000),
-                                rotation  = vv.rotation
-                            }
-                            self.bullets:set(bullet.id,bullet)
+                            local bulletId = v.userid*1000000+v.frameid
+                            if not self.bullets:get(bulletId) then
+                                local bullet = {
+                                    id = v.userid*1000000+v.frameid,
+                                    owner = v.userid,
+                                    frameid = v.frameid,
+                                    startpos = cc.p(vv.startposx,vv.startposy),
+                                    targetpos = cc.p(vv.startposx,vv.startposy),
+                                    lasttargetpos = cc.p(vv.startposx,vv.startposy),
+                                    direction = cc.p(vv.directionx/1000,vv.directiony/1000),
+                                    rotation  = vv.rotation
+                                }
+                                self.bullets:set(bulletId,bullet)
+                                --HLog:printf(string.format("[bullet][%d][%06d] id:%d begin targetpos:%f,%f",bullet.id,v.frameid,self.token,bullet.targetpos.x,bullet.targetpos.y))
+                            end
                         end
                     end
                     --HLog:printf(string.format("userid %d frame %d opecode %d logicPos %f:%f",v.userid,self.otherFrameid,v.opecode,self.otherPos.x,self.otherPos.y))
+                    for kk,vv in self.bullets:pairs() do
+                        if vv.owner ~= self.token and vv.frameid < self.otherFrameid and not vv.destroy then
+                            for i=vv.frameid+1,self.otherFrameid do
+                                vv.lasttargetpos = cc.p(vv.targetpos.x,vv.targetpos.y)
+                                vv.active = true
+                                vv.targetpos.x = vv.targetpos.x + HelpTools:toFixed(vv.direction.x*BULLET_MOVE_SPEED)
+                                vv.targetpos.y = vv.targetpos.y + HelpTools:toFixed(vv.direction.y*BULLET_MOVE_SPEED)
+                                vv.frameid = i
+                                --HLog:printf(string.format("[bullet][%d][%06d] id:%d targetpos:%f,%f",vv.id,vv.frameid,self.token,vv.targetpos.x,vv.targetpos.y))
+                            end
+                        end
+                    end
                 end
             end
         end
         self.serverFrames:remove(self.syncFrameId+1)
         self.syncFrameId = self.syncFrameId + 1
-    end
-
-    for k,v in self.bullets:pairs() do
-        if v.frameid < self.syncFrameId and not v.destroy then
-            for i=v.frameid,self.syncFrameId-1 do
-                v.active = true
-                v.targetpos.x = v.targetpos.x + HelpTools:toFixed(v.direction.x*BULLET_MOVE_SPEED)
-                v.targetpos.y = v.targetpos.y + HelpTools:toFixed(v.direction.y*BULLET_MOVE_SPEED)
-                for kk,vv in self.entities:pairs() do
-                    local pos = self.lastestPos.pos
-                    if vv.token ~= self.token then pos = self.otherPos.pos end
-                    local dtX,dtY = pos.x-v.targetpos.x,pos.y-v.targetpos.y
-                    if v.owner~=vv.token and (dtX*dtX+dtY*dtY) < ((ENTITY_RADIUS+BULLET_RADIUS)*(ENTITY_RADIUS+BULLET_RADIUS)) then
-                        v.destroy = true
-                        break
-                    elseif math.floor(v.targetpos.x)<0 or math.floor(v.targetpos.x)>display.width or math.floor(v.targetpos.y)<0 or math.floor(v.targetpos.y)>display.height then
-                        v.destroy = true
-                        break
-                    end
-                end
-                v.frameid = self.syncFrameId
-                if v.destroy then break end
-            end
-            --HLog:printf("bullet update id %d old frameid %d new frameid %d x %d y %d",v.id,v.frameid,self.syncFrameId,v.targetpos.x,v.targetpos.y)
-        end
     end
     --print(string.format("predict frame %d acked frameid %d syncPos %f:%f localPos %f:%f",self.frameId,self.syncFrameId,self.syncStates.x,self.syncStates.y,self.lastestPos.x,self.lastestPos.y))
 end
