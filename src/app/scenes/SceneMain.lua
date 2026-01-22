@@ -510,11 +510,11 @@ function SceneMain:tickLogic(dt)
                 owner = self.token,
                 frameid = self.frameId,
                 startpos = cc.p(self.entity:getPosition()),
-                targetpos = cc.p(ope_fire_bullet.startposx,ope_fire_bullet.startposy),
+                targetpos = cc.p(ope_fire_bullet.startposx+HelpTools:toFixed(ope_fire_bullet.directionx*BULLET_MOVE_SPEED/1000),ope_fire_bullet.startposy+HelpTools:toFixed(ope_fire_bullet.directiony*BULLET_MOVE_SPEED/1000)),
                 direction = cc.p(ope_fire_bullet.directionx/1000,ope_fire_bullet.directiony/1000),
                 rotation  = ope_fire_bullet.rotation,
                 active = true,
-                syncPos = cc.p(self.entity:getPosition())
+                syncPos = cc.p(ope_fire_bullet.startposx+HelpTools:toFixed(ope_fire_bullet.directionx*BULLET_MOVE_SPEED/1000),ope_fire_bullet.startposy+HelpTools:toFixed(ope_fire_bullet.directiony*BULLET_MOVE_SPEED/1000)),
             }
             self.bullets:set(bulletId,bullet)
             --HLog:printf(string.format("[bullet][%d][%06d] id:%d begin targetpos:%f,%f",bulletId,self.frameId,self.token,bullet.targetpos.x,bullet.targetpos.y))
@@ -555,7 +555,7 @@ function SceneMain:tickLogic(dt)
                             bv.targetpos.x = bv.targetpos.x + HelpTools:toFixed(bv.direction.x*BULLET_MOVE_SPEED)
                             bv.targetpos.y = bv.targetpos.y + HelpTools:toFixed(bv.direction.y*BULLET_MOVE_SPEED)
                             bv.frameid = i
-                            --HLog:printf(string.format("[bullet][%d][%06d] id:%d targetpos:%f,%f",bv.id,bv.frameid,self.token,bv.targetpos.x,bv.targetpos.y))
+                            --HLog:printf(string.format("[bullet][%d][%06d] id:%d rollback targetpos:%f,%f",bv.id,bv.frameid,self.token,bv.targetpos.x,bv.targetpos.y))
                         end
                         bv.syncPos.x = bv.targetpos.x
                         bv.syncPos.y = bv.targetpos.y
@@ -574,12 +574,14 @@ function SceneMain:tickLogic(dt)
                             self.lastestPos.rotation = self.lastestPos.rotation + premove.turn * ENTITY_ROTATE_SPEED
                         end
                     end
-                    for kk,vv in self.bullets:pairs() do
-                        if vv.owner == self.token and not vv.destroy then
-                            vv.lasttargetpos = cc.p(vv.targetpos.x,vv.targetpos.y)
+                end
+                for kk,vv in self.bullets:pairs() do
+                    if vv.owner == self.token and not vv.destroy then
+                        vv.lasttargetpos = cc.p(vv.targetpos.x,vv.targetpos.y)
+                        for ii=vv.frameid+1,self.frameId do
                             vv.targetpos.x = vv.targetpos.x + HelpTools:toFixed(vv.direction.x*BULLET_MOVE_SPEED)
                             vv.targetpos.y = vv.targetpos.y + HelpTools:toFixed(vv.direction.y*BULLET_MOVE_SPEED)
-                            --HLog:printf(string.format("[bullet][%d][%06d] id:%d predict targetpos:%f,%f",vv.id,i,self.token,vv.targetpos.x,vv.targetpos.y))
+                            --HLog:printf(string.format("[bullet][%d][%06d] id:%d predict targetpos:%f,%f",vv.id,ii,self.token,vv.targetpos.x,vv.targetpos.y))
                         end
                     end
                 end
@@ -600,7 +602,7 @@ function SceneMain:tickLogic(dt)
                                     owner = v.userid,
                                     frameid = v.frameid,
                                     startpos = cc.p(vv.startposx,vv.startposy),
-                                    targetpos = cc.p(vv.startposx,vv.startposy),
+                                    targetpos = cc.p(vv.startposx+HelpTools:toFixed(vv.directionx*BULLET_MOVE_SPEED/1000),vv.startposy+HelpTools:toFixed(vv.directiony*BULLET_MOVE_SPEED/1000)),
                                     lasttargetpos = cc.p(vv.startposx,vv.startposy),
                                     direction = cc.p(vv.directionx/1000,vv.directiony/1000),
                                     rotation  = vv.rotation
