@@ -12,6 +12,8 @@
 #include <queue>
 #include <asio.hpp>
 
+#include "spdlog\spdlog.h"
+
 static
 time_t getMs() {
     std::chrono::time_point<std::chrono::system_clock, std::chrono::milliseconds> tp = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
@@ -109,8 +111,8 @@ public:
             asio::bind_executor(strand_,
                 [this](std::error_code ec, std::size_t length)
                 {
-                    std::lock_guard<std::mutex> lk(lock_msg);
                     if (!ec) {
+                        std::lock_guard<std::mutex> lk(lock_msg);
                         write_msgs_.pop_front();
                         if (!write_msgs_.empty()) {
                             do_write();
@@ -331,19 +333,15 @@ public:
             if (1 == iter.opetype()) {
 				pb_common::ope_move move;
 				move.ParseFromString(iter.opestring());
-                char szLog[1024] = { 0 };
-				sprintf_s(szLog, sizeof(szLog), "%d:%d&%d|", iter.opetype(), move.movex(), move.movey());
-                strLog += std::string(szLog);
 			}
 			else if (2 == iter.opetype()) {
                 pb_common::ope_fire_bullet fire;
                 fire.ParseFromString(iter.opestring());
-                char szLog[1024] = { 0 };
-				sprintf_s(szLog, sizeof(szLog), "%d:%d&%d&%d&%d|", iter.opetype(), fire.startposx(), fire.startposy(), fire.directionx(), fire.directiony());
-                strLog += std::string(szLog);
             }
+            strLog += std::to_string(iter.opetype());
+            strLog += ":";
         }
-        printf_s("[recv] userid %d frameid %d acked_frameid %d frameid_svr %d opecode %s\n", userid, frameid, frame.ackframeid(), currentFrame, strLog.c_str());
+        //spdlog::info("[recv] frameid_svr {} userid {} frameid:opecode {}:{} acked_frameid {}", currentFrame, userid, frameid, strLog.c_str(), frame.ackframeid());
         frames_[currentFrame][userid].insert(std::make_pair(frameid, frame));
     }
 
@@ -607,33 +605,32 @@ void gameroom::start_game(gameserver* pServer, int playercount) {
             for (auto i = begin_frame+1; i <= frameid; ++i) {
                 auto frame = frames.add_frames();
                 frame->set_frameid(i);
+                // 服务端帧号#玩家id:<上报帧号:操作|...>&玩家id:<上报帧号:操作|...>+
                 strLog += std::to_string(i);
                 strLog += std::string("#");
                 if (frames_.find(i) != frames_.end()) {
                     for (auto& iter : frames_[i]) {
                         strLog += std::to_string(iter.first);
-                        strLog += std::string("|");
+                        strLog += std::string(":");
                         auto user_frame = frame->add_frames();
                         if (user_frame) {
                             for (auto& it : iter.second) {
+                                std::string strSub = "<";
+                                strSub += std::to_string(it.first);
+                                strSub += std::string(":");
                                 user_frame->set_userid(iter.first);
                                 user_frame->set_frameid(it.first);
-                                std::string strSub = "";
                                 for (auto& itIn : it.second.opecode()) {
                                     auto opecode = user_frame->add_opecode();
                                     if (opecode) {
                                         opecode->set_opetype(itIn.opetype());
                                         opecode->set_opestring(itIn.opestring());
                                         strSub += std::to_string(itIn.opetype());
-                                        strSub += std::string(">");
-                                        strSub += std::string(itIn.opestring());
-                                        strSub += std::string("<");
+                                        strSub += std::string("|");
                                     }
                                 }
-                                strLog += std::to_string(it.first);
-                                strLog += std::string(":");
-                                strLog += strSub;
-                                strLog += std::string("&");
+                                strLog += strSub.substr(0, strSub.size() - 1);
+                                strLog += std::string(">");
                             }
                         }
                     }
@@ -645,10 +642,10 @@ void gameroom::start_game(gameserver* pServer, int playercount) {
             }
             if (strLog != "") {
                 if (!pkLoss) {
-                    printf_s("[send] server send to userid %d frame info %s\n", userid, strLog.c_str());
+                    //spdlog::info("[send] userid {} frameinfo {}", userid, strLog.c_str());
                 }
                 else {
-                    printf_s("[send] !!loss!! server send to userid %d frame info %s\n", userid, strLog.c_str());
+                    //spdlog::info("[send] !!loss!! server send to userid {} frame info {}", userid, strLog.c_str());
                 }
             }
         }

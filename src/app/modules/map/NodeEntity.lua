@@ -1,11 +1,10 @@
-local dir_table = require "app.tools.RotationToSpeed"
 local NodeEntity = class("NodeEntity", function ()
     local node = display.newNode()
     node:enableNodeEvents()
     return node
 end)
 
-function NodeEntity:ctor(INparent)
+function NodeEntity:ctor(INparent,INoriginPos)
     self.token = -1
     self.index = 0
     self.parent = INparent
@@ -14,34 +13,38 @@ function NodeEntity:ctor(INparent)
     self.entity = display.newSprite("res/entity.png")
     self.entity:addTo(self)
     self.opeCode = 0x00
-    self.lastFire = socket.gettime()
-    --self:createPhysicBody()
+    self.type = 1
+    self.syncFrameId = 0
+    self.vx = 0
+    self.vy = 0
+    self.logicInfo = {
+        pos = cc.p(INoriginPos),
+        rotation = 0,
+    }
+    self.prevLogicInfo = {
+        pos = cc.p(INoriginPos),
+        rotation = 0,
+    }
+    self.syncState = {
+        pos = cc.p(INoriginPos),
+        rotation = 0,
+    }
+    self.width = 30
+    self.height = 40
+    self.colliding = false
+    self.collidedWith = nil
+end
+
+function NodeEntity:getLogicBounds()
+    return {
+        x = self.logicInfo.pos.x,
+        y = self.logicInfo.pos.y,
+        width = self.width,
+        height = self.height
+    }
 end
 
 function NodeEntity:onExit()
-end
-
-function NodeEntity:createPhysicBody()
-    local posVers = {
-        cc.p(-15,20),
-        cc.p(15,20),
-        cc.p(15,-20),
-        cc.p(-15,-20)
-    }
-    local material = cc.PhysicsMaterial(0, 1, 0)
-    local entityBody = cc.PhysicsBody:createPolygon(posVers, material)
-    entityBody:setCategoryBitmask(CollisionType.Entity)
-    entityBody:setCollisionBitmask(bit._or(CollisionType.Entity,CollisionType.EdgeBox))
-    entityBody:setContactTestBitmask(bit._or(CollisionType.Entity,CollisionType.EdgeBox))
-    print(string.format("NodeEntity CategoryBitmask:%d CollisionBitmask:%d ContactTestBitmask:%d",entityBody:getCategoryBitmask(),entityBody:getCollisionBitmask(),entityBody:getContactTestBitmask()))
-    self:setPhysicsBody(entityBody)
-end
-
-function NodeEntity:onContactBegin(INnode)
-    return true
-end
-
-function NodeEntity:onContactEnd(INnode)
 end
 
 function NodeEntity:getKeyboardEvent(INType,INeventCode)
@@ -61,16 +64,8 @@ function NodeEntity:getKeyboardEvent(INType,INeventCode)
 end
 
 function NodeEntity:getOpeCode()
-    local opeCode = self.opeCode
-    if bit._and(opeCode,0x10) > 0 then
-        local now = socket.gettime()
-        if now - self.lastFire < 0.3 then
-            opeCode = bit._and(opeCode,0xef)
-        else
-            self.lastFire = now
-        end
-    end
-    return opeCode
+    -- 只返回移动相关的操作码，发射由 SceneMain:tryFire 处理
+    return bit._and(self.opeCode, 0x0f)
 end
 
 function NodeEntity:setToken(INtoken)
@@ -81,11 +76,13 @@ function NodeEntity:setIndex(INindex)
     self.index = INindex or 0
 end
 
-function NodeEntity:fireBullet()
-    local HandlerBullet = require "app.modules.map.NodeBullet"
-    local bullet = HandlerBullet.new(self:getRotation())
-    bullet:addTo(self.parent)
-    bullet:setPosition(cc.p(self:getPosition()))
+function NodeEntity:getLogicBounds()
+    return {
+        x = self.logicInfo.pos.x,
+        y = self.logicInfo.pos.y,
+        width = self.width,
+        height = self.height
+    }
 end
 
 return NodeEntity

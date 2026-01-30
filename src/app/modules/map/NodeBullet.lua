@@ -4,31 +4,29 @@ local NodeBullet = class("NodeBullet", function ()
     return node
 end)
 
-local speed = 500
-function NodeBullet:ctor(INrotation)
-    self.bullet = display.newSprite("res/bullet.png")
-    self.bullet:addTo(self)
-    local material = cc.PhysicsMaterial(0, 1, 0)
-    local physicsBody = cc.PhysicsBody:createCircle(5, material)
-    physicsBody:setCategoryBitmask(CollisionType.Bullet)
-    physicsBody:setCollisionBitmask(bit._or(CollisionType.Bullet,CollisionType.EdgeBox))
-    physicsBody:setContactTestBitmask(bit._or(CollisionType.Bullet,CollisionType.EdgeBox))
-    print(string.format("NodeBullet CategoryBitmask:%d CollisionBitmask:%d ContactTestBitmask:%d",physicsBody:getCategoryBitmask(),physicsBody:getCollisionBitmask(),physicsBody:getContactTestBitmask()))
-    local rotation = INrotation % 360
-    local dir = cc.p(math.sin(rotation*math.pi/180),math.cos(rotation*math.pi/180))
-    self:setPosition(cc.pAdd(cc.p(self:getPosition()),cc.pMul(dir,20/speed)))
-    local velocity = cc.pMul(dir, speed)
-    physicsBody:setVelocity(velocity)
-    physicsBody:setGravityEnable(false)
-    self:setPhysicsBody(physicsBody)
+function NodeBullet:ctor(INid,INuserid,INframeid,INoriginPos,INdir)
+    self.entity = display.newSprite("res/bullet.png")
+    self.entity:addTo(self)
+    self.type = 0
+    self.id = INid
+    self.owner = INuserid
+    self.birthFrameId = INframeid
+    self.birthPos = cc.p(INoriginPos.x, INoriginPos.y)
+    self.vx = HelpTools:toFixed(INdir.x*BULLET_MOVE_SPEED/1000)
+    self.vy = HelpTools:toFixed(INdir.y*BULLET_MOVE_SPEED/1000)
+    self.destroy = false
+    self.width = 5
+    self.height = 5
 end
 
-function NodeBullet:onContactBegin(INnode)
-    self:removeFromParent()
-    return
-end
-
-function NodeBullet:onContactEnd(INnode)
+function NodeBullet:getLogicBounds(INframeId)
+    local elapsedFrames = INframeId - self.birthFrameId
+    return {
+        x = self.birthPos.x + self.vx * elapsedFrames,
+        y = self.birthPos.y + self.vy * elapsedFrames,
+        width = self.width,
+        height = self.height
+    }
 end
 
 return NodeBullet
