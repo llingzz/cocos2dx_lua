@@ -85,4 +85,19 @@ function NodeEntity:getLogicBounds()
     }
 end
 
+function NodeEntity:getPrevLogicBounds()
+    return {
+        x = self.prevLogicInfo.pos.x,
+        y = self.prevLogicInfo.pos.y,
+        width = self.width,
+        height = self.height
+    }
+end
+
+function NodeEntity:savePrevLogicInfo()
+    self.prevLogicInfo.pos.x = self.logicInfo.pos.x
+    self.prevLogicInfo.pos.y = self.logicInfo.pos.y
+    self.prevLogicInfo.rotation = self.logicInfo.rotation
+end
+
 return NodeEntity

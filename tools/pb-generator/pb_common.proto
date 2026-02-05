@@ -24,6 +24,10 @@ enum protocol_code
 	protocol_leave_room_response = 11;
 	protocol_ping = 12;
 	protocol_pong = 13;
+	protocol_repair_frames = 14;
+	protocol_repair_frames_response = 15;
+	protocol_login = 16;
+	protocol_login_reponse = 17;
 }
 
 message data_user_register
@@ -36,6 +40,21 @@ message data_user_register_response
 {
 	optional int32 return_code = 1;
 	optional int32 userid = 2;
+}
+
+message data_user_login
+{
+	optional int32 userid = 1;
+	optional bytes password = 2;
+}
+
+message data_user_login_response
+{
+	optional int32 userid = 1;
+	optional int32 ingame = 2;
+	optional int32 roomid = 3;
+	optional data_begin begin = 4;
+	optional int32 frameid = 5;
 }
 
 message data_user_join_room
@@ -156,4 +175,17 @@ message data_pong
 {
 	optional int32 userid = 1;
 	optional int32 idx = 2;
+}
+
+message data_repair_frames
+{
+	optional int32 userid = 1;
+	optional int32 roomid = 2;
+	optional int32 flag = 3;
+}
+
+message data_repair_frames_response
+{
+	optional int32 flag = 1;
+	repeated data_ope_frames frames = 2;
 }

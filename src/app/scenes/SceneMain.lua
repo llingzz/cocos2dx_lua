@@ -81,6 +81,7 @@ function SceneMain:ctor()
     self.nodeBullets = OrderedTable:new()
     self.begin = false
     self.roomid = 0
+    self.isDisconnected = false
 
     -- 服务端下发的帧数据
     self.serverFrames = OrderedTable:new()
@@ -182,13 +183,31 @@ function SceneMain:onEventData(INdata)
             local dataInfo = protobuf.decode("pb_common.data_user_register_response", INdata.data.data_str)
             protobuf.extract(dataInfo)
             if dataInfo.return_code ~= 1 then return end
+        elseif protobuf.enum_id("pb_common.protocol_code","protocol_login_reponse") == INdata.data.protocol_code then
+            local dataInfo = protobuf.decode("pb_common.data_user_login_response", INdata.data.data_str)
+            protobuf.extract(dataInfo)
             cc.exports.USERID = dataInfo.userid
             self.token = dataInfo.userid
             self:ping()
-            local pData = protobuf.encode('pb_common.data_user_join_room', {
-                userid = self.token
-            })
-            self:sendData(protobuf.enum_id("pb_common.protocol_code","protocol_join_room"),pData)
+            if dataInfo.ingame == 0 then
+                local pData = protobuf.encode('pb_common.data_user_join_room', {
+                    userid = self.token
+                })
+                self:sendData(protobuf.enum_id("pb_common.protocol_code","protocol_join_room"),pData)
+            else
+                self.syncFrameId = dataInfo.frameid
+                for k,v in ipairs(dataInfo.begin.playerinfos) do
+                    if not self.entities:get(v.userid) then self:createEntity(v) end
+                    self.entities:get(v.userid):hide()
+                    if v.userid == self.token then self.entity = self.entities:get(v.userid) end
+                end
+                local pData = protobuf.encode('pb_common.data_repair_frames',{
+                    userid = self.token,
+                    roomid = dataInfo.roomid,
+                    flag = 1
+                })
+                self:sendData(protobuf.enum_id("pb_common.protocol_code","protocol_repair_frames"),pData)
+            end
         elseif protobuf.enum_id("pb_common.protocol_code","protocol_join_room_response") == INdata.data.protocol_code then
             local dataInfo = protobuf.decode("pb_common.data_user_join_room_response", INdata.data.data_str)
             protobuf.extract(dataInfo)
@@ -217,6 +236,36 @@ function SceneMain:onEventData(INdata)
             if not self.entities:get(dataInfo.userid) then return end
             self.entities:get(dataInfo.userid):removeFromParent()
             self.entities:remove(dataInfo.userid)
+        elseif protobuf.enum_id("pb_common.protocol_code","protocol_repair_frames_response") == INdata.data.protocol_code then
+            local dataInfo = protobuf.decode("pb_common.data_repair_frames_response", INdata.data.data_str)
+            protobuf.extract(dataInfo)
+            local frameid = 0
+            if dataInfo.flag ~= 0 then
+                self.begin = true
+            end
+            for i=1,#dataInfo.frames do
+                frameid = dataInfo.frames[i].frameid
+                if self.syncFrameId < frameid then
+                    self.serverFrames:set(frameid,dataInfo.frames[i].frames)
+                    for k,v in ipairs(self.serverFrames:get(frameid)) do
+                        v.cmds = {}
+                        for kk,vv in ipairs(v.opecode) do
+                            if 1 == vv.opetype then
+                                local cmd = protobuf.decode("pb_common.ope_move", vv.opestring)
+                                protobuf.extract(cmd)
+                                cmd.opetype = 1
+                                table.insert(v.cmds,cmd)
+                            elseif 2 == vv.opetype then
+                                local cmd = protobuf.decode("pb_common.ope_fire_bullet", vv.opestring)
+                                protobuf.extract(cmd)
+                                cmd.opetype = 2
+                                table.insert(v.cmds,cmd)
+                            end
+                        end
+                    end
+                end
+            end
+            self:fastForwardFrames()
         end
     elseif "udp" == INdata.type then
         if 8 == INdata.data.protocol_code then
@@ -255,11 +304,16 @@ function SceneMain:onEventData(INdata)
 end
 
 function SceneMain:onEventTcpConnected()
-    local pData = protobuf.encode('pb_common.data_user_register', {
-        username = "",
-        password = ""
-    })
-    self:sendData(protobuf.enum_id("pb_common.protocol_code","protocol_register"),pData)
+    if not self.isDisconnected then return end
+    self.isDisconnected = false
+    if self.roomid ~= 0 then
+        local pData = protobuf.encode('pb_common.data_repair_frames',{
+            userid = self.token,
+            roomid = self.roomid,
+            flag = 0
+        })
+        self:sendData(protobuf.enum_id("pb_common.protocol_code","protocol_repair_frames"),pData)
+    end
 end
 
 function SceneMain:sendData(INprotocal,INdata)
@@ -273,6 +327,7 @@ function SceneMain:sendData(INprotocal,INdata)
 end
 
 function SceneMain:sendUdpData(INprotocal,INdata,INpkLoss)
+    if self.isDisconnected then return true end
     local pData = protobuf.encode('pb_common.data_head', {
         protocol_code = INprotocal,
         data_len = string.len(INdata),
@@ -314,6 +369,23 @@ function SceneMain:onKeyEventPressed(INkey,INrender)
         if cc.KeyCode.KEY_SPACE == INkey and self.begin then
             self:tryFire()
         end
+    end
+    if cc.KeyCode.KEY_K == INkey then
+        self:simulateDisconnectAndReconnect()
+    end
+    if cc.KeyCode.KEY_F1 == INkey then
+        local pData = protobuf.encode('pb_common.data_user_login', {
+            userid = 1,
+            password = ""
+        })
+        self:sendData(protobuf.enum_id("pb_common.protocol_code","protocol_login"),pData)
+    end
+    if cc.KeyCode.KEY_F2 == INkey then
+        local pData = protobuf.encode('pb_common.data_user_login', {
+            userid = 2,
+            password = ""
+        })
+        self:sendData(protobuf.enum_id("pb_common.protocol_code","protocol_login"),pData)
     end
 end
 
@@ -476,6 +548,7 @@ end
 
 function SceneMain:tickLogic(dt)
     if not self.begin then return end
+    if self.isDisconnected then return end
     self.frameId = self.frameId + 1
     local opeCodes = self.entity:getOpeCode()
     local ope_move, data = self:convertOpeCode(opeCodes,true)
@@ -502,6 +575,12 @@ function SceneMain:tickLogic(dt)
 
     while(self.serverFrames:get(self.syncFrameId+1)) do
         local frames = self.serverFrames:get(self.syncFrameId+1)
+        -- 保存所有实体的上一帧位置（用于扫掠碰撞检测）
+        for k, entity in self.entities:pairs() do
+            if entity and not tolua.isnull(entity) then
+                entity:savePrevLogicInfo()
+            end
+        end
         --if 0 == #frames then HLog:printf(string.format("frames empty frameid:%d",self.syncFrameId+1)) end
         for m=1,#frames do
             local v = frames[m]
@@ -558,7 +637,6 @@ function SceneMain:tickLogic(dt)
         self.syncFrameId = self.syncFrameId + 1
     end
 
-    -- 执行碰撞检测
     self.collisionSystem:update(self.frameId)
     --print(string.format("predict frame %d acked frameid %d syncPos %f:%f localPos %f:%f",self.frameId,self.syncFrameId,self.entity.syncState.pos.x,self.entity.syncState.pos.y,self.entity.logicInfo.pos.x,self.entity.logicInfo.pos.y))
 end
@@ -589,6 +667,75 @@ function SceneMain:onBulletHitPlayer(bullet, player, frameId)
         self.collisionSystem:removeCollider(bullet)
         print(string.format("[Frame %d] Bullet %d hit Player %d", frameId, bullet.id, player.token))
     end
+end
+
+function SceneMain:simulateDisconnectAndReconnect()
+    self.tcp:disconnect()
+    self.tcp:close()
+    self.udp:close()
+    self.isDisconnected = true
+    Scheduler:performWithDelayGlobal(function()
+        self.tcp = SocketTCP:create()
+        self.tcp:setEventProtocol(self.eventProtocol)
+        self.tcp:connect("127.0.0.1",8888,true)
+        self.udp = SocketUDP:create("127.0.0.1",8889,self.eventProtocol)
+    end,5)
+end
+
+function SceneMain:fastForwardFrames()
+    local catchUpCount = 0
+    -- 快速处理所有缓存的服务端帧数据
+    print(string.format("[Reconnect] Start catching up from frame %d", self.syncFrameId + 1))
+    while self.serverFrames:get(self.syncFrameId + 1) do
+        local frames = self.serverFrames:get(self.syncFrameId + 1)
+        catchUpCount = catchUpCount + 1
+        -- 保存所有实体的上一帧位置（用于扫掠碰撞检测）
+        for k, entity in self.entities:pairs() do
+            if entity and not tolua.isnull(entity) then
+                entity:savePrevLogicInfo()
+            end
+        end
+        for m = 1, #frames do
+            local v = frames[m]
+            local entity = self.entities:get(v.userid)
+            if entity and not tolua.isnull(entity) then
+                -- 应用所有命令
+                for n = 1, #v.cmds do
+                    local cmd = v.cmds[n]
+                    if 1 == cmd.opetype then
+                        -- 移动命令
+                        entity.logicInfo.pos.x = entity.logicInfo.pos.x + HelpTools:toFixed(ENTITY_MOVE_SPEED * cmd.movey / 1000)
+                        entity.logicInfo.pos.y = entity.logicInfo.pos.y + HelpTools:toFixed(ENTITY_MOVE_SPEED * cmd.movex / 1000)
+                        entity.logicInfo.rotation = entity.logicInfo.rotation + cmd.turn * ENTITY_ROTATE_SPEED
+                    elseif 2 == cmd.opetype then
+                        -- 发射子弹命令，使用从移动命令中提取的玩家速度
+                        self:createBullet(v.userid, v.frameid, cc.p(cmd.startposx, cmd.startposy), cmd)
+                    end
+                end
+                -- 同步状态
+                if v.userid == self.token then
+                    entity.syncState.pos = cc.p(entity.logicInfo.pos)
+                    entity.syncState.rotation = entity.logicInfo.rotation
+                end
+            end
+        end
+        self.serverFrames:remove(self.syncFrameId + 1)
+        self.syncFrameId = self.syncFrameId + 1
+    end
+    -- 同步本地帧号到服务端帧号
+    self.frameId = self.syncFrameId
+    -- 清理断线期间的本地输入缓存
+    self.inputsPending:clear()
+    self.pendingFires = {}
+    -- 直接设置实体位置（跳过插值）
+    for k, v in self.entities:pairs() do
+        if v and not tolua.isnull(v) then
+            v:setPosition(v.logicInfo.pos)
+            v:setRotation(v.logicInfo.rotation)
+            v:show()
+        end
+    end
+    print(string.format("[FastForward] Caught up %d frames last syncFrameId %d", catchUpCount, self.syncFrameId))
 end
 
 return SceneMain

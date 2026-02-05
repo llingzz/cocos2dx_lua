@@ -47,6 +47,12 @@ function OrderedTable:remove(key)
     end
 end
 
+-- 清空元素
+function OrderedTable:clear()
+    self.keys = {}
+    self.values = {}
+end
+
 -- local ot = OrderedTable:new()
 -- -- 乱序添加
 -- ot:set("c", "值C")

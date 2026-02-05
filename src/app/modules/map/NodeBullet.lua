@@ -29,4 +29,12 @@ function NodeBullet:getLogicBounds(INframeId)
     }
 end
 
+-- 获取子弹速度向量
+function NodeBullet:getVelocity()
+    return {
+        x = self.vx,
+        y = self.vy
+    }
+end
+
 return NodeBullet
