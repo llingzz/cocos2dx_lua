@@ -20,6 +20,8 @@ time_t getMs() {
     auto tmp = std::chrono::duration_cast<std::chrono::milliseconds>(tp.time_since_epoch());
     return tmp.count();
 }
+static
+int room_player_count = 2;
 
 using asio::ip::tcp;
 class session : public std::enable_shared_from_this<session> {
@@ -346,6 +348,41 @@ public:
         frames_[currentFrame][userid].insert(std::make_pair(frameid, frame));
     }
     void broadcast_frames(gameserver* pServer, std::shared_ptr<gameplayer>& player, int frameid, LONG token, int flag);
+    void verifyHash(int frameid) {
+        auto& data = verify_[frameid];
+        // 检查所有哈希是否一致
+        int firstHash = 0;
+        bool matched = true;
+        std::vector<int> mismatchedUsers;
+        for (auto& iter : data) {
+            if (firstHash == 0) {
+                firstHash = iter.second;
+            }
+            else if (iter.second != firstHash) {
+                matched = false;
+                mismatchedUsers.push_back(iter.first);
+            }
+        }
+        if (matched) {
+            // 广播校验通过
+            //broadcastVerifyResult(frameId, true, "");
+            printf("frameid %04d verify success.\n", frameid);
+        }
+        else {
+            //// 广播校验失败，触发重同步
+            //std::string info = "Mismatched users: ";
+            //for (int uid : mismatchedUsers) {
+            //    info += std::to_string(uid) + " ";
+            //}
+            //broadcastVerifyResult(frameId, false, info);
+
+            //// 可选：请求权威状态或踢出不一致的客户端
+            //requestResync(frameId);
+            printf("frameid %04d verify failed.\n", frameid);
+        }
+
+        data.erase(frameid);
+    }
 
     bool all_ready;
     bool game_start;
@@ -355,6 +392,7 @@ public:
     std::map<int, std::map<int, std::map<int, pb_common::data_ope>>> frames_;
     std::map<int, int> frame_sync;
     time_t tTimeSeed;
+    std::map<int, std::map<int, int>> verify_;
 };
 class gameserver : public tcp_server, public udp_server {
 public:
@@ -365,7 +403,7 @@ public:
         m_pRedisPool = RedisPool::create("127.0.0.1", 6379, "");
         m_pRedisPool->initConnection(3);
         m_pLogicThread = std::make_unique<std::thread>([=]() {
-            auto playercount = 2;
+            auto playercount = room_player_count;
             auto delta = 0;
             auto tick = getMs();
             auto fps = 1000 / 15;
@@ -530,6 +568,27 @@ public:
                     return;
                 }
                 room->broadcast_frames(this, room->m_mapPlayer[userid], room->currentFrame, token, _repair.flag());
+            }
+        });
+        register_tcp_callback(pb_common::protocol_code::protocol_sync_verify, [&](LONG token, int protocol, const std::string& real_data) {
+            pb_common::data_sync_verify _verify;
+            if (!_verify.ParseFromString(real_data)) { return; }
+            int userid = _verify.userid();
+            int roomid = _verify.roomid();
+            int frameid = _verify.frameid();
+            {
+                std::lock_guard<std::mutex> lk(lock_room);
+                if (m_mapRoom.find(roomid) == m_mapRoom.end()) {
+                    return;
+                }
+                auto& room = m_mapRoom[roomid];
+                if (room->m_mapPlayer.find(userid) == room->m_mapPlayer.end()) {
+                    return;
+                }
+                room->verify_[frameid].insert(std::make_pair(userid, _verify.statehash()));
+                if (room->verify_[frameid].size() >= room_player_count) {
+                    room->verifyHash(frameid);
+                }
             }
         });
         register_udp_callback(pb_common::protocol_code::protocol_frame, [&](const std::string& data, const udp::endpoint& ed) {

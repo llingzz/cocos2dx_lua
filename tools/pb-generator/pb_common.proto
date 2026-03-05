@@ -28,6 +28,8 @@ enum protocol_code
 	protocol_repair_frames_response = 15;
 	protocol_login = 16;
 	protocol_login_reponse = 17;
+	protocol_sync_verify = 18;
+	protocol_sync_verify_response = 19;
 }
 
 message data_user_register
@@ -188,4 +190,12 @@ message data_repair_frames_response
 {
 	optional int32 flag = 1;
 	repeated data_ope_frames frames = 2;
+}
+
+message data_sync_verify
+{
+	optional int32 frameid = 1;
+	optional int32 statehash = 2;
+	optional int32 roomid = 3;
+	optional int32 userid = 4;
 }

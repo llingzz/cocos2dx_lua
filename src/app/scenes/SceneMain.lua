@@ -66,6 +66,11 @@ function SceneMain:ctor()
     --     end,0)
     -- end,0)
 
+    -- local test = require("src.app.collision.DetCollision.test_det_collision")
+    -- local s = 1
+    local demo = require("src.app.collision.DetCollision.DetCollisionDemo")
+    demo:runDetCollisionDemo(self)
+
     local mapLayer = require("src.app.modules.map.LayerMap")
     self.layerMap = mapLayer:create()
     self.layerMap:addTo(self,-1)
@@ -92,6 +97,12 @@ function SceneMain:ctor()
     -- 待发送的发射操作队列
     self.pendingFires = {}
     self.lastFireTime = 0
+
+    -- 同步校验相关
+    self.verifyInterval = 30         -- 每30帧校验一次
+    self.lastVerifyFrame = 0
+    self.stateSnapshots = {}         -- 保存历史状态快照用于调试
+    self.maxSnapshots = 10
 
     local keyBoardListener = cc.EventListenerKeyboard:create()
     keyBoardListener:registerScriptHandler(handler(self,self.onKeyEventPressed), cc.Handler.EVENT_KEYBOARD_PRESSED)
@@ -638,6 +649,10 @@ function SceneMain:tickLogic(dt)
     end
 
     self.collisionSystem:update(self.frameId)
+    if self.syncFrameId % self.verifyInterval == 0 and self.syncFrameId > self.lastVerifyFrame then
+        self:sendStateVerify(self.syncFrameId)
+        self.lastVerifyFrame = self.syncFrameId
+    end
     --print(string.format("predict frame %d acked frameid %d syncPos %f:%f localPos %f:%f",self.frameId,self.syncFrameId,self.entity.syncState.pos.x,self.entity.syncState.pos.y,self.entity.logicInfo.pos.x,self.entity.logicInfo.pos.y))
 end
 
@@ -736,6 +751,78 @@ function SceneMain:fastForwardFrames()
         end
     end
     print(string.format("[FastForward] Caught up %d frames last syncFrameId %d", catchUpCount, self.syncFrameId))
+end
+
+function SceneMain:hashString(str)
+    local hash = 5381
+    for i = 1, #str do
+        hash = ((hash * 33) + string.byte(str, i)) % 0xFFFFFFFF
+    end
+    return hash
+end
+
+function SceneMain:calculateStateHash(frameId)
+    local stateData = {}
+    for k,v in self.entities:pairs() do
+        if v and not tolua.isnull(v) then
+            if k == self.token then
+                table.insert(stateData, string.format("%d:%.0f,%.0f,%.0f",
+                    k,
+                    v.syncState.pos.x * 1000,
+                    v.syncState.pos.y * 1000,
+                    v.syncState.rotation * 1000
+                ))
+            else
+                table.insert(stateData, string.format("%d:%.0f,%.0f,%.0f",
+                    k,
+                    v.logicInfo.pos.x * 1000,
+                    v.logicInfo.pos.y * 1000,
+                    v.logicInfo.rotation * 1000
+                ))
+            end
+        end
+    end
+    for k,v in self.nodeBullets:pairs() do
+        if v and not tolua.isnull(v) and not v.destroy then
+            local bounds = v:getLogicBounds(frameId)
+            table.insert(stateData, string.format("b%d:%.0f,%.0f",
+                k,
+                bounds.x * 1000,
+                bounds.y * 1000
+            ))
+        end
+    end
+    local stateString = table.concat(stateData, "|")
+    HLog:printf(string.format("%d verify %s",self.token,stateString))
+    return self:hashString(stateString), stateString
+end
+
+function SceneMain:saveSnapshot(frameId, hash, stateString)
+    table.insert(self.stateSnapshots, {
+        frameId = frameId,
+        hash = hash,
+        state = stateString,
+        timestamp = os.time()
+    })
+    -- 限制快照数量
+    while #self.stateSnapshots > self.maxSnapshots do
+        table.remove(self.stateSnapshots, 1)
+    end
+end
+
+function SceneMain:sendStateVerify(frameId)
+    local hash, stateString = self:calculateStateHash(frameId)
+    -- 保存快照用于调试
+    self:saveSnapshot(frameId, hash, stateString)
+    -- 发送校验请求
+    local pData = protobuf.encode('pb_common.data_sync_verify', {
+        frameid = frameId,
+        statehash = hash,
+        roomid = self.roomid,
+        userid = self.token
+    })
+    self:sendData(protobuf.enum_id("pb_common.protocol_code","protocol_sync_verify"),pData)
+    print(string.format("[SyncVerify] Frame %d, Hash: %u", frameId, hash))
 end
 
 return SceneMain
