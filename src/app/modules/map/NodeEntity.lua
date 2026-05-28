@@ -15,8 +15,6 @@ function NodeEntity:ctor(INparent,INoriginPos)
     self.opeCode = 0x00
     self.type = 1
     self.syncFrameId = 0
-    self.vx = 0
-    self.vy = 0
     self.logicInfo = {
         pos = cc.p(INoriginPos),
         rotation = 0,
@@ -64,12 +62,15 @@ function NodeEntity:getKeyboardEvent(INType,INeventCode)
 end
 
 function NodeEntity:getOpeCode()
-    -- 只返回移动相关的操作码，发射由 SceneMain:tryFire 处理
-    return bit._and(self.opeCode, 0x0f)
+    return self.opeCode
 end
 
 function NodeEntity:setToken(INtoken)
     self.token = INtoken or -1
+    if self.info then return end
+    self.info = ccui.Text:create():setString("ID:"..self.token):addTo(self)
+    :setFontSize(20)
+    :setPosition(cc.p(0, -self.height))
 end
 
 function NodeEntity:setIndex(INindex)

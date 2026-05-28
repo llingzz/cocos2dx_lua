@@ -358,6 +358,7 @@ class ope_move final :
     kMovexFieldNumber = 1,
     kMoveyFieldNumber = 2,
     kTurnFieldNumber = 3,
+    kFireFieldNumber = 4,
   };
   // required int32 movex = 1;
   bool has_movex() const;
@@ -392,13 +393,24 @@ class ope_move final :
   void _internal_set_turn(::int32_t value);
 
   public:
+  // optional int32 fire = 4;
+  bool has_fire() const;
+  void clear_fire() ;
+  ::int32_t fire() const;
+  void set_fire(::int32_t value);
+
+  private:
+  ::int32_t _internal_fire() const;
+  void _internal_set_fire(::int32_t value);
+
+  public:
   // @@protoc_insertion_point(class_scope:pb_common.ope_move)
  private:
   class _Internal;
 
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      2, 3, 0,
+      2, 4, 0,
       0, 2>
       _table_;
   friend class ::google::protobuf::MessageLite;
@@ -420,6 +432,7 @@ class ope_move final :
     ::int32_t movex_;
     ::int32_t movey_;
     ::int32_t turn_;
+    ::int32_t fire_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -2508,11 +2521,28 @@ class data_sync_verify final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kFrameidFieldNumber = 1,
     kStatehashFieldNumber = 2,
+    kFrameidFieldNumber = 1,
     kRoomidFieldNumber = 3,
     kUseridFieldNumber = 4,
   };
+  // optional bytes statehash = 2;
+  bool has_statehash() const;
+  void clear_statehash() ;
+  const std::string& statehash() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_statehash(Arg_&& arg, Args_... args);
+  std::string* mutable_statehash();
+  PROTOBUF_NODISCARD std::string* release_statehash();
+  void set_allocated_statehash(std::string* value);
+
+  private:
+  const std::string& _internal_statehash() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_statehash(
+      const std::string& value);
+  std::string* _internal_mutable_statehash();
+
+  public:
   // optional int32 frameid = 1;
   bool has_frameid() const;
   void clear_frameid() ;
@@ -2522,17 +2552,6 @@ class data_sync_verify final :
   private:
   ::int32_t _internal_frameid() const;
   void _internal_set_frameid(::int32_t value);
-
-  public:
-  // optional int32 statehash = 2;
-  bool has_statehash() const;
-  void clear_statehash() ;
-  ::int32_t statehash() const;
-  void set_statehash(::int32_t value);
-
-  private:
-  ::int32_t _internal_statehash() const;
-  void _internal_set_statehash(::int32_t value);
 
   public:
   // optional int32 roomid = 3;
@@ -2582,8 +2601,8 @@ class data_sync_verify final :
                               ::google::protobuf::Arena* arena, const Impl_& from);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     mutable ::google::protobuf::internal::CachedSize _cached_size_;
+    ::google::protobuf::internal::ArenaStringPtr statehash_;
     ::int32_t frameid_;
-    ::int32_t statehash_;
     ::int32_t roomid_;
     ::int32_t userid_;
     PROTOBUF_TSAN_DECLARE_MEMBER
@@ -6540,6 +6559,34 @@ inline void ope_move::_internal_set_turn(::int32_t value) {
   _impl_.turn_ = value;
 }
 
+// optional int32 fire = 4;
+inline bool ope_move::has_fire() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000008u) != 0;
+  return value;
+}
+inline void ope_move::clear_fire() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.fire_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000008u;
+}
+inline ::int32_t ope_move::fire() const {
+  // @@protoc_insertion_point(field_get:pb_common.ope_move.fire)
+  return _internal_fire();
+}
+inline void ope_move::set_fire(::int32_t value) {
+  _internal_set_fire(value);
+  // @@protoc_insertion_point(field_set:pb_common.ope_move.fire)
+}
+inline ::int32_t ope_move::_internal_fire() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.fire_;
+}
+inline void ope_move::_internal_set_fire(::int32_t value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_._has_bits_[0] |= 0x00000008u;
+  _impl_.fire_ = value;
+}
+
 // -------------------------------------------------------------------
 
 // ope_fire_bullet
@@ -7642,13 +7689,13 @@ data_repair_frames_response::_internal_mutable_frames() {
 
 // optional int32 frameid = 1;
 inline bool data_sync_verify::has_frameid() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
+  bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
   return value;
 }
 inline void data_sync_verify::clear_frameid() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   _impl_.frameid_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::int32_t data_sync_verify::frameid() const {
   // @@protoc_insertion_point(field_get:pb_common.data_sync_verify.frameid)
@@ -7664,36 +7711,79 @@ inline ::int32_t data_sync_verify::_internal_frameid() const {
 }
 inline void data_sync_verify::_internal_set_frameid(::int32_t value) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_._has_bits_[0] |= 0x00000001u;
+  _impl_._has_bits_[0] |= 0x00000002u;
   _impl_.frameid_ = value;
 }
 
-// optional int32 statehash = 2;
+// optional bytes statehash = 2;
 inline bool data_sync_verify::has_statehash() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
+  bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
   return value;
 }
 inline void data_sync_verify::clear_statehash() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.statehash_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_.statehash_.ClearToEmpty();
+  _impl_._has_bits_[0] &= ~0x00000001u;
 }
-inline ::int32_t data_sync_verify::statehash() const {
+inline const std::string& data_sync_verify::statehash() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
   // @@protoc_insertion_point(field_get:pb_common.data_sync_verify.statehash)
   return _internal_statehash();
 }
-inline void data_sync_verify::set_statehash(::int32_t value) {
-  _internal_set_statehash(value);
+template <typename Arg_, typename... Args_>
+inline PROTOBUF_ALWAYS_INLINE void data_sync_verify::set_statehash(Arg_&& arg,
+                                                     Args_... args) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  _impl_.statehash_.SetBytes(static_cast<Arg_&&>(arg), args..., GetArena());
   // @@protoc_insertion_point(field_set:pb_common.data_sync_verify.statehash)
 }
-inline ::int32_t data_sync_verify::_internal_statehash() const {
-  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
-  return _impl_.statehash_;
+inline std::string* data_sync_verify::mutable_statehash() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_statehash();
+  // @@protoc_insertion_point(field_mutable:pb_common.data_sync_verify.statehash)
+  return _s;
 }
-inline void data_sync_verify::_internal_set_statehash(::int32_t value) {
+inline const std::string& data_sync_verify::_internal_statehash() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.statehash_.Get();
+}
+inline void data_sync_verify::_internal_set_statehash(const std::string& value) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_._has_bits_[0] |= 0x00000002u;
-  _impl_.statehash_ = value;
+  _impl_._has_bits_[0] |= 0x00000001u;
+  _impl_.statehash_.Set(value, GetArena());
+}
+inline std::string* data_sync_verify::_internal_mutable_statehash() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  return _impl_.statehash_.Mutable( GetArena());
+}
+inline std::string* data_sync_verify::release_statehash() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  // @@protoc_insertion_point(field_release:pb_common.data_sync_verify.statehash)
+  if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
+    return nullptr;
+  }
+  _impl_._has_bits_[0] &= ~0x00000001u;
+  auto* released = _impl_.statehash_.Release();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  _impl_.statehash_.Set("", GetArena());
+  #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  return released;
+}
+inline void data_sync_verify::set_allocated_statehash(std::string* value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (value != nullptr) {
+    _impl_._has_bits_[0] |= 0x00000001u;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000001u;
+  }
+  _impl_.statehash_.SetAllocated(value, GetArena());
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+        if (_impl_.statehash_.IsDefault()) {
+          _impl_.statehash_.Set("", GetArena());
+        }
+  #endif  // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:pb_common.data_sync_verify.statehash)
 }
 
 // optional int32 roomid = 3;

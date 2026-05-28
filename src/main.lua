@@ -11,11 +11,13 @@ require "cocos.init"
 cc.FileUtils:getInstance():setPopupNotify(false)
 cc.exports.FPS = 60.0
 cc.exports.LOGIC_FPS = 15
-cc.exports.ENTITY_MOVE_SPEED = 100*0.15
+cc.exports.ENTITY_MOVE_SPEED = 15
 cc.exports.ENTITY_ROTATE_SPEED = 10
-cc.exports.BULLET_MOVE_SPEED = 100*0.5
+cc.exports.BULLET_MOVE_SPEED = 80
 cc.exports.ENTITY_RADIUS = 15
 cc.exports.BULLET_RADIUS = 2.5
+cc.exports.BULLET_INIT_OFFSET = 15
+cc.exports.NUMBER_SCALE = 1000
 cc.exports.ENTITY_ORIGIN_POS = cc.p(400,400)
 cc.exports.START_TIME = socket.gettime()
 cc.exports.OrderedTable = require "app.tools.OrderedTable"
@@ -27,6 +29,7 @@ cc.exports.SocketUDP = require "app.tools.SocketUDP"
 cc.exports.Scheduler = require "app.tools.Scheduler"
 cc.exports.HelpTools = require "app.tools.HelpTools"
 cc.exports.ResourceManager = require "app.tools.ResourceManager"
+cc.exports.BulletRotationToSpeed = require "app.tools.BulletRotationToSpeed"
 require "app.common.CommonDef"
 
 cc.load('uiloader')

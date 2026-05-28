@@ -107,6 +107,7 @@ message ope_move
 	required int32 movex = 1;
 	required int32 movey = 2;
 	required int32 turn = 3;
+	optional int32 fire = 4;
 }
 message ope_fire_bullet
 {
@@ -195,7 +196,7 @@ message data_repair_frames_response
 message data_sync_verify
 {
 	optional int32 frameid = 1;
-	optional int32 statehash = 2;
+	optional bytes statehash = 2;
 	optional int32 roomid = 3;
 	optional int32 userid = 4;
 }

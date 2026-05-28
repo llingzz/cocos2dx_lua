@@ -351,11 +351,11 @@ public:
     void verifyHash(int frameid) {
         auto& data = verify_[frameid];
         // 检查所有哈希是否一致
-        int firstHash = 0;
+        std::string firstHash = "";
         bool matched = true;
         std::vector<int> mismatchedUsers;
         for (auto& iter : data) {
-            if (firstHash == 0) {
+            if (firstHash == "") {
                 firstHash = iter.second;
             }
             else if (iter.second != firstHash) {
@@ -366,7 +366,7 @@ public:
         if (matched) {
             // 广播校验通过
             //broadcastVerifyResult(frameId, true, "");
-            printf("frameid %04d verify success.\n", frameid);
+            //printf("frameid %04d verify success.\n", frameid);
         }
         else {
             //// 广播校验失败，触发重同步
@@ -375,7 +375,6 @@ public:
             //    info += std::to_string(uid) + " ";
             //}
             //broadcastVerifyResult(frameId, false, info);
-
             //// 可选：请求权威状态或踢出不一致的客户端
             //requestResync(frameId);
             printf("frameid %04d verify failed.\n", frameid);
@@ -392,7 +391,7 @@ public:
     std::map<int, std::map<int, std::map<int, pb_common::data_ope>>> frames_;
     std::map<int, int> frame_sync;
     time_t tTimeSeed;
-    std::map<int, std::map<int, int>> verify_;
+    std::map<int, std::map<int, std::string>> verify_;
 };
 class gameserver : public tcp_server, public udp_server {
 public:

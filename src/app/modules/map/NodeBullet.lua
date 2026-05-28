@@ -12,28 +12,27 @@ function NodeBullet:ctor(INid,INuserid,INframeid,INoriginPos,INdir)
     self.owner = INuserid
     self.birthFrameId = INframeid
     self.birthPos = cc.p(INoriginPos.x, INoriginPos.y)
-    self.vx = HelpTools:toFixed(INdir.x*BULLET_MOVE_SPEED/1000)
-    self.vy = HelpTools:toFixed(INdir.y*BULLET_MOVE_SPEED/1000)
+    self.vx = INdir.x
+    self.vy = INdir.y
     self.destroy = false
-    self.width = 5
-    self.height = 5
+    self.width = 8
+    self.height = 8
+end
+
+function NodeBullet:getLogicPos(INframe)
+    if not INframe or INframe <= self.birthFrameId then return cc.p(self.birthPos.x, self.birthPos.y) end
+    local frames = (INframe - self.birthFrameId)
+    --HLog:printf(string.format("getLogicPos %d %d %d, bPos %d:%d v %d:%d", self.id, INframe, self.birthFrameId, self.birthPos.x, self.birthPos.y,  self.vx, self.vy))
+    return cc.p(self.birthPos.x + self.vx * frames, self.birthPos.y + self.vy * frames)
 end
 
 function NodeBullet:getLogicBounds(INframeId)
-    local elapsedFrames = INframeId - self.birthFrameId
+    local logicPos = self:getLogicPos(INframeId)
     return {
-        x = self.birthPos.x + self.vx * elapsedFrames,
-        y = self.birthPos.y + self.vy * elapsedFrames,
+        x = logicPos.x,
+        y = logicPos.y,
         width = self.width,
         height = self.height
-    }
-end
-
--- 获取子弹速度向量
-function NodeBullet:getVelocity()
-    return {
-        x = self.vx,
-        y = self.vy
     }
 end
 
