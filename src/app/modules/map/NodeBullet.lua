@@ -36,4 +36,8 @@ function NodeBullet:getLogicBounds(INframeId)
     }
 end
 
+function NodeBullet:onCollison(INbody)
+    --print(string.format("[Collision]!"))
+end
+
 return NodeBullet

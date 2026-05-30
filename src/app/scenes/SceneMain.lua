@@ -74,11 +74,6 @@ function SceneMain:ctor()
     self.layerMap = mapLayer:create()
     self.layerMap:addTo(self,-1)
 
-    -- 初始化碰撞系统
-    local CollisionSystem = require("src.app.collision.CollisionSystem")
-    self.collisionSystem = CollisionSystem.new()
-    self.collisionSystem:setOnCollision(handler(self, self.onCollision))
-
     self.token = -1
     self.entity = nil
     self.entities = OrderedTable:new()
@@ -118,6 +113,23 @@ function SceneMain:ctor()
     :setPosition(cc.p(0, display.top-45))
     :setAnchorPoint(cc.p(0, 0.5))
     :setVisible(self.begin)
+
+    self.colBodies = OrderedTable:new()
+    local FM = DetCollisionSystem.FixedMath
+    self.colSys = DetCollisionSystem.System.new({broadPhase = "quadtree", worldBounds = {0, 0, FM.fromFloat(display.width), FM.fromFloat(display.height)}})
+    local wall = DetCollisionSystem.Shape.newAABB(FM.fromFloat(display.cx), FM.fromFloat(display.cy), FM.fromFloat(display.cx), FM.fromFloat(display.cy))
+    self.colSys:addBody(0, wall, DetCollisionSystem.System.GROUP_WALL, DetCollisionSystem.System.MASK_ALL)
+    self.colBodies:set(0,self.layerMap)
+    self.colSys:onCollision(function(idA, idB, mtvX, mtvY)
+        if not self.colBodies then return end
+        local bodyA = self.colBodies:get(idA)
+        local bodyB = self.colBodies:get(idB)
+        if bodyA and bodyB then
+            if bodyA.onCollison then bodyA:onCollison(bodyB) end
+            if bodyB.onCollison then bodyB:onCollison(bodyA) end
+        end
+        --print(string.format("[Collision] %s <-> %s  MTV:(%d, %d)", tostring(idA), tostring(idB), mtvX, mtvY))
+    end)
 end
 
 function SceneMain:onEnter()
@@ -441,7 +453,6 @@ function SceneMain:convertOpeCode(INopeCode,INpack)
 end
 
 function SceneMain:createEntity(data)
-    local CollisionSystem = require("src.app.collision.CollisionSystem")
     local HandlerEntity = require "src.app.modules.map.NodeEntity"
     local originPos = cc.p(ENTITY_ORIGIN_POS.x+data.index*100,ENTITY_ORIGIN_POS.y+data.index*100)
     local entity = HandlerEntity.new(self,cc.p(HelpTools:toFixed(originPos.x*NUMBER_SCALE), HelpTools:toFixed(originPos.y*NUMBER_SCALE)))
@@ -450,32 +461,26 @@ function SceneMain:createEntity(data)
     entity:addTo(self)
     entity:setPosition(originPos)
     self.entities:set(data.userid,entity)
-    -- 添加碰撞体
-    self.collisionSystem:addCollider(
-        entity,
-        CollisionSystem.SHAPE_AABB,
-        CollisionSystem.LAYER_PLAYER
-    )
 end
 
 function SceneMain:createBullet(INuserid,INframeid,INpos,INdata)
-    local CollisionSystem = require("src.app.collision.CollisionSystem")
     local bulletId = INuserid*1000000+INframeid
     if not self.nodeBullets:get(bulletId) then
         local HandlerBullet = require "src.app.modules.map.NodeBullet"
-        -- 统一使用本地帧号，保证所有子弹在同一帧号体系下计算位置
         local bullet = HandlerBullet.new(bulletId,INuserid,INframeid,INpos,cc.p(INdata.directionx,INdata.directiony))
         bullet:setPosition(cc.p(HelpTools:toFixed(INpos.x/NUMBER_SCALE), HelpTools:toFixed(INpos.y/NUMBER_SCALE)))
         bullet:setRotation(INdata.rotation)
         bullet:addTo(self)
         self.nodeBullets:set(bulletId,bullet)
-        -- 添加碰撞体
-        self.collisionSystem:addCollider(
-            bullet,
-            CollisionSystem.SHAPE_CIRCLE,
-            CollisionSystem.LAYER_BULLET,
-            { radius = BULLET_RADIUS }
+        local bShape = DetCollisionSystem.Shape.newAABB(
+            DetCollisionSystem.FixedMath.fromFloat(HelpTools:toFixed(INpos.x/NUMBER_SCALE)),
+            DetCollisionSystem.FixedMath.fromFloat(HelpTools:toFixed(INpos.y/NUMBER_SCALE)),
+            DetCollisionSystem.FixedMath.fromFloat(bullet.width/2),
+            DetCollisionSystem.FixedMath.fromFloat(bullet.height/2)
         )
+        self.colSys:addBody(bulletId, bShape, DetCollisionSystem.System.GROUP_BULLET, DetCollisionSystem.System.GROUP_WALL)
+        bullet._colShape = bShape
+        self.colBodies:set(bulletId, bullet)
     end
 end
 
@@ -520,10 +525,12 @@ function SceneMain:update(dt)
     for k,v in self.nodeBullets:pairs() do
         if v and not v.destroy then
             local frames = (self.frameId - v.birthFrameId)
-            local currentPos = cc.p(v:getPosition())
-            local targetPos = cc.p(HelpTools:toFixed((v.birthPos.x +v.vx*frames)/NUMBER_SCALE), HelpTools:toFixed((v.birthPos.y+v.vy*frames)/NUMBER_SCALE))
-            local newPos = self:lerpConstantSpeed(currentPos, targetPos, BULLET_MOVE_SPEED*LOGIC_FPS, dt)
-            v:setPosition(newPos)
+            if frames > 0 then
+                local currentPos = cc.p(v:getPosition())
+                local targetPos = cc.p(HelpTools:toFixed((v.birthPos.x +v.vx*frames)/NUMBER_SCALE), HelpTools:toFixed((v.birthPos.y+v.vy*frames)/NUMBER_SCALE))
+                local newPos = self:lerpConstantSpeed(currentPos, targetPos, BULLET_MOVE_SPEED*LOGIC_FPS, dt)
+                v:setPosition(newPos)
+            end
         end
     end
     self.updateTick = self.updateTick + dt
@@ -612,7 +619,7 @@ function SceneMain:tickLogic(dt)
                                 local bdir = BulletRotationToSpeed[rotation]
                                 local originPos = cc.p(otherEntity.logicInfo.pos.x+ENTITY_MOVE_SPEED * vv.movey, otherEntity.logicInfo.pos.y+ENTITY_MOVE_SPEED * vv.movex+BULLET_INIT_OFFSET*NUMBER_SCALE)
                                 self:createBullet(v.userid,v.frameid,originPos,{directionx = bdir.x*NUMBER_SCALE, directiony = bdir.y*NUMBER_SCALE, rotation = rotation})
-                                --HLog:printf(string.format("fire at frame %05d, pos %d:%d dir %d:%d", v.frameid, originPos.x, originPos.y, bdir.x, bdir.y))
+                                HLog:printf(string.format("fire at frame %05d, pos %d:%d dir %d:%d", v.frameid, originPos.x, originPos.y, bdir.x, bdir.y))
                             end
                         end
                     end
@@ -626,48 +633,21 @@ function SceneMain:tickLogic(dt)
         self.frameInfo:setString("frame:"..self.syncFrameId)
     end
 
-    self.collisionSystem:update(self.frameId)
+    -- 更新所有子弹的碰撞形状到当前逻辑位置
+    for bulletId, v in self.nodeBullets:pairs() do
+        if v and not v.destroy and v._colShape then
+            local logicPos = v:getLogicPos(self.syncFrameId)
+            v._colShape.cx = DetCollisionSystem.FixedMath.fromFloat(HelpTools:toFixed(logicPos.x/NUMBER_SCALE))
+            v._colShape.cy = DetCollisionSystem.FixedMath.fromFloat(HelpTools:toFixed(logicPos.y/NUMBER_SCALE))
+        end
+    end
+
+    self.colSys:step()
     if self.syncFrameId % self.verifyInterval == 0 and self.syncFrameId > self.lastVerifyFrame then
         self:sendStateVerify(self.syncFrameId)
         self.lastVerifyFrame = self.syncFrameId
     end
     --print(string.format("predict frame %d acked frameid %d syncPos %f:%f localPos %f:%f",self.frameId,self.syncFrameId,self.entity.syncState.pos.x,self.entity.syncState.pos.y,self.entity.logicInfo.pos.x,self.entity.logicInfo.pos.y))
-end
-
-function SceneMain:onCollision(colliderA, colliderB, frameId)
-    local CollisionSystem = require("src.app.collision.CollisionSystem")
-    local entityA = colliderA.entity
-    local entityB = colliderB.entity
-
-    -- 子弹与玩家碰撞
-    if colliderA.layer == CollisionSystem.LAYER_BULLET and colliderB.layer == CollisionSystem.LAYER_PLAYER then
-        self:onBulletHitPlayer(entityA, entityB, frameId)
-    elseif colliderA.layer == CollisionSystem.LAYER_PLAYER and colliderB.layer == CollisionSystem.LAYER_BULLET then
-        self:onBulletHitPlayer(entityB, entityA, frameId)
-    elseif colliderA.layer == CollisionSystem.LAYER_BULLET and colliderB.layer == CollisionSystem.LAYER_ENVIRONMENT then
-        colliderA.destroy = true
-        colliderA:setVisible(false)
-        self.collisionSystem:removeCollider(colliderA)
-    elseif colliderA.layer == CollisionSystem.LAYER_ENVIRONMENT and colliderB.layer == CollisionSystem.LAYER_BULLET then
-        colliderB.destroy = true
-        colliderB:setVisible(false)
-        self.collisionSystem:removeCollider(colliderB)
-    end
-end
-
-function SceneMain:onBulletHitPlayer(bullet, player, frameId)
-    -- 子弹不能击中自己
-    if bullet.owner == player.token then
-        return
-    end
-
-    -- 标记子弹销毁
-    if not bullet.destroy then
-        bullet.destroy = true
-        bullet:setVisible(false)
-        self.collisionSystem:removeCollider(bullet)
-        print(string.format("[Frame %d] Bullet %d hit Player %d", frameId, bullet.id, player.token))
-    end
 end
 
 function SceneMain:simulateDisconnectAndReconnect()

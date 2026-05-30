@@ -30,6 +30,7 @@ cc.exports.Scheduler = require "app.tools.Scheduler"
 cc.exports.HelpTools = require "app.tools.HelpTools"
 cc.exports.ResourceManager = require "app.tools.ResourceManager"
 cc.exports.BulletRotationToSpeed = require "app.tools.BulletRotationToSpeed"
+cc.exports.DetCollisionSystem = require("src.app.collision.DetCollision.init")
 require "app.common.CommonDef"
 
 cc.load('uiloader')
