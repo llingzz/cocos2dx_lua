@@ -83,6 +83,7 @@
     <ClCompile Include="..\manual\network\lua_xml_http_request.cpp" />
     <ClCompile Include="..\manual\pbc\lua_cocos2dx_pbc_manual.cpp" />
     <ClCompile Include="..\manual\physics3d\lua_cocos2dx_physics3d_manual.cpp" />
+    <ClCompile Include="..\manual\plugin\lua_cocos2dx_plugin_manual.cpp" />
     <ClCompile Include="..\manual\spine\LuaSkeletonAnimation.cpp" />
     <ClCompile Include="..\manual\spine\lua_cocos2dx_spine_manual.cpp" />
     <ClCompile Include="..\manual\tolua_fix.cpp" />
@@ -166,6 +167,7 @@
     <ClInclude Include="..\manual\pbc\lua_cocos2dx_pbc_manual.h" />
     <ClInclude Include="..\manual\pbc\pbc-lua.h" />
     <ClInclude Include="..\manual\physics3d\lua_cocos2dx_physics3d_manual.h" />
+    <ClInclude Include="..\manual\plugin\lua_cocos2dx_plugin_manual.h" />
     <ClInclude Include="..\manual\spine\LuaSkeletonAnimation.h" />
     <ClInclude Include="..\manual\spine\lua_cocos2dx_spine_manual.hpp" />
     <ClInclude Include="..\manual\tolua_fix.h" />

@@ -55,6 +55,9 @@
 #include "platform/win32/PlayerWin.h"
 #include "platform/win32/PlayerMenuServiceWin.h"
 
+#include "userplugin.h"
+#include "pluginmanager.h"
+
 // define 1 to open console ui and setup windows system menu, 0 to disable
 #define SIMULATOR_WITH_CONSOLE_AND_MENU 0
 
@@ -312,6 +315,9 @@ int SimulatorWin::run()
     int dpi = GetDeviceCaps(screen, LOGPIXELSX);
     ReleaseDC(0, screen);
 
+    auto user = cocos2d::plugin::plugin_manager::getInstance()->getUserPlugin();
+    int s = user->get_userid();
+
     // set scale with DPI
     //  96 DPI = 100 % scaling
     // 120 DPI = 125 % scaling
@@ -383,6 +389,7 @@ int SimulatorWin::run()
 
     // path for looking Lang file, Studio Default images
     FileUtils::getInstance()->addSearchPath(getApplicationPath().c_str());
+    UserDefault::getInstance()->setIntegerForKey("constuserid", _project.getConstUserId());
 
 #if SIMULATOR_WITH_CONSOLE_AND_MENU > 0
     // init player services
