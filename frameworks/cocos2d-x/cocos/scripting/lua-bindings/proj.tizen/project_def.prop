@@ -181,8 +181,6 @@ USER_CPP_INC_DIRS = ../auto \
                     ../../../../external/jpeg/include/tizen \
                     ../../../../external/json \
                     ../../../../external/lua \
-                    ../../../../external/lua/lua \
-                    ../../../../external/lua/luajit/include \
                     ../../../../external/lua/luasocket \
                     ../../../../external/lua/tolua \
                     ../../../../external/png/include/tizen \

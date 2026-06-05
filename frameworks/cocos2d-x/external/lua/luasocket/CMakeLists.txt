@@ -44,7 +44,7 @@ endif()
 
 target_include_directories(${target_name} 
   INTERFACE ..
-  PRIVATE ../luajit/include
+  PRIVATE ../lua
 )
 
 set_target_properties(${target_name}

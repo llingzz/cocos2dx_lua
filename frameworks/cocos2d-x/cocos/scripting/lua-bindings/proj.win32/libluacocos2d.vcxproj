@@ -30,6 +30,36 @@
     <ClCompile Include="..\..\..\..\external\lua\tolua\tolua_map.c" />
     <ClCompile Include="..\..\..\..\external\lua\tolua\tolua_push.c" />
     <ClCompile Include="..\..\..\..\external\lua\tolua\tolua_to.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\lapi.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\lauxlib.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\lbaselib.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\lcode.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\ldblib.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\ldebug.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\ldo.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\ldump.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\lfunc.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\lgc.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\linit.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\liolib.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\llex.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\lmathlib.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\lmem.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\loadlib.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\lobject.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\lopcodes.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\loslib.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\lparser.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\lstate.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\lstring.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\lstrlib.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\ltable.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\ltablib.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\ltm.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\lundump.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\lvm.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\lzio.c" />
+    <ClCompile Include="..\..\..\..\external\lua\lua\print.c" />
     <ClCompile Include="..\..\..\..\external\pbc-master\binding\lua\pbc-lua.c" />
     <ClCompile Include="..\..\..\..\external\xxtea\xxtea.cpp" />
     <ClCompile Include="..\auto\lua_cocos2dx_3d_auto.cpp" />
@@ -92,10 +122,10 @@
     <ClCompile Include="..\manual\ui\lua_cocos2dx_ui_manual.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\external\lua\luajit\include\lauxlib.h" />
-    <ClInclude Include="..\..\..\..\external\lua\luajit\include\lua.h" />
-    <ClInclude Include="..\..\..\..\external\lua\luajit\include\luaconf.h" />
-    <ClInclude Include="..\..\..\..\external\lua\luajit\include\lualib.h" />
+    <ClInclude Include="..\..\..\..\external\lua\lua\lauxlib.h" />
+    <ClInclude Include="..\..\..\..\external\lua\lua\lua.h" />
+    <ClInclude Include="..\..\..\..\external\lua\lua\luaconf.h" />
+    <ClInclude Include="..\..\..\..\external\lua\lua\lualib.h" />
     <ClInclude Include="..\..\..\..\external\lua\luasocket\auxiliar.h" />
     <ClInclude Include="..\..\..\..\external\lua\luasocket\buffer.h" />
     <ClInclude Include="..\..\..\..\external\lua\luasocket\except.h" />
@@ -303,7 +333,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(EngineRoot);$(EngineRoot)external;$(EngineRoot)external\lua;$(EngineRoot)external\lua\tolua;$(EngineRoot)external\lua\luajit\include;$(EngineRoot)external\libwebsockets\win32\include;$(EngineRoot)extensions;$(EngineRoot)external\bullet\include;$(EngineRoot)external\bullet\include\bullet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(EngineRoot);$(EngineRoot)external;$(EngineRoot)external\lua;$(EngineRoot)external\lua\tolua;$(EngineRoot)external\lua\lua;$(EngineRoot)external\libwebsockets\win32\include;$(EngineRoot)extensions;$(EngineRoot)external\bullet\include;$(EngineRoot)external\bullet\include\bullet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;COCOS2D_DEBUG=1;_CRT_SECURE_NO_WARNINGS;_USRLUASTATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -328,14 +358,14 @@
     </PreLinkEvent>
     <PreBuildEvent>
       <Command>if not exist "$(OutDir)" mkdir "$(OutDir)"
-xcopy /Y /Q "$(ProjectDir)..\..\..\..\external\lua\luajit\prebuilt\win32\*.*" "$(OutDir)"</Command>
+rem Native Lua is compiled from source, no prebuilt DLL to copy</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <Optimization>MinSpace</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(EngineRoot);$(EngineRoot)cocos;$(EngineRoot)external\lua\tolua;$(EngineRoot)external\lua\luajit\include;$(EngineRoot)external\lua;$(EngineRoot)extensions;$(EngineRoot)external\libwebsockets\win32\include;$(EngineRoot)external;$(EngineRoot)external\bullet\include;$(EngineRoot)external\bullet\include\bullet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(EngineRoot);$(EngineRoot)cocos;$(EngineRoot)external\lua\tolua;$(EngineRoot)external\lua\lua;$(EngineRoot)external\lua;$(EngineRoot)extensions;$(EngineRoot)external\libwebsockets\win32\include;$(EngineRoot)external;$(EngineRoot)external\bullet\include;$(EngineRoot)external\bullet\include\bullet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;LIBLUA_EXPORTS;_CRT_SECURE_NO_WARNINGS;_USRLUASTATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -360,7 +390,7 @@ xcopy /Y /Q "$(ProjectDir)..\..\..\..\external\lua\luajit\prebuilt\win32\*.*" "$
     </PreLinkEvent>
     <PreBuildEvent>
       <Command>if not exist "$(OutDir)" mkdir "$(OutDir)"
-xcopy /Y /Q "$(ProjectDir)..\..\..\..\external\lua\luajit\prebuilt\win32\*.*" "$(OutDir)"</Command>
+rem Native Lua is compiled from source, no prebuilt DLL to copy</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

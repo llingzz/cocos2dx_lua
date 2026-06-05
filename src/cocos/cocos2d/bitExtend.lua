@@ -91,6 +91,40 @@ function bit._or(a,b)
     return bit._b2d(r)
 end
 
+function bit._xor(a,b)
+    local op1=bit._d2b(a)
+    local op2=bit._d2b(b)
+    local r={}
+
+    for i=1,32 do
+        if op1[i] ~= op2[i]  then
+            r[i]=1
+        else
+            r[i]=0
+        end
+    end
+    return bit._b2d(r)
+end
+
+function bit._lshift(a,n)
+    local op1=bit._d2b(a)
+    n = n <= 32 and n or 32
+    n = n >= 0 and n or 0
+
+    for i=1, 32-n do
+        op1[i] = op1[i+n]
+    end
+    for i=32-n+1, 32 do
+        op1[i] = 0
+    end
+
+    return bit._b2d(op1)
+end
+
+-- LuaJIT built-in bit module compat: use native C impl if available, otherwise pure Lua fallback
 bit.band   = bit.band or bit._and
-bit.rshift = bit.rshift or bit._rshift
+bit.bor    = bit.bor or bit._or
+bit.bxor   = bit.bxor or bit._xor
 bit.bnot   = bit.bnot or bit._not
+bit.lshift = bit.lshift or bit._lshift
+bit.rshift = bit.rshift or bit._rshift

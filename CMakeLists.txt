@@ -56,7 +56,7 @@ include_directories(
         ${RUNTIME_SRC_ROOT}/Classes
         ${COCOS2DX_ROOT_PATH}/cocos/scripting/lua-bindings/auto
         ${COCOS2DX_ROOT_PATH}/cocos/scripting/lua-bindings/manual
-        ${COCOS2DX_ROOT_PATH}/external/lua/luajit/include
+        ${COCOS2DX_ROOT_PATH}/external/lua/lua
         ${COCOS2DX_ROOT_PATH}/external/lua/tolua
         ${COCOS2DX_ROOT_PATH}/tools/simulator/libsimulator/lib
 )
