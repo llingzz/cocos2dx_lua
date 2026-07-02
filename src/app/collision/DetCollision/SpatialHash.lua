@@ -5,6 +5,7 @@
 ------------------------------------------------------------------------
 
 local Shape = require("app.collision.DetCollision.Shape")
+local OrderedTable = require("app.tools.OrderedTable")
 
 local floor = math.floor
 
@@ -19,8 +20,8 @@ SpatialHash.__index = SpatialHash
 function SpatialHash.new(cellSize)
     local self = setmetatable({}, SpatialHash)
     self.cellSize = cellSize
-    self.cells = {}       -- key: "cx,cy" → list of {id, shape}
-    self.objectCells = {} -- id → list of cell keys (for fast removal)
+    self.cells = OrderedTable:new()  -- key → list of {id, shape} (deterministic iteration)
+    self.objectCells = {}            -- id → list of cell keys (for fast removal)
     return self
 end
 
@@ -42,7 +43,7 @@ end
 -- Clear all objects from the grid.
 ------------------------------------------------------------------------
 function SpatialHash:clear()
-    self.cells = {}
+    self.cells:clear()
     self.objectCells = {}
 end
 
@@ -65,10 +66,10 @@ function SpatialHash:insert(id, shape)
     for gx = cellMinX, cellMaxX do
         for gy = cellMinY, cellMaxY do
             local key = cellKey(gx, gy)
-            local cell = self.cells[key]
+            local cell = self.cells:get(key)
             if not cell then
                 cell = {}
-                self.cells[key] = cell
+                self.cells:set(key, cell)
             end
             cell[#cell + 1] = entry
             keys[#keys + 1] = key
@@ -86,7 +87,7 @@ function SpatialHash:remove(id)
     if not keys then return end
 
     for i = 1, #keys do
-        local cell = self.cells[keys[i]]
+        local cell = self.cells:get(keys[i])
         if cell then
             for j = #cell, 1, -1 do
                 if cell[j].id == id then
@@ -118,7 +119,7 @@ function SpatialHash:queryPairs()
     local pairs_res = {}
     local seen = {}
 
-    for _, cell in pairs(self.cells) do
+    for _, cell in self.cells:pairs() do
         local n = #cell
         if n > 1 then
             for i = 1, n - 1 do
@@ -165,7 +166,7 @@ function SpatialHash:queryShape(shape)
     for gx = cellMinX, cellMaxX do
         for gy = cellMinY, cellMaxY do
             local key = cellKey(gx, gy)
-            local cell = self.cells[key]
+            local cell = self.cells:get(key)
             if cell then
                 for i = 1, #cell do
                     local entry = cell[i]
@@ -197,7 +198,7 @@ function SpatialHash:queryRegion(minX, minY, maxX, maxY)
     for gx = cellMinX, cellMaxX do
         for gy = cellMinY, cellMaxY do
             local key = cellKey(gx, gy)
-            local cell = self.cells[key]
+            local cell = self.cells:get(key)
             if cell then
                 for i = 1, #cell do
                     local entry = cell[i]

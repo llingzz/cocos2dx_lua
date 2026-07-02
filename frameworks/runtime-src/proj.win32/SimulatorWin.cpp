@@ -389,7 +389,6 @@ int SimulatorWin::run()
 
     // path for looking Lang file, Studio Default images
     FileUtils::getInstance()->addSearchPath(getApplicationPath().c_str());
-    UserDefault::getInstance()->setIntegerForKey("constuserid", _project.getConstUserId());
 
 #if SIMULATOR_WITH_CONSOLE_AND_MENU > 0
     // init player services

@@ -65,11 +65,6 @@ function SceneMain:ctor()
     --     end,0)
     -- end,0)
 
-    -- local test = require("src.app.collision.DetCollision.test_det_collision")
-    -- local s = 1
-    -- local demo = require("src.app.collision.DetCollision.DetCollisionDemo")
-    -- demo:runDetCollisionDemo(self)
-
     local mapLayer = require("src.app.modules.map.LayerMap")
     self.layerMap = mapLayer:create()
     self.layerMap:addTo(self,-1)
@@ -107,28 +102,38 @@ function SceneMain:ctor()
     :setFontSize(30)
     :setPosition(cc.p(0, display.top-15))
     :setAnchorPoint(cc.p(0, 0.5))
-    :setVisible(false)
+    :setVisible(true)
     self.frameInfo = ccui.Text:create():setString("frame:0"):addTo(self)
     :setFontSize(30)
     :setPosition(cc.p(0, display.top-45))
     :setAnchorPoint(cc.p(0, 0.5))
     :setVisible(self.begin)
 
+    local wallThickness = 100
     self.colBodies = OrderedTable:new()
     local FM = DetCollisionSystem.FixedMath
-    self.colSys = DetCollisionSystem.System.new({broadPhase = "quadtree", worldBounds = {0, 0, FM.fromFloat(display.width), FM.fromFloat(display.height)}})
-    local wall = DetCollisionSystem.Shape.newAABB(FM.fromFloat(display.cx), FM.fromFloat(display.cy), FM.fromFloat(display.cx), FM.fromFloat(display.cy))
-    self.colSys:addBody(0, wall, DetCollisionSystem.System.GROUP_WALL, DetCollisionSystem.System.MASK_ALL)
+    self.colSys = DetCollisionSystem.System.new({broadPhase = "quadtree", worldBounds = {0, 0, FM.fromFloat(display.width+wallThickness*2), FM.fromFloat(display.height+wallThickness*2)}})
+    local topWall = DetCollisionSystem.Shape.newAABB(FM.fromFloat(display.cx), FM.fromFloat(display.height+wallThickness/2), FM.fromFloat(display.cx), FM.fromFloat(wallThickness/2))
+    self.colSys:addBody(0, topWall, DetCollisionSystem.System.GROUP_WALL, DetCollisionSystem.System.MASK_ALL)
     self.colBodies:set(0,self.layerMap)
-    self.colSys:onCollision(function(idA, idB, mtvX, mtvY)
+    local bottomWall = DetCollisionSystem.Shape.newAABB(FM.fromFloat(display.cx), FM.fromFloat(-wallThickness/2), FM.fromFloat(display.cx), FM.fromFloat(wallThickness/2))
+    self.colSys:addBody(1, bottomWall, DetCollisionSystem.System.GROUP_WALL, DetCollisionSystem.System.MASK_ALL)
+    self.colBodies:set(1,self.layerMap)
+    local leftWall = DetCollisionSystem.Shape.newAABB(FM.fromFloat(-wallThickness/2), FM.fromFloat(display.cy), FM.fromFloat(wallThickness/2), FM.fromFloat(display.cy))
+    self.colSys:addBody(2, leftWall, DetCollisionSystem.System.GROUP_WALL, DetCollisionSystem.System.MASK_ALL)
+    self.colBodies:set(2,self.layerMap)
+    local rightWall = DetCollisionSystem.Shape.newAABB(FM.fromFloat(display.width+wallThickness/2), FM.fromFloat(display.cy), FM.fromFloat(wallThickness/2), FM.fromFloat(display.cy))
+    self.colSys:addBody(3, rightWall, DetCollisionSystem.System.GROUP_WALL, DetCollisionSystem.System.MASK_ALL)
+    self.colBodies:set(3,self.layerMap)
+    self.colSys:onCollision(function(idA, idB, INlogicFrameId)
         if not self.colBodies then return end
         local bodyA = self.colBodies:get(idA)
         local bodyB = self.colBodies:get(idB)
         if bodyA and bodyB then
-            if bodyA.onCollison then bodyA:onCollison(bodyB) end
-            if bodyB.onCollison then bodyB:onCollison(bodyA) end
+            if bodyA.onCollison then bodyA:onCollison(bodyB,INlogicFrameId) end
+            if bodyB.onCollison then bodyB:onCollison(bodyA,INlogicFrameId) end
         end
-        --print(string.format("[Collision] %s <-> %s  MTV:(%d, %d)", tostring(idA), tostring(idB), mtvX, mtvY))
+        --print(string.format("[Collision] %s <-> %s  FrameID:%d", tostring(idA), tostring(idB), INlogicFrameId))
     end)
 end
 
@@ -642,7 +647,7 @@ function SceneMain:tickLogic(dt)
         end
     end
 
-    self.colSys:step()
+    self.colSys:step(self.syncFrameId)
     if self.syncFrameId % self.verifyInterval == 0 and self.syncFrameId > self.lastVerifyFrame then
         self:sendStateVerify(self.syncFrameId)
         self.lastVerifyFrame = self.syncFrameId
