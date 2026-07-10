@@ -107,15 +107,12 @@ message ope_move
 	required int32 movex = 1;
 	required int32 movey = 2;
 	required int32 turn = 3;
-	optional int32 fire = 4;
+	optional int32 barrel_rotation = 5;
 }
+
 message ope_fire_bullet
 {
-	required int32 startposx = 1;
-	required int32 startposy = 2;
-	required int32 directionx = 3;
-	required int32 directiony = 4;
-	required int32 rotation = 5;
+	optional int32 fire = 1;
 }
 
 message ope_detail
@@ -137,6 +134,7 @@ message data_frame
 	optional int32 userid = 1;
 	optional int32 frameid = 2;
 	repeated ope_detail opecode = 3;
+	optional int32 barrel_rotation = 4;
 }
 
 message data_ope_frames

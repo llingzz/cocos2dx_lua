@@ -83,12 +83,10 @@ function SceneMain:ctor()
     -- 客户端同步过的帧号
     self.syncFrameId = 0
     self.inputsPending = OrderedTable:new()
-    -- 上次发射子弹的时间
-    self.lastFireTime = 0
-
-    -- 每30帧校验一次
-    self.verifyInterval = 30
-    self.lastVerifyFrame = 0
+    -- 上次发射子弹的帧号
+    self.lastFireFrameId = 0
+    -- 每STATE_VERIFY_FRAME_INTERVAL帧校验一次
+    self.lastVerifyFrameId = 0
 
     local keyBoardListener = cc.EventListenerKeyboard:create()
     keyBoardListener:registerScriptHandler(handler(self,self.onKeyEventPressed), cc.Handler.EVENT_KEYBOARD_PRESSED)
@@ -96,16 +94,20 @@ function SceneMain:ctor()
     local eventDispatcher = self:getEventDispatcher()
     eventDispatcher:addEventListenerWithSceneGraphPriority(keyBoardListener, self)
 
+    local mouseListener = cc.EventListenerMouse:create()
+    mouseListener:registerScriptHandler(handler(self,self.onMouseEventMove), cc.Handler.EVENT_MOUSE_MOVE)
+    eventDispatcher:addEventListenerWithSceneGraphPriority(mouseListener, self)
+
     self:scheduleUpdate(handler(self,self.update))
     self.tickPing = Scheduler:scheduleGlobal(handler(self,self.ping),0.5)
-    self.txLag = ccui.Text:create():setString("ping:..."):addTo(self)
+    self.txLag = ccui.Text:create():setString(""):addTo(self)
     :setFontSize(30)
-    :setPosition(cc.p(0, display.top-15))
-    :setAnchorPoint(cc.p(0, 0.5))
+    :setPosition(cc.p(display.width, display.top-15))
+    :setAnchorPoint(cc.p(1, 0.5))
     :setVisible(true)
     self.frameInfo = ccui.Text:create():setString("frame:0"):addTo(self)
     :setFontSize(30)
-    :setPosition(cc.p(0, display.top-45))
+    :setPosition(cc.p(0, display.top-15))
     :setAnchorPoint(cc.p(0, 0.5))
     :setVisible(self.begin)
 
@@ -229,7 +231,9 @@ function SceneMain:onEventData(INdata)
                 })
                 self:sendData(protobuf.enum_id("pb_common.protocol_code","protocol_join_room"),pData)
             else
+                self.roomid = dataInfo.roomid
                 self.syncFrameId = dataInfo.frameid
+                self.frameId = self.syncFrameId
                 for k,v in ipairs(dataInfo.begin.playerinfos) do
                     if not self.entities:get(v.userid) then self:createEntity(v) end
                     self.entities:get(v.userid):hide()
@@ -387,7 +391,7 @@ function SceneMain:ping()
         end
         self.tblPong = {}
         self.txLag:setVisible(true)
-        self.txLag:setString("ping:"..math.floor(total*1000/count).."ms")
+        self.txLag:setString(""..math.floor(total*1000/count).."ms")
     end
     self:sendUdpData(12,protobuf.encode('pb_common.data_ping', {
         userid = self.token,
@@ -424,36 +428,64 @@ function SceneMain:onKeyEventReleased(INkey,INrender)
     if self.entity then self.entity:getKeyboardEvent("onKeyEventReleased",INkey) end
 end
 
-function SceneMain:convertOpeCode(INopeCode,INpack)
+function SceneMain:onMouseEventMove(INevent)
+    if not self.begin then return end
+    local posCursor = cc.p(INevent:getCursorX(),INevent:getCursorY())
+    self.posCursor = posCursor
+end
+
+function SceneMain:convertOpeCode(INopeCode)
     local ahead, rotation, fire = 0, 0, 0
     if bit._and(INopeCode,0x01) > 0 then ahead = ahead + 1 end
     if bit._and(INopeCode,0x02) > 0 then ahead = ahead - 1 end
     if bit._and(INopeCode,0x04) > 0 then rotation = rotation - 1 end
     if bit._and(INopeCode,0x08) > 0 then rotation = rotation + 1 end
     local now = socket.gettime()
-    if bit._and(INopeCode,0x10) > 0 and now - self.lastFireTime > 0.3 then
-        self.lastFireTime = now
+    if bit._and(INopeCode,0x10) > 0 and self.frameId - self.lastFireFrameId >= FIRE_BULLET_FRAME_INTERVAL then
+        self.lastFireFrameId = self.frameId
         fire = 1
     end
+
+    -- 计算炮管的角度
+    local barrel_rotation = 0
+    if self.posCursor then
+        local posCursor = cc.pSub(self.posCursor,cc.p(self.entity:getPosition()))
+        local rotation = self.entity:getRotation()
+        local dir_entity = cc.p(math.sin(rotation*math.pi/180),math.cos(rotation*math.pi/180))
+        local dir_cursor = cc.pNormalize(posCursor)
+        local dot = dir_entity.x * dir_cursor.x + dir_entity.y * dir_cursor.y
+        local cross = dir_entity.x * dir_cursor.y - dir_entity.y * dir_cursor.x
+        -- math.atan2(cross, dot) 返回逆时针有符号弧度（-π ~ π）
+        local rad_ccw = math.atan2(cross, dot)
+        -- 顺时针角度 = 取反后归一化到 [0, 2π)
+        local rad_cw = (2 * math.pi - rad_ccw) % (2 * math.pi)
+        barrel_rotation = math.deg(rad_cw)
+    end
+
     local dir = cc.p(0,0)
     if ahead ~= 0 then
         local rotation = self.entity:getRotation() % 360
         dir = cc.pMul(cc.p(math.cos(rotation*math.pi/180),math.sin(rotation*math.pi/180)),ahead)
         dir = cc.pNormalize(dir)
     end
+    local resData = {}
     local ope_move = {
         movex = HelpTools:toFixed(dir.x*1000),
         movey = HelpTools:toFixed(dir.y*1000),
         turn = rotation,
+        barrel_rotation = barrel_rotation
+    }
+    table.insert(resData,{
+        opetype = 1,
+        opestring = protobuf.encode('pb_common.ope_move', ope_move)
+    })
+    local ope_fire = {
         fire = fire
     }
-    local resData = {}
-    if INpack then
-        table.insert(resData,{
-            opetype = 1,
-            opestring = protobuf.encode('pb_common.ope_move', ope_move)
-        })
-    end
+    table.insert(resData,{
+        opetype = 2,
+        opestring = protobuf.encode('pb_common.ope_fire_bullet', ope_fire)
+    })
     return ope_move, resData
 end
 
@@ -468,12 +500,12 @@ function SceneMain:createEntity(data)
     self.entities:set(data.userid,entity)
 end
 
-function SceneMain:createBullet(INuserid,INframeid,INpos,INdata)
+function SceneMain:createBullet(INuserid,INframeid,INpos,INbirPos,INdata)
     local bulletId = INuserid*1000000+INframeid
     if not self.nodeBullets:get(bulletId) then
         local HandlerBullet = require "src.app.modules.map.NodeBullet"
         local bullet = HandlerBullet.new(bulletId,INuserid,INframeid,INpos,cc.p(INdata.directionx,INdata.directiony))
-        bullet:setPosition(cc.p(HelpTools:toFixed(INpos.x/NUMBER_SCALE), HelpTools:toFixed(INpos.y/NUMBER_SCALE)))
+        bullet:setPosition(cc.p(HelpTools:toFixed(INbirPos.x/NUMBER_SCALE), HelpTools:toFixed(INbirPos.y/NUMBER_SCALE)))
         bullet:setRotation(INdata.rotation)
         bullet:addTo(self)
         self.nodeBullets:set(bulletId,bullet)
@@ -525,6 +557,10 @@ function SceneMain:update(dt)
             local rotation = v:getRotation()
             local newRotation = HelpTools:lerp(rotation, v.logicInfo.rotation, ENTITY_ROTATE_SPEED*LOGIC_FPS*dt)
             v:setRotation(newRotation)
+            v:updateNodeUI(newRotation)
+            local barrel_rotation = v.barrel:getRotation()
+            local newBarrelRotation = HelpTools:lerp(barrel_rotation, v.logicInfo.barrel_rotation, ENTITY_ROTATE_SPEED*LOGIC_FPS*dt)
+            v.barrel:setRotation(newBarrelRotation)
         end
     end
     for k,v in self.nodeBullets:pairs() do
@@ -544,36 +580,34 @@ end
 function SceneMain:tickLogic(dt)
     if not self.begin then return end
     if self.isDisconnected then return end
-    self.frameId = self.frameId + 1
-    local opeCodes = self.entity:getOpeCode()
-    local ope_move, data = self:convertOpeCode(opeCodes,true)
-    local ret = self:sendUdpData(8,protobuf.encode('pb_common.data_ope', {
-        userid = self.token,
-        frameid = self.frameId,
-        opecode = data,
-        ackframeid = self.syncFrameId
-    }),false)
-    --if ret then HLog:printf(string.format("player packet loss frameid:%d opeCode:%d",self.frameId,opeCodes)) end
-    if not self.inputsPending:get(self.frameId) then self.inputsPending:set(self.frameId,{}) end
-    self.inputsPending:set(self.frameId,{
-        move=ope_move
-    })
-    if ope_move.turn ~= 0 then
-        self.entity.logicInfo.rotation = self.entity.logicInfo.rotation + ope_move.turn * ENTITY_ROTATE_SPEED
-    end
-    if ope_move.movex ~= 0 or ope_move.movey ~= 0 then
-        self.entity.logicInfo.pos.x = self.entity.logicInfo.pos.x + ENTITY_MOVE_SPEED * ope_move.movey
-        self.entity.logicInfo.pos.y = self.entity.logicInfo.pos.y + ENTITY_MOVE_SPEED * ope_move.movex
+
+    -- 预输入
+    if self.frameId < MAX_PREDICT_FRAME_COUNT or self.frameId - self.syncFrameId < MAX_PREDICT_FRAME_COUNT then
+        self.frameId = self.frameId + 1
+        local opeCodes = self.entity:getOpeCode()
+        local ope_move, data = self:convertOpeCode(opeCodes)
+        local ret = self:sendUdpData(8,protobuf.encode('pb_common.data_ope', {
+            userid = self.token,
+            frameid = self.frameId,
+            opecode = data,
+            ackframeid = self.syncFrameId
+        }),false)
+        --if ret then HLog:printf(string.format("player packet loss frameid:%d opeCode:%d",self.frameId,opeCodes)) end
+        if not self.inputsPending:get(self.frameId) then self.inputsPending:set(self.frameId,{}) end
+        self.inputsPending:set(self.frameId,{
+            move=ope_move
+        })
+        if ope_move.turn ~= 0 then
+            self.entity.logicInfo.rotation = self.entity.logicInfo.rotation + ope_move.turn * ENTITY_ROTATE_SPEED
+        end
+        if ope_move.movex ~= 0 or ope_move.movey ~= 0 then
+            self.entity.logicInfo.pos.x = self.entity.logicInfo.pos.x + ENTITY_MOVE_SPEED * ope_move.movey
+            self.entity.logicInfo.pos.y = self.entity.logicInfo.pos.y + ENTITY_MOVE_SPEED * ope_move.movex
+        end
     end
 
     while(self.serverFrames:get(self.syncFrameId+1)) do
         local frames = self.serverFrames:get(self.syncFrameId+1)
-        -- 保存所有实体的上一帧位置（用于扫掠碰撞检测）
-        for k, entity in self.entities:pairs() do
-            if entity and not tolua.isnull(entity) then
-                entity:savePrevLogicInfo()
-            end
-        end
         --if 0 == #frames then HLog:printf(string.format("frames empty frameid:%d",self.syncFrameId+1)) end
         for m=1,#frames do
             local v = frames[m]
@@ -587,13 +621,17 @@ function SceneMain:tickLogic(dt)
                         self.entity.logicInfo.pos.x = self.entity.logicInfo.pos.x + ENTITY_MOVE_SPEED * vv.movey
                         self.entity.logicInfo.pos.y = self.entity.logicInfo.pos.y + ENTITY_MOVE_SPEED * vv.movex
                         self.entity.logicInfo.rotation = self.entity.logicInfo.rotation + vv.turn * ENTITY_ROTATE_SPEED
-                        if vv.fire == 1 then
-                            local rotation = self.entity.logicInfo.rotation % 360
-                            local bdir = BulletRotationToSpeed[rotation]
-                            local originPos = cc.p(self.entity.logicInfo.pos.x+ENTITY_MOVE_SPEED * vv.movey, self.entity.logicInfo.pos.y+ENTITY_MOVE_SPEED * vv.movex+BULLET_INIT_OFFSET*NUMBER_SCALE)
-                            self:createBullet(v.userid,v.frameid,originPos,{directionx = bdir.x*NUMBER_SCALE, directiony = bdir.y*NUMBER_SCALE, rotation = rotation})
-                            --HLog:printf(string.format("fire at frame %05d, pos %d:%d dir %d:%d", v.frameid, originPos.x, originPos.y, bdir.x, bdir.y))
-                        end
+                        self.entity.logicInfo.barrel_rotation = vv.barrel_rotation
+                    elseif 2 == vv.opetype and vv.fire == 1 then
+                        local rotation = (self.entity.logicInfo.barrel_rotation + self.entity.logicInfo.rotation) % 360
+                        local bdir = BulletRotationToSpeed[rotation]
+                        local nbdir = cc.pNormalize(bdir)
+                        --local originPos = cc.p(self.entity.logicInfo.pos.x, self.entity.logicInfo.pos.y+BULLET_INIT_OFFSET*NUMBER_SCALE)
+                        local originPos = cc.pMul(cc.p(self.entity:getPosition()),NUMBER_SCALE)
+                        originPos = cc.pAdd(originPos,cc.pMul(nbdir,50*NUMBER_SCALE))
+                        local logicPos = cc.pAdd(self.entity.logicInfo.pos,cc.pMul(nbdir,50*NUMBER_SCALE))
+                        self:createBullet(v.userid,v.frameid,logicPos,originPos,{directionx = bdir.x*NUMBER_SCALE, directiony = bdir.y*NUMBER_SCALE, rotation = rotation})
+                        --HLog:printf(string.format("fire at frame %05d, pos %d:%d dir %d:%d", v.frameid, originPos.x, originPos.y, bdir.x, bdir.y))
                     end
                 end
                 self.entity.syncState.pos = cc.p(self.entity.logicInfo.pos.x, self.entity.logicInfo.pos.y)
@@ -619,13 +657,17 @@ function SceneMain:tickLogic(dt)
                             otherEntity.logicInfo.pos.x = otherEntity.logicInfo.pos.x + ENTITY_MOVE_SPEED * vv.movey
                             otherEntity.logicInfo.pos.y = otherEntity.logicInfo.pos.y + ENTITY_MOVE_SPEED * vv.movex
                             otherEntity.logicInfo.rotation = otherEntity.logicInfo.rotation + vv.turn * ENTITY_ROTATE_SPEED
-                            if vv.fire == 1 then
-                                local rotation = otherEntity.logicInfo.rotation % 360
-                                local bdir = BulletRotationToSpeed[rotation]
-                                local originPos = cc.p(otherEntity.logicInfo.pos.x+ENTITY_MOVE_SPEED * vv.movey, otherEntity.logicInfo.pos.y+ENTITY_MOVE_SPEED * vv.movex+BULLET_INIT_OFFSET*NUMBER_SCALE)
-                                self:createBullet(v.userid,v.frameid,originPos,{directionx = bdir.x*NUMBER_SCALE, directiony = bdir.y*NUMBER_SCALE, rotation = rotation})
-                                HLog:printf(string.format("fire at frame %05d, pos %d:%d dir %d:%d", v.frameid, originPos.x, originPos.y, bdir.x, bdir.y))
-                            end
+                            otherEntity.logicInfo.barrel_rotation = vv.barrel_rotation
+                        elseif 2 == vv.opetype and vv.fire == 1 then
+                            local rotation = (otherEntity.logicInfo.barrel_rotation + otherEntity.logicInfo.rotation) % 360
+                            local bdir = BulletRotationToSpeed[rotation]
+                            local nbdir = cc.pNormalize(bdir)
+                            --local originPos = cc.p(otherEntity.logicInfo.pos.x, otherEntity.logicInfo.pos.y+BULLET_INIT_OFFSET*NUMBER_SCALE)
+                            local originPos = cc.pMul(cc.p(otherEntity:getPosition()),NUMBER_SCALE)
+                            originPos = cc.pAdd(originPos,cc.pMul(nbdir,50*NUMBER_SCALE))
+                            local logicPos = cc.pAdd(otherEntity.logicInfo.pos,cc.pMul(nbdir,50*NUMBER_SCALE))
+                            self:createBullet(v.userid,v.frameid,logicPos,originPos,{directionx = bdir.x*NUMBER_SCALE, directiony = bdir.y*NUMBER_SCALE, rotation = rotation})
+                            --HLog:printf(string.format("fire at frame %05d, pos %d:%d dir %d:%d", v.frameid, originPos.x, originPos.y, bdir.x, bdir.y))
                         end
                     end
                     --HLog:printf(string.format("userid %d frame %d opecode %d logicPos %f:%f",v.userid,otherEntity.syncFrameId,v.opecode,otherEntity.logicInfo.pos.x,otherEntity.logicInfo.pos.y))
@@ -636,21 +678,22 @@ function SceneMain:tickLogic(dt)
         self.syncFrameId = self.syncFrameId + 1
         self.frameInfo:setVisible(self.begin)
         self.frameInfo:setString("frame:"..self.syncFrameId)
-    end
 
-    -- 更新所有子弹的碰撞形状到当前逻辑位置
-    for bulletId, v in self.nodeBullets:pairs() do
-        if v and not v.destroy and v._colShape then
-            local logicPos = v:getLogicPos(self.syncFrameId)
-            v._colShape.cx = DetCollisionSystem.FixedMath.fromFloat(HelpTools:toFixed(logicPos.x/NUMBER_SCALE))
-            v._colShape.cy = DetCollisionSystem.FixedMath.fromFloat(HelpTools:toFixed(logicPos.y/NUMBER_SCALE))
+        -- 更新所有子弹的碰撞形状到当前逻辑位置，更新碰撞检测
+        for bulletId, v in self.nodeBullets:pairs() do
+            if v and not v.destroy and v._colShape then
+                local logicPos = v:getLogicPos(self.syncFrameId)
+                v._colShape.cx = DetCollisionSystem.FixedMath.fromFloat(HelpTools:toFixed(logicPos.x/NUMBER_SCALE))
+                v._colShape.cy = DetCollisionSystem.FixedMath.fromFloat(HelpTools:toFixed(logicPos.y/NUMBER_SCALE))
+            end
         end
-    end
+        self.colSys:step(self.syncFrameId)
 
-    self.colSys:step(self.syncFrameId)
-    if self.syncFrameId % self.verifyInterval == 0 and self.syncFrameId > self.lastVerifyFrame then
-        self:sendStateVerify(self.syncFrameId)
-        self.lastVerifyFrame = self.syncFrameId
+        -- 定期校验状态
+        if self.syncFrameId % STATE_VERIFY_FRAME_INTERVAL == 0 and self.syncFrameId > self.lastVerifyFrameId then
+            self:sendStateVerify(self.syncFrameId)
+            self.lastVerifyFrameId = self.syncFrameId
+        end
     end
     --print(string.format("predict frame %d acked frameid %d syncPos %f:%f localPos %f:%f",self.frameId,self.syncFrameId,self.entity.syncState.pos.x,self.entity.syncState.pos.y,self.entity.logicInfo.pos.x,self.entity.logicInfo.pos.y))
 end
@@ -675,12 +718,6 @@ function SceneMain:fastForwardFrames()
     while self.serverFrames:get(self.syncFrameId + 1) do
         local frames = self.serverFrames:get(self.syncFrameId + 1)
         catchUpCount = catchUpCount + 1
-        -- 保存所有实体的上一帧位置（用于扫掠碰撞检测）
-        for k, entity in self.entities:pairs() do
-            if entity and not tolua.isnull(entity) then
-                entity:savePrevLogicInfo()
-            end
-        end
         for m = 1, #frames do
             local v = frames[m]
             local entity = self.entities:get(v.userid)
@@ -693,13 +730,17 @@ function SceneMain:fastForwardFrames()
                         entity.logicInfo.pos.x = entity.logicInfo.pos.x + ENTITY_MOVE_SPEED * cmd.movey
                         entity.logicInfo.pos.y = entity.logicInfo.pos.y + ENTITY_MOVE_SPEED * cmd.movex
                         entity.logicInfo.rotation = entity.logicInfo.rotation + cmd.turn * ENTITY_ROTATE_SPEED
-                        if cmd.fire == 1 then
-                            local rotation = entity.logicInfo.rotation % 360
-                            local bdir = BulletRotationToSpeed[rotation]
-                            local originPos = cc.p(entity.logicInfo.pos.x+ENTITY_MOVE_SPEED * cmd.movey, entity.logicInfo.pos.y+ENTITY_MOVE_SPEED * cmd.movex+BULLET_INIT_OFFSET*NUMBER_SCALE)
-                            self:createBullet(v.userid,v.frameid,originPos,{directionx = bdir.x*NUMBER_SCALE, directiony = bdir.y*NUMBER_SCALE, rotation = rotation})
-                            --HLog:printf(string.format("fire at frame %05d, pos %d:%d dir %d:%d", v.frameid, originPos.x, originPos.y, bdir.x, bdir.y))
-                        end
+                        entity.logicInfo.barrel_rotation = cmd.barrel_rotation
+                    elseif 2 == cmd.opetype and cmd.fire == 1 then
+                        local rotation = (entity.logicInfo.barrel_rotation + entity.logicInfo.rotation) % 360
+                        local bdir = BulletRotationToSpeed[rotation]
+                        local nbdir = cc.pNormalize(bdir)
+                        --local originPos = cc.p(entity.logicInfo.pos.x, entity.logicInfo.pos.y+BULLET_INIT_OFFSET*NUMBER_SCALE)
+                        local originPos = cc.pMul(cc.p(entity:getPosition()),NUMBER_SCALE)
+                        originPos = cc.pAdd(originPos,cc.pMul(nbdir,50*NUMBER_SCALE))
+                        local logicPos = cc.pAdd(entity.logicInfo.pos,cc.pMul(nbdir,50*NUMBER_SCALE))
+                        self:createBullet(v.userid,v.frameid,logicPos,originPos,{directionx = bdir.x*NUMBER_SCALE, directiony = bdir.y*NUMBER_SCALE, rotation = rotation})
+                        --HLog:printf(string.format("fire at frame %05d, pos %d:%d dir %d:%d", v.frameid, originPos.x, originPos.y, bdir.x, bdir.y))
                     end
                 end
                 -- 同步状态

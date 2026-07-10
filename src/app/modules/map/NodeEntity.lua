@@ -10,22 +10,23 @@ function NodeEntity:ctor(INparent,INoriginPos)
     self.parent = INparent
     self.ahead = 0
     self.rotation = 0
-    self.entity = display.newSprite("res/entity.png")
-    self.entity:addTo(self)
+    self.base = display.newSprite("res/entity.png")
+    self.base:addTo(self)
+    self.barrel = display.newSprite("res/barrel.png")
+    self.barrel:setAnchorPoint(cc.p(0.5,0))
+    self.barrel:addTo(self)
+    self.barrel:setPosition(cc.p(0,0))
     self.opeCode = 0x00
     self.type = 1
     self.syncFrameId = 0
     self.logicInfo = {
         pos = cc.p(INoriginPos),
         rotation = 0,
-    }
-    self.prevLogicInfo = {
-        pos = cc.p(INoriginPos),
-        rotation = 0,
+        barrel_rotation = 0
     }
     self.syncState = {
         pos = cc.p(INoriginPos),
-        rotation = 0,
+        rotation = 0
     }
     self.width = 30
     self.height = 40
@@ -73,6 +74,16 @@ function NodeEntity:setToken(INtoken)
     :setPosition(cc.p(0, -self.height))
 end
 
+function NodeEntity:updateNodeUI(INrotation)
+    if not self.info then return end
+    local parentWorldPos = self:convertToWorldSpace(cc.p(0,0))
+    local worldOffset = cc.p(0, -self.height)
+    local targetWorldPos = cc.p(parentWorldPos.x + worldOffset.x, parentWorldPos.y + worldOffset.y)
+    local localPos = self:convertToNodeSpace(targetWorldPos)
+    self.info:setPosition(localPos)
+    self.info:setRotation(-1*INrotation)
+end
+
 function NodeEntity:setIndex(INindex)
     self.index = INindex or 0
 end
@@ -84,21 +95,6 @@ function NodeEntity:getLogicBounds()
         width = self.width,
         height = self.height
     }
-end
-
-function NodeEntity:getPrevLogicBounds()
-    return {
-        x = self.prevLogicInfo.pos.x,
-        y = self.prevLogicInfo.pos.y,
-        width = self.width,
-        height = self.height
-    }
-end
-
-function NodeEntity:savePrevLogicInfo()
-    self.prevLogicInfo.pos.x = self.logicInfo.pos.x
-    self.prevLogicInfo.pos.y = self.logicInfo.pos.y
-    self.prevLogicInfo.rotation = self.logicInfo.rotation
 end
 
 return NodeEntity

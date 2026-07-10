@@ -21,7 +21,7 @@ time_t getMs() {
     return tmp.count();
 }
 static
-int room_player_count = 2;
+int room_player_count = 1;
 
 using asio::ip::tcp;
 class session : public std::enable_shared_from_this<session> {
@@ -331,19 +331,19 @@ public:
         if (frame_sync[userid] < frame.ackframeid()) {
             frame_sync[userid] = frame.ackframeid();
         }
-        std::string strLog = "";
-        for (const auto& iter : frame.opecode()) {
-            if (1 == iter.opetype()) {
-				pb_common::ope_move move;
-				move.ParseFromString(iter.opestring());
-			}
-			else if (2 == iter.opetype()) {
-                pb_common::ope_fire_bullet fire;
-                fire.ParseFromString(iter.opestring());
-            }
-            strLog += std::to_string(iter.opetype());
-            strLog += ":";
-        }
+        //std::string strLog = "";
+   //     for (const auto& iter : frame.opecode()) {
+   //         if (1 == iter.opetype()) {
+			//	pb_common::ope_move move;
+			//	move.ParseFromString(iter.opestring());
+			//}
+			//else if (2 == iter.opetype()) {
+   //             pb_common::ope_fire_bullet fire;
+   //             fire.ParseFromString(iter.opestring());
+   //         }
+   //         //strLog += std::to_string(iter.opetype());
+   //         //strLog += ":";
+   //     }
         //spdlog::info("[recv] frameid_svr {} userid {} frameid:opecode {}:{} acked_frameid {}", currentFrame, userid, frameid, strLog.c_str(), frame.ackframeid());
         frames_[currentFrame][userid].insert(std::make_pair(frameid, frame));
     }
@@ -366,7 +366,7 @@ public:
         if (matched) {
             // 广播校验通过
             //broadcastVerifyResult(frameId, true, "");
-            //printf("frameid %04d verify success.\n", frameid);
+            printf("frameid %04d hashcode %s verify success.\n", frameid, firstHash.c_str());
         }
         else {
             //// 广播校验失败，触发重同步
@@ -377,7 +377,14 @@ public:
             //broadcastVerifyResult(frameId, false, info);
             //// 可选：请求权威状态或踢出不一致的客户端
             //requestResync(frameId);
-            printf("frameid %04d verify failed.\n", frameid);
+            string strHashFailed = "";
+            for (auto& iter : data) {
+                strHashFailed += to_string(iter.first);
+                strHashFailed += std::string(":");
+                strHashFailed += std::string(iter.second);
+                strHashFailed += std::string(" ");
+            }
+            printf("frameid %04d verify failed info %s.\n", frameid, strHashFailed.c_str());
         }
 
         data.erase(frameid);
@@ -727,29 +734,19 @@ void gameroom::start_game(gameserver* pServer, int playercount) {
     if (game_start) {
         std::lock_guard<std::mutex> lk(lock_frames);
         if (frame_sync.size() < playercount) { return; }
-		auto ms = getMs();
         int frameid = currentFrame++;
         for (auto& it : m_mapPlayer) {
-            std::string strLog = "";
             int userid = it.second->m_userid;
             pb_common::data_frames frames;
             auto begin_frame = frame_sync[userid] < 0 ? 0 : frame_sync[userid];
             for (auto i = begin_frame+1; i <= frameid; ++i) {
                 auto frame = frames.add_frames();
                 frame->set_frameid(i);
-                // 服务端帧号#玩家id:<上报帧号:操作|...>&玩家id:<上报帧号:操作|...>+
-                strLog += std::to_string(i);
-                strLog += std::string("#");
                 if (frames_.find(i) != frames_.end()) {
                     for (auto& iter : frames_[i]) {
-                        strLog += std::to_string(iter.first);
-                        strLog += std::string(":");
                         auto user_frame = frame->add_frames();
                         if (user_frame) {
                             for (auto& it : iter.second) {
-                                std::string strSub = "<";
-                                strSub += std::to_string(it.first);
-                                strSub += std::string(":");
                                 user_frame->set_userid(iter.first);
                                 user_frame->set_frameid(it.first);
                                 for (auto& itIn : it.second.opecode()) {
@@ -757,12 +754,8 @@ void gameroom::start_game(gameserver* pServer, int playercount) {
                                     if (opecode) {
                                         opecode->set_opetype(itIn.opetype());
                                         opecode->set_opestring(itIn.opestring());
-                                        strSub += std::to_string(itIn.opetype());
-                                        strSub += std::string("|");
                                     }
                                 }
-                                strLog += strSub.substr(0, strSub.size() - 1);
-                                strLog += std::string(">");
                             }
                         }
                     }
@@ -771,14 +764,6 @@ void gameroom::start_game(gameserver* pServer, int playercount) {
             bool pkLoss = (rand() % 5) == 0 && false;
             if (!pkLoss) {
                 pServer->udp_send(userid, pb_common::protocol_code::protocol_frame, frames.ByteSizeLong(), frames.SerializeAsString());
-            }
-            if (strLog != "") {
-                if (!pkLoss) {
-                    //spdlog::info("[send] userid {} frameinfo {}", userid, strLog.c_str());
-                }
-                else {
-                    //spdlog::info("[send] !!loss!! server send to userid {} frame info {}", userid, strLog.c_str());
-                }
             }
         }
     }

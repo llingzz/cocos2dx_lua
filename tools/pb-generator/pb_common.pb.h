@@ -358,7 +358,7 @@ class ope_move final :
     kMovexFieldNumber = 1,
     kMoveyFieldNumber = 2,
     kTurnFieldNumber = 3,
-    kFireFieldNumber = 4,
+    kBarrelRotationFieldNumber = 5,
   };
   // required int32 movex = 1;
   bool has_movex() const;
@@ -393,15 +393,15 @@ class ope_move final :
   void _internal_set_turn(::int32_t value);
 
   public:
-  // optional int32 fire = 4;
-  bool has_fire() const;
-  void clear_fire() ;
-  ::int32_t fire() const;
-  void set_fire(::int32_t value);
+  // optional int32 barrel_rotation = 5;
+  bool has_barrel_rotation() const;
+  void clear_barrel_rotation() ;
+  ::int32_t barrel_rotation() const;
+  void set_barrel_rotation(::int32_t value);
 
   private:
-  ::int32_t _internal_fire() const;
-  void _internal_set_fire(::int32_t value);
+  ::int32_t _internal_barrel_rotation() const;
+  void _internal_set_barrel_rotation(::int32_t value);
 
   public:
   // @@protoc_insertion_point(class_scope:pb_common.ope_move)
@@ -410,7 +410,7 @@ class ope_move final :
 
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      2, 4, 0,
+      3, 4, 0,
       0, 2>
       _table_;
   friend class ::google::protobuf::MessageLite;
@@ -432,7 +432,7 @@ class ope_move final :
     ::int32_t movex_;
     ::int32_t movey_;
     ::int32_t turn_;
-    ::int32_t fire_;
+    ::int32_t barrel_rotation_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -571,65 +571,17 @@ class ope_fire_bullet final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kStartposxFieldNumber = 1,
-    kStartposyFieldNumber = 2,
-    kDirectionxFieldNumber = 3,
-    kDirectionyFieldNumber = 4,
-    kRotationFieldNumber = 5,
+    kFireFieldNumber = 1,
   };
-  // required int32 startposx = 1;
-  bool has_startposx() const;
-  void clear_startposx() ;
-  ::int32_t startposx() const;
-  void set_startposx(::int32_t value);
+  // optional int32 fire = 1;
+  bool has_fire() const;
+  void clear_fire() ;
+  ::int32_t fire() const;
+  void set_fire(::int32_t value);
 
   private:
-  ::int32_t _internal_startposx() const;
-  void _internal_set_startposx(::int32_t value);
-
-  public:
-  // required int32 startposy = 2;
-  bool has_startposy() const;
-  void clear_startposy() ;
-  ::int32_t startposy() const;
-  void set_startposy(::int32_t value);
-
-  private:
-  ::int32_t _internal_startposy() const;
-  void _internal_set_startposy(::int32_t value);
-
-  public:
-  // required int32 directionx = 3;
-  bool has_directionx() const;
-  void clear_directionx() ;
-  ::int32_t directionx() const;
-  void set_directionx(::int32_t value);
-
-  private:
-  ::int32_t _internal_directionx() const;
-  void _internal_set_directionx(::int32_t value);
-
-  public:
-  // required int32 directiony = 4;
-  bool has_directiony() const;
-  void clear_directiony() ;
-  ::int32_t directiony() const;
-  void set_directiony(::int32_t value);
-
-  private:
-  ::int32_t _internal_directiony() const;
-  void _internal_set_directiony(::int32_t value);
-
-  public:
-  // required int32 rotation = 5;
-  bool has_rotation() const;
-  void clear_rotation() ;
-  ::int32_t rotation() const;
-  void set_rotation(::int32_t value);
-
-  private:
-  ::int32_t _internal_rotation() const;
-  void _internal_set_rotation(::int32_t value);
+  ::int32_t _internal_fire() const;
+  void _internal_set_fire(::int32_t value);
 
   public:
   // @@protoc_insertion_point(class_scope:pb_common.ope_fire_bullet)
@@ -638,7 +590,7 @@ class ope_fire_bullet final :
 
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      3, 5, 0,
+      0, 1, 0,
       0, 2>
       _table_;
   friend class ::google::protobuf::MessageLite;
@@ -657,11 +609,7 @@ class ope_fire_bullet final :
                               ::google::protobuf::Arena* arena, const Impl_& from);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     mutable ::google::protobuf::internal::CachedSize _cached_size_;
-    ::int32_t startposx_;
-    ::int32_t startposy_;
-    ::int32_t directionx_;
-    ::int32_t directiony_;
-    ::int32_t rotation_;
+    ::int32_t fire_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -4344,6 +4292,7 @@ class data_frame final :
     kOpecodeFieldNumber = 3,
     kUseridFieldNumber = 1,
     kFrameidFieldNumber = 2,
+    kBarrelRotationFieldNumber = 4,
   };
   // repeated .pb_common.ope_detail opecode = 3;
   int opecode_size() const;
@@ -4385,13 +4334,24 @@ class data_frame final :
   void _internal_set_frameid(::int32_t value);
 
   public:
+  // optional int32 barrel_rotation = 4;
+  bool has_barrel_rotation() const;
+  void clear_barrel_rotation() ;
+  ::int32_t barrel_rotation() const;
+  void set_barrel_rotation(::int32_t value);
+
+  private:
+  ::int32_t _internal_barrel_rotation() const;
+  void _internal_set_barrel_rotation(::int32_t value);
+
+  public:
   // @@protoc_insertion_point(class_scope:pb_common.data_frame)
  private:
   class _Internal;
 
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      2, 3, 1,
+      2, 4, 1,
       0, 2>
       _table_;
   friend class ::google::protobuf::MessageLite;
@@ -4413,6 +4373,7 @@ class data_frame final :
     ::google::protobuf::RepeatedPtrField< ::pb_common::ope_detail > opecode_;
     ::int32_t userid_;
     ::int32_t frameid_;
+    ::int32_t barrel_rotation_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -6559,176 +6520,64 @@ inline void ope_move::_internal_set_turn(::int32_t value) {
   _impl_.turn_ = value;
 }
 
-// optional int32 fire = 4;
-inline bool ope_move::has_fire() const {
+// optional int32 barrel_rotation = 5;
+inline bool ope_move::has_barrel_rotation() const {
   bool value = (_impl_._has_bits_[0] & 0x00000008u) != 0;
   return value;
 }
-inline void ope_move::clear_fire() {
+inline void ope_move::clear_barrel_rotation() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.fire_ = 0;
+  _impl_.barrel_rotation_ = 0;
   _impl_._has_bits_[0] &= ~0x00000008u;
 }
-inline ::int32_t ope_move::fire() const {
-  // @@protoc_insertion_point(field_get:pb_common.ope_move.fire)
-  return _internal_fire();
+inline ::int32_t ope_move::barrel_rotation() const {
+  // @@protoc_insertion_point(field_get:pb_common.ope_move.barrel_rotation)
+  return _internal_barrel_rotation();
 }
-inline void ope_move::set_fire(::int32_t value) {
-  _internal_set_fire(value);
-  // @@protoc_insertion_point(field_set:pb_common.ope_move.fire)
+inline void ope_move::set_barrel_rotation(::int32_t value) {
+  _internal_set_barrel_rotation(value);
+  // @@protoc_insertion_point(field_set:pb_common.ope_move.barrel_rotation)
 }
-inline ::int32_t ope_move::_internal_fire() const {
+inline ::int32_t ope_move::_internal_barrel_rotation() const {
   PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
-  return _impl_.fire_;
+  return _impl_.barrel_rotation_;
 }
-inline void ope_move::_internal_set_fire(::int32_t value) {
+inline void ope_move::_internal_set_barrel_rotation(::int32_t value) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   _impl_._has_bits_[0] |= 0x00000008u;
-  _impl_.fire_ = value;
+  _impl_.barrel_rotation_ = value;
 }
 
 // -------------------------------------------------------------------
 
 // ope_fire_bullet
 
-// required int32 startposx = 1;
-inline bool ope_fire_bullet::has_startposx() const {
+// optional int32 fire = 1;
+inline bool ope_fire_bullet::has_fire() const {
   bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
   return value;
 }
-inline void ope_fire_bullet::clear_startposx() {
+inline void ope_fire_bullet::clear_fire() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.startposx_ = 0;
+  _impl_.fire_ = 0;
   _impl_._has_bits_[0] &= ~0x00000001u;
 }
-inline ::int32_t ope_fire_bullet::startposx() const {
-  // @@protoc_insertion_point(field_get:pb_common.ope_fire_bullet.startposx)
-  return _internal_startposx();
+inline ::int32_t ope_fire_bullet::fire() const {
+  // @@protoc_insertion_point(field_get:pb_common.ope_fire_bullet.fire)
+  return _internal_fire();
 }
-inline void ope_fire_bullet::set_startposx(::int32_t value) {
-  _internal_set_startposx(value);
-  // @@protoc_insertion_point(field_set:pb_common.ope_fire_bullet.startposx)
+inline void ope_fire_bullet::set_fire(::int32_t value) {
+  _internal_set_fire(value);
+  // @@protoc_insertion_point(field_set:pb_common.ope_fire_bullet.fire)
 }
-inline ::int32_t ope_fire_bullet::_internal_startposx() const {
+inline ::int32_t ope_fire_bullet::_internal_fire() const {
   PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
-  return _impl_.startposx_;
+  return _impl_.fire_;
 }
-inline void ope_fire_bullet::_internal_set_startposx(::int32_t value) {
+inline void ope_fire_bullet::_internal_set_fire(::int32_t value) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   _impl_._has_bits_[0] |= 0x00000001u;
-  _impl_.startposx_ = value;
-}
-
-// required int32 startposy = 2;
-inline bool ope_fire_bullet::has_startposy() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
-  return value;
-}
-inline void ope_fire_bullet::clear_startposy() {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.startposy_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000002u;
-}
-inline ::int32_t ope_fire_bullet::startposy() const {
-  // @@protoc_insertion_point(field_get:pb_common.ope_fire_bullet.startposy)
-  return _internal_startposy();
-}
-inline void ope_fire_bullet::set_startposy(::int32_t value) {
-  _internal_set_startposy(value);
-  // @@protoc_insertion_point(field_set:pb_common.ope_fire_bullet.startposy)
-}
-inline ::int32_t ope_fire_bullet::_internal_startposy() const {
-  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
-  return _impl_.startposy_;
-}
-inline void ope_fire_bullet::_internal_set_startposy(::int32_t value) {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_._has_bits_[0] |= 0x00000002u;
-  _impl_.startposy_ = value;
-}
-
-// required int32 directionx = 3;
-inline bool ope_fire_bullet::has_directionx() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000004u) != 0;
-  return value;
-}
-inline void ope_fire_bullet::clear_directionx() {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.directionx_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000004u;
-}
-inline ::int32_t ope_fire_bullet::directionx() const {
-  // @@protoc_insertion_point(field_get:pb_common.ope_fire_bullet.directionx)
-  return _internal_directionx();
-}
-inline void ope_fire_bullet::set_directionx(::int32_t value) {
-  _internal_set_directionx(value);
-  // @@protoc_insertion_point(field_set:pb_common.ope_fire_bullet.directionx)
-}
-inline ::int32_t ope_fire_bullet::_internal_directionx() const {
-  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
-  return _impl_.directionx_;
-}
-inline void ope_fire_bullet::_internal_set_directionx(::int32_t value) {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_._has_bits_[0] |= 0x00000004u;
-  _impl_.directionx_ = value;
-}
-
-// required int32 directiony = 4;
-inline bool ope_fire_bullet::has_directiony() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000008u) != 0;
-  return value;
-}
-inline void ope_fire_bullet::clear_directiony() {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.directiony_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000008u;
-}
-inline ::int32_t ope_fire_bullet::directiony() const {
-  // @@protoc_insertion_point(field_get:pb_common.ope_fire_bullet.directiony)
-  return _internal_directiony();
-}
-inline void ope_fire_bullet::set_directiony(::int32_t value) {
-  _internal_set_directiony(value);
-  // @@protoc_insertion_point(field_set:pb_common.ope_fire_bullet.directiony)
-}
-inline ::int32_t ope_fire_bullet::_internal_directiony() const {
-  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
-  return _impl_.directiony_;
-}
-inline void ope_fire_bullet::_internal_set_directiony(::int32_t value) {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_._has_bits_[0] |= 0x00000008u;
-  _impl_.directiony_ = value;
-}
-
-// required int32 rotation = 5;
-inline bool ope_fire_bullet::has_rotation() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000010u) != 0;
-  return value;
-}
-inline void ope_fire_bullet::clear_rotation() {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.rotation_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000010u;
-}
-inline ::int32_t ope_fire_bullet::rotation() const {
-  // @@protoc_insertion_point(field_get:pb_common.ope_fire_bullet.rotation)
-  return _internal_rotation();
-}
-inline void ope_fire_bullet::set_rotation(::int32_t value) {
-  _internal_set_rotation(value);
-  // @@protoc_insertion_point(field_set:pb_common.ope_fire_bullet.rotation)
-}
-inline ::int32_t ope_fire_bullet::_internal_rotation() const {
-  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
-  return _impl_.rotation_;
-}
-inline void ope_fire_bullet::_internal_set_rotation(::int32_t value) {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_._has_bits_[0] |= 0x00000010u;
-  _impl_.rotation_ = value;
+  _impl_.fire_ = value;
 }
 
 // -------------------------------------------------------------------
@@ -7078,6 +6927,34 @@ inline ::google::protobuf::RepeatedPtrField<::pb_common::ope_detail>*
 data_frame::_internal_mutable_opecode() {
   PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
   return &_impl_.opecode_;
+}
+
+// optional int32 barrel_rotation = 4;
+inline bool data_frame::has_barrel_rotation() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000004u) != 0;
+  return value;
+}
+inline void data_frame::clear_barrel_rotation() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.barrel_rotation_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000004u;
+}
+inline ::int32_t data_frame::barrel_rotation() const {
+  // @@protoc_insertion_point(field_get:pb_common.data_frame.barrel_rotation)
+  return _internal_barrel_rotation();
+}
+inline void data_frame::set_barrel_rotation(::int32_t value) {
+  _internal_set_barrel_rotation(value);
+  // @@protoc_insertion_point(field_set:pb_common.data_frame.barrel_rotation)
+}
+inline ::int32_t data_frame::_internal_barrel_rotation() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.barrel_rotation_;
+}
+inline void data_frame::_internal_set_barrel_rotation(::int32_t value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_._has_bits_[0] |= 0x00000004u;
+  _impl_.barrel_rotation_ = value;
 }
 
 // -------------------------------------------------------------------

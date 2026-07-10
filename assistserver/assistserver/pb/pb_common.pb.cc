@@ -28,7 +28,7 @@ inline constexpr ope_move::Impl_::Impl_(
         movex_{0},
         movey_{0},
         turn_{0},
-        fire_{0} {}
+        barrel_rotation_{0} {}
 
 template <typename>
 PROTOBUF_CONSTEXPR ope_move::ope_move(::_pbi::ConstantInitialized)
@@ -47,11 +47,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr ope_fire_bullet::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
-        startposx_{0},
-        startposy_{0},
-        directionx_{0},
-        directiony_{0},
-        rotation_{0} {}
+        fire_{0} {}
 
 template <typename>
 PROTOBUF_CONSTEXPR ope_fire_bullet::ope_fire_bullet(::_pbi::ConstantInitialized)
@@ -450,7 +446,8 @@ inline constexpr data_frame::Impl_::Impl_(
       : _cached_size_{0},
         opecode_{},
         userid_{0},
-        frameid_{0} {}
+        frameid_{0},
+        barrel_rotation_{0} {}
 
 template <typename>
 PROTOBUF_CONSTEXPR data_frame::data_frame(::_pbi::ConstantInitialized)
@@ -725,7 +722,7 @@ const ::uint32_t TableStruct_pb_5fcommon_2eproto::offsets[] PROTOBUF_SECTION_VAR
     PROTOBUF_FIELD_OFFSET(::pb_common::ope_move, _impl_.movex_),
     PROTOBUF_FIELD_OFFSET(::pb_common::ope_move, _impl_.movey_),
     PROTOBUF_FIELD_OFFSET(::pb_common::ope_move, _impl_.turn_),
-    PROTOBUF_FIELD_OFFSET(::pb_common::ope_move, _impl_.fire_),
+    PROTOBUF_FIELD_OFFSET(::pb_common::ope_move, _impl_.barrel_rotation_),
     0,
     1,
     2,
@@ -738,16 +735,8 @@ const ::uint32_t TableStruct_pb_5fcommon_2eproto::offsets[] PROTOBUF_SECTION_VAR
     ~0u,  // no _inlined_string_donated_
     ~0u,  // no _split_
     ~0u,  // no sizeof(Split)
-    PROTOBUF_FIELD_OFFSET(::pb_common::ope_fire_bullet, _impl_.startposx_),
-    PROTOBUF_FIELD_OFFSET(::pb_common::ope_fire_bullet, _impl_.startposy_),
-    PROTOBUF_FIELD_OFFSET(::pb_common::ope_fire_bullet, _impl_.directionx_),
-    PROTOBUF_FIELD_OFFSET(::pb_common::ope_fire_bullet, _impl_.directiony_),
-    PROTOBUF_FIELD_OFFSET(::pb_common::ope_fire_bullet, _impl_.rotation_),
+    PROTOBUF_FIELD_OFFSET(::pb_common::ope_fire_bullet, _impl_.fire_),
     0,
-    1,
-    2,
-    3,
-    4,
     PROTOBUF_FIELD_OFFSET(::pb_common::ope_detail, _impl_._has_bits_),
     PROTOBUF_FIELD_OFFSET(::pb_common::ope_detail, _internal_metadata_),
     ~0u,  // no _extensions_
@@ -787,9 +776,11 @@ const ::uint32_t TableStruct_pb_5fcommon_2eproto::offsets[] PROTOBUF_SECTION_VAR
     PROTOBUF_FIELD_OFFSET(::pb_common::data_frame, _impl_.userid_),
     PROTOBUF_FIELD_OFFSET(::pb_common::data_frame, _impl_.frameid_),
     PROTOBUF_FIELD_OFFSET(::pb_common::data_frame, _impl_.opecode_),
+    PROTOBUF_FIELD_OFFSET(::pb_common::data_frame, _impl_.barrel_rotation_),
     0,
     1,
     ~0u,
+    2,
     PROTOBUF_FIELD_OFFSET(::pb_common::data_ope_frames, _impl_._has_bits_),
     PROTOBUF_FIELD_OFFSET(::pb_common::data_ope_frames, _internal_metadata_),
     ~0u,  // no _extensions_
@@ -929,20 +920,20 @@ static const ::_pbi::MigrationSchema
         {116, 126, -1, sizeof(::pb_common::data_player_info)},
         {128, 138, -1, sizeof(::pb_common::data_begin)},
         {140, 152, -1, sizeof(::pb_common::ope_move)},
-        {156, 169, -1, sizeof(::pb_common::ope_fire_bullet)},
-        {174, 184, -1, sizeof(::pb_common::ope_detail)},
-        {186, 198, -1, sizeof(::pb_common::data_ope)},
-        {202, 213, -1, sizeof(::pb_common::data_frame)},
-        {216, 226, -1, sizeof(::pb_common::data_ope_frames)},
-        {228, -1, -1, sizeof(::pb_common::data_frames)},
-        {237, 247, -1, sizeof(::pb_common::data_tcp_close)},
-        {249, 259, -1, sizeof(::pb_common::data_user_leave_room)},
-        {261, 271, -1, sizeof(::pb_common::data_user_leave_room_response)},
-        {273, 283, -1, sizeof(::pb_common::data_ping)},
-        {285, 295, -1, sizeof(::pb_common::data_pong)},
-        {297, 308, -1, sizeof(::pb_common::data_repair_frames)},
-        {311, 321, -1, sizeof(::pb_common::data_repair_frames_response)},
-        {323, 335, -1, sizeof(::pb_common::data_sync_verify)},
+        {156, 165, -1, sizeof(::pb_common::ope_fire_bullet)},
+        {166, 176, -1, sizeof(::pb_common::ope_detail)},
+        {178, 190, -1, sizeof(::pb_common::data_ope)},
+        {194, 206, -1, sizeof(::pb_common::data_frame)},
+        {210, 220, -1, sizeof(::pb_common::data_ope_frames)},
+        {222, -1, -1, sizeof(::pb_common::data_frames)},
+        {231, 241, -1, sizeof(::pb_common::data_tcp_close)},
+        {243, 253, -1, sizeof(::pb_common::data_user_leave_room)},
+        {255, 265, -1, sizeof(::pb_common::data_user_leave_room_response)},
+        {267, 277, -1, sizeof(::pb_common::data_ping)},
+        {279, 289, -1, sizeof(::pb_common::data_pong)},
+        {291, 302, -1, sizeof(::pb_common::data_repair_frames)},
+        {305, 315, -1, sizeof(::pb_common::data_repair_frames_response)},
+        {317, 329, -1, sizeof(::pb_common::data_sync_verify)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -993,54 +984,52 @@ const char descriptor_table_protodef_pb_5fcommon_2eproto[] PROTOBUF_SECTION_VARI
     "de\030\003 \001(\005J\004\010\004\020\t\"1\n\020data_player_info\022\016\n\006us"
     "erid\030\001 \001(\005\022\r\n\005index\030\002 \001(\005\"Q\n\ndata_begin\022"
     "\021\n\trand_seed\030\001 \001(\r\0220\n\013playerinfos\030\002 \003(\0132"
-    "\033.pb_common.data_player_info\"D\n\010ope_move"
+    "\033.pb_common.data_player_info\"O\n\010ope_move"
     "\022\r\n\005movex\030\001 \002(\005\022\r\n\005movey\030\002 \002(\005\022\014\n\004turn\030\003"
-    " \002(\005\022\014\n\004fire\030\004 \001(\005\"q\n\017ope_fire_bullet\022\021\n"
-    "\tstartposx\030\001 \002(\005\022\021\n\tstartposy\030\002 \002(\005\022\022\n\nd"
-    "irectionx\030\003 \002(\005\022\022\n\ndirectiony\030\004 \002(\005\022\020\n\010r"
-    "otation\030\005 \002(\005\"0\n\nope_detail\022\017\n\007opetype\030\001"
-    " \001(\005\022\021\n\topestring\030\002 \001(\014\"g\n\010data_ope\022\016\n\006u"
-    "serid\030\001 \001(\005\022\017\n\007frameid\030\002 \001(\005\022&\n\007opecode\030"
-    "\003 \003(\0132\025.pb_common.ope_detail\022\022\n\nackframe"
-    "id\030\004 \001(\005\"U\n\ndata_frame\022\016\n\006userid\030\001 \001(\005\022\017"
-    "\n\007frameid\030\002 \001(\005\022&\n\007opecode\030\003 \003(\0132\025.pb_co"
-    "mmon.ope_detail\"I\n\017data_ope_frames\022\017\n\007fr"
-    "ameid\030\001 \001(\005\022%\n\006frames\030\002 \003(\0132\025.pb_common."
-    "data_frame\"9\n\013data_frames\022*\n\006frames\030\001 \003("
-    "\0132\032.pb_common.data_ope_frames\"/\n\016data_tc"
-    "p_close\022\016\n\006userid\030\001 \001(\005\022\r\n\005token\030\002 \001(\005\"6"
-    "\n\024data_user_leave_room\022\016\n\006userid\030\001 \001(\005\022\016"
-    "\n\006roomid\030\002 \001(\005\"\?\n\035data_user_leave_room_r"
-    "esponse\022\016\n\006userid\030\001 \001(\005\022\016\n\006roomid\030\002 \001(\005\""
-    "(\n\tdata_ping\022\016\n\006userid\030\001 \001(\005\022\013\n\003idx\030\002 \001("
-    "\005\"(\n\tdata_pong\022\016\n\006userid\030\001 \001(\005\022\013\n\003idx\030\002 "
-    "\001(\005\"B\n\022data_repair_frames\022\016\n\006userid\030\001 \001("
-    "\005\022\016\n\006roomid\030\002 \001(\005\022\014\n\004flag\030\003 \001(\005\"W\n\033data_"
-    "repair_frames_response\022\014\n\004flag\030\001 \001(\005\022*\n\006"
-    "frames\030\002 \003(\0132\032.pb_common.data_ope_frames"
-    "\"V\n\020data_sync_verify\022\017\n\007frameid\030\001 \001(\005\022\021\n"
-    "\tstatehash\030\002 \001(\014\022\016\n\006roomid\030\003 \001(\005\022\016\n\006user"
-    "id\030\004 \001(\005*\377\003\n\rprotocol_code\022\025\n\021protocol_r"
-    "egister\020\001\022\036\n\032protocol_register_response\020"
-    "\002\022\026\n\022protocol_join_room\020\003\022\037\n\033protocol_jo"
-    "in_room_response\020\004\022\022\n\016protocol_ready\020\005\022\033"
-    "\n\027protocol_ready_response\020\006\022\022\n\016protocol_"
-    "begin\020\007\022\022\n\016protocol_frame\020\010\022\026\n\022protocol_"
-    "tcp_close\020\t\022\027\n\023protocol_leave_room\020\n\022 \n\034"
-    "protocol_leave_room_response\020\013\022\021\n\rprotoc"
-    "ol_ping\020\014\022\021\n\rprotocol_pong\020\r\022\032\n\026protocol"
-    "_repair_frames\020\016\022#\n\037protocol_repair_fram"
-    "es_response\020\017\022\022\n\016protocol_login\020\020\022\032\n\026pro"
-    "tocol_login_reponse\020\021\022\030\n\024protocol_sync_v"
-    "erify\020\022\022!\n\035protocol_sync_verify_response"
-    "\020\023**\n\010ope_type\022\013\n\007opeMove\020\001\022\021\n\ropeFireBu"
-    "llet\020\002"
+    " \002(\005\022\027\n\017barrel_rotation\030\005 \001(\005\"\037\n\017ope_fir"
+    "e_bullet\022\014\n\004fire\030\001 \001(\005\"0\n\nope_detail\022\017\n\007"
+    "opetype\030\001 \001(\005\022\021\n\topestring\030\002 \001(\014\"g\n\010data"
+    "_ope\022\016\n\006userid\030\001 \001(\005\022\017\n\007frameid\030\002 \001(\005\022&\n"
+    "\007opecode\030\003 \003(\0132\025.pb_common.ope_detail\022\022\n"
+    "\nackframeid\030\004 \001(\005\"n\n\ndata_frame\022\016\n\006useri"
+    "d\030\001 \001(\005\022\017\n\007frameid\030\002 \001(\005\022&\n\007opecode\030\003 \003("
+    "\0132\025.pb_common.ope_detail\022\027\n\017barrel_rotat"
+    "ion\030\004 \001(\005\"I\n\017data_ope_frames\022\017\n\007frameid\030"
+    "\001 \001(\005\022%\n\006frames\030\002 \003(\0132\025.pb_common.data_f"
+    "rame\"9\n\013data_frames\022*\n\006frames\030\001 \003(\0132\032.pb"
+    "_common.data_ope_frames\"/\n\016data_tcp_clos"
+    "e\022\016\n\006userid\030\001 \001(\005\022\r\n\005token\030\002 \001(\005\"6\n\024data"
+    "_user_leave_room\022\016\n\006userid\030\001 \001(\005\022\016\n\006room"
+    "id\030\002 \001(\005\"\?\n\035data_user_leave_room_respons"
+    "e\022\016\n\006userid\030\001 \001(\005\022\016\n\006roomid\030\002 \001(\005\"(\n\tdat"
+    "a_ping\022\016\n\006userid\030\001 \001(\005\022\013\n\003idx\030\002 \001(\005\"(\n\td"
+    "ata_pong\022\016\n\006userid\030\001 \001(\005\022\013\n\003idx\030\002 \001(\005\"B\n"
+    "\022data_repair_frames\022\016\n\006userid\030\001 \001(\005\022\016\n\006r"
+    "oomid\030\002 \001(\005\022\014\n\004flag\030\003 \001(\005\"W\n\033data_repair"
+    "_frames_response\022\014\n\004flag\030\001 \001(\005\022*\n\006frames"
+    "\030\002 \003(\0132\032.pb_common.data_ope_frames\"V\n\020da"
+    "ta_sync_verify\022\017\n\007frameid\030\001 \001(\005\022\021\n\tstate"
+    "hash\030\002 \001(\014\022\016\n\006roomid\030\003 \001(\005\022\016\n\006userid\030\004 \001"
+    "(\005*\377\003\n\rprotocol_code\022\025\n\021protocol_registe"
+    "r\020\001\022\036\n\032protocol_register_response\020\002\022\026\n\022p"
+    "rotocol_join_room\020\003\022\037\n\033protocol_join_roo"
+    "m_response\020\004\022\022\n\016protocol_ready\020\005\022\033\n\027prot"
+    "ocol_ready_response\020\006\022\022\n\016protocol_begin\020"
+    "\007\022\022\n\016protocol_frame\020\010\022\026\n\022protocol_tcp_cl"
+    "ose\020\t\022\027\n\023protocol_leave_room\020\n\022 \n\034protoc"
+    "ol_leave_room_response\020\013\022\021\n\rprotocol_pin"
+    "g\020\014\022\021\n\rprotocol_pong\020\r\022\032\n\026protocol_repai"
+    "r_frames\020\016\022#\n\037protocol_repair_frames_res"
+    "ponse\020\017\022\022\n\016protocol_login\020\020\022\032\n\026protocol_"
+    "login_reponse\020\021\022\030\n\024protocol_sync_verify\020"
+    "\022\022!\n\035protocol_sync_verify_response\020\023**\n\010"
+    "ope_type\022\013\n\007opeMove\020\001\022\021\n\ropeFireBullet\020\002"
 };
 static ::absl::once_flag descriptor_table_pb_5fcommon_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_pb_5fcommon_2eproto = {
     false,
     false,
-    2406,
+    2360,
     descriptor_table_protodef_pb_5fcommon_2eproto,
     "pb_common.proto",
     &descriptor_table_pb_5fcommon_2eproto_once,
@@ -3748,7 +3737,7 @@ class ope_move::_Internal {
   static void set_has_turn(HasBits* has_bits) {
     (*has_bits)[0] |= 4u;
   }
-  static void set_has_fire(HasBits* has_bits) {
+  static void set_has_barrel_rotation(HasBits* has_bits) {
     (*has_bits)[0] |= 8u;
   }
   static bool MissingRequiredFields(const HasBits& has_bits) {
@@ -3776,9 +3765,9 @@ inline void ope_move::SharedCtor(::_pb::Arena* arena) {
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, movex_),
            0,
-           offsetof(Impl_, fire_) -
+           offsetof(Impl_, barrel_rotation_) -
                offsetof(Impl_, movex_) +
-               sizeof(Impl_::fire_));
+               sizeof(Impl_::barrel_rotation_));
 }
 ope_move::~ope_move() {
   // @@protoc_insertion_point(destructor:pb_common.ope_move)
@@ -3800,8 +3789,8 @@ PROTOBUF_NOINLINE void ope_move::Clear() {
   cached_has_bits = _impl_._has_bits_[0];
   if (cached_has_bits & 0x0000000fu) {
     ::memset(&_impl_.movex_, 0, static_cast<::size_t>(
-        reinterpret_cast<char*>(&_impl_.fire_) -
-        reinterpret_cast<char*>(&_impl_.movex_)) + sizeof(_impl_.fire_));
+        reinterpret_cast<char*>(&_impl_.barrel_rotation_) -
+        reinterpret_cast<char*>(&_impl_.movex_)) + sizeof(_impl_.barrel_rotation_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -3815,13 +3804,13 @@ const char* ope_move::_InternalParse(
 
 
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 4, 0, 0, 2> ope_move::_table_ = {
+const ::_pbi::TcParseTable<3, 4, 0, 0, 2> ope_move::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(ope_move, _impl_._has_bits_),
     0, // no _extensions_
-    4, 24,  // max_field_number, fast_idx_mask
+    5, 56,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967280,  // skipmap
+    4294967272,  // skipmap
     offsetof(decltype(_table_), field_entries),
     4,  // num_field_entries
     0,  // num_aux_entries
@@ -3829,9 +3818,7 @@ const ::_pbi::TcParseTable<2, 4, 0, 0, 2> ope_move::_table_ = {
     &_ope_move_default_instance_._instance,
     ::_pbi::TcParser::GenericFallback,  // fallback
   }, {{
-    // optional int32 fire = 4;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(ope_move, _impl_.fire_), 3>(),
-     {32, 3, 0, PROTOBUF_FIELD_OFFSET(ope_move, _impl_.fire_)}},
+    {::_pbi::TcParser::MiniParse, {}},
     // required int32 movex = 1;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(ope_move, _impl_.movex_), 0>(),
      {8, 0, 0, PROTOBUF_FIELD_OFFSET(ope_move, _impl_.movex_)}},
@@ -3841,6 +3828,12 @@ const ::_pbi::TcParseTable<2, 4, 0, 0, 2> ope_move::_table_ = {
     // required int32 turn = 3;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(ope_move, _impl_.turn_), 2>(),
      {24, 2, 0, PROTOBUF_FIELD_OFFSET(ope_move, _impl_.turn_)}},
+    {::_pbi::TcParser::MiniParse, {}},
+    // optional int32 barrel_rotation = 5;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(ope_move, _impl_.barrel_rotation_), 3>(),
+     {40, 3, 0, PROTOBUF_FIELD_OFFSET(ope_move, _impl_.barrel_rotation_)}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
   }}, {{
     65535, 65535
   }}, {{
@@ -3853,8 +3846,8 @@ const ::_pbi::TcParseTable<2, 4, 0, 0, 2> ope_move::_table_ = {
     // required int32 turn = 3;
     {PROTOBUF_FIELD_OFFSET(ope_move, _impl_.turn_), _Internal::kHasBitsOffset + 2, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
-    // optional int32 fire = 4;
-    {PROTOBUF_FIELD_OFFSET(ope_move, _impl_.fire_), _Internal::kHasBitsOffset + 3, 0,
+    // optional int32 barrel_rotation = 5;
+    {PROTOBUF_FIELD_OFFSET(ope_move, _impl_.barrel_rotation_), _Internal::kHasBitsOffset + 3, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
   }},
   // no aux_entries
@@ -3891,11 +3884,11 @@ const ::_pbi::TcParseTable<2, 4, 0, 0, 2> ope_move::_table_ = {
             stream, this->_internal_turn(), target);
   }
 
-  // optional int32 fire = 4;
+  // optional int32 barrel_rotation = 5;
   if (cached_has_bits & 0x00000008u) {
     target = ::google::protobuf::internal::WireFormatLite::
-        WriteInt32ToArrayWithField<4>(
-            stream, this->_internal_fire(), target);
+        WriteInt32ToArrayWithField<5>(
+            stream, this->_internal_barrel_rotation(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -3936,10 +3929,10 @@ const ::_pbi::TcParseTable<2, 4, 0, 0, 2> ope_move::_table_ = {
     }
 
   }
-  // optional int32 fire = 4;
+  // optional int32 barrel_rotation = 5;
   if (cached_has_bits & 0x00000008u) {
     total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-        this->_internal_fire());
+        this->_internal_barrel_rotation());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
@@ -3973,7 +3966,7 @@ void ope_move::MergeImpl(::google::protobuf::Message& to_msg, const ::google::pr
       _this->_impl_.turn_ = from._impl_.turn_;
     }
     if (cached_has_bits & 0x00000008u) {
-      _this->_impl_.fire_ = from._impl_.fire_;
+      _this->_impl_.barrel_rotation_ = from._impl_.barrel_rotation_;
     }
     _this->_impl_._has_bits_[0] |= cached_has_bits;
   }
@@ -4002,8 +3995,8 @@ void ope_move::InternalSwap(ope_move* PROTOBUF_RESTRICT other) {
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
   ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(ope_move, _impl_.fire_)
-      + sizeof(ope_move::_impl_.fire_)
+      PROTOBUF_FIELD_OFFSET(ope_move, _impl_.barrel_rotation_)
+      + sizeof(ope_move::_impl_.barrel_rotation_)
       - PROTOBUF_FIELD_OFFSET(ope_move, _impl_.movex_)>(
           reinterpret_cast<char*>(&_impl_.movex_),
           reinterpret_cast<char*>(&other->_impl_.movex_));
@@ -4021,23 +4014,8 @@ class ope_fire_bullet::_Internal {
   using HasBits = decltype(std::declval<ope_fire_bullet>()._impl_._has_bits_);
   static constexpr ::int32_t kHasBitsOffset =
     8 * PROTOBUF_FIELD_OFFSET(ope_fire_bullet, _impl_._has_bits_);
-  static void set_has_startposx(HasBits* has_bits) {
+  static void set_has_fire(HasBits* has_bits) {
     (*has_bits)[0] |= 1u;
-  }
-  static void set_has_startposy(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
-  static void set_has_directionx(HasBits* has_bits) {
-    (*has_bits)[0] |= 4u;
-  }
-  static void set_has_directiony(HasBits* has_bits) {
-    (*has_bits)[0] |= 8u;
-  }
-  static void set_has_rotation(HasBits* has_bits) {
-    (*has_bits)[0] |= 16u;
-  }
-  static bool MissingRequiredFields(const HasBits& has_bits) {
-    return ((has_bits[0] & 0x0000001f) ^ 0x0000001f) != 0;
   }
 };
 
@@ -4058,12 +4036,7 @@ inline PROTOBUF_NDEBUG_INLINE ope_fire_bullet::Impl_::Impl_(
 
 inline void ope_fire_bullet::SharedCtor(::_pb::Arena* arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
-  ::memset(reinterpret_cast<char *>(&_impl_) +
-               offsetof(Impl_, startposx_),
-           0,
-           offsetof(Impl_, rotation_) -
-               offsetof(Impl_, startposx_) +
-               sizeof(Impl_::rotation_));
+  _impl_.fire_ = {};
 }
 ope_fire_bullet::~ope_fire_bullet() {
   // @@protoc_insertion_point(destructor:pb_common.ope_fire_bullet)
@@ -4082,12 +4055,7 @@ PROTOBUF_NOINLINE void ope_fire_bullet::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x0000001fu) {
-    ::memset(&_impl_.startposx_, 0, static_cast<::size_t>(
-        reinterpret_cast<char*>(&_impl_.rotation_) -
-        reinterpret_cast<char*>(&_impl_.startposx_)) + sizeof(_impl_.rotation_));
-  }
+  _impl_.fire_ = 0;
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
@@ -4100,55 +4068,28 @@ const char* ope_fire_bullet::_InternalParse(
 
 
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<3, 5, 0, 0, 2> ope_fire_bullet::_table_ = {
+const ::_pbi::TcParseTable<0, 1, 0, 0, 2> ope_fire_bullet::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(ope_fire_bullet, _impl_._has_bits_),
     0, // no _extensions_
-    5, 56,  // max_field_number, fast_idx_mask
+    1, 0,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967264,  // skipmap
+    4294967294,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    5,  // num_field_entries
+    1,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     &_ope_fire_bullet_default_instance_._instance,
     ::_pbi::TcParser::GenericFallback,  // fallback
   }, {{
-    {::_pbi::TcParser::MiniParse, {}},
-    // required int32 startposx = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(ope_fire_bullet, _impl_.startposx_), 0>(),
-     {8, 0, 0, PROTOBUF_FIELD_OFFSET(ope_fire_bullet, _impl_.startposx_)}},
-    // required int32 startposy = 2;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(ope_fire_bullet, _impl_.startposy_), 1>(),
-     {16, 1, 0, PROTOBUF_FIELD_OFFSET(ope_fire_bullet, _impl_.startposy_)}},
-    // required int32 directionx = 3;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(ope_fire_bullet, _impl_.directionx_), 2>(),
-     {24, 2, 0, PROTOBUF_FIELD_OFFSET(ope_fire_bullet, _impl_.directionx_)}},
-    // required int32 directiony = 4;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(ope_fire_bullet, _impl_.directiony_), 3>(),
-     {32, 3, 0, PROTOBUF_FIELD_OFFSET(ope_fire_bullet, _impl_.directiony_)}},
-    // required int32 rotation = 5;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(ope_fire_bullet, _impl_.rotation_), 4>(),
-     {40, 4, 0, PROTOBUF_FIELD_OFFSET(ope_fire_bullet, _impl_.rotation_)}},
-    {::_pbi::TcParser::MiniParse, {}},
-    {::_pbi::TcParser::MiniParse, {}},
+    // optional int32 fire = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(ope_fire_bullet, _impl_.fire_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(ope_fire_bullet, _impl_.fire_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // required int32 startposx = 1;
-    {PROTOBUF_FIELD_OFFSET(ope_fire_bullet, _impl_.startposx_), _Internal::kHasBitsOffset + 0, 0,
-    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
-    // required int32 startposy = 2;
-    {PROTOBUF_FIELD_OFFSET(ope_fire_bullet, _impl_.startposy_), _Internal::kHasBitsOffset + 1, 0,
-    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
-    // required int32 directionx = 3;
-    {PROTOBUF_FIELD_OFFSET(ope_fire_bullet, _impl_.directionx_), _Internal::kHasBitsOffset + 2, 0,
-    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
-    // required int32 directiony = 4;
-    {PROTOBUF_FIELD_OFFSET(ope_fire_bullet, _impl_.directiony_), _Internal::kHasBitsOffset + 3, 0,
-    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
-    // required int32 rotation = 5;
-    {PROTOBUF_FIELD_OFFSET(ope_fire_bullet, _impl_.rotation_), _Internal::kHasBitsOffset + 4, 0,
+    // optional int32 fire = 1;
+    {PROTOBUF_FIELD_OFFSET(ope_fire_bullet, _impl_.fire_), _Internal::kHasBitsOffset + 0, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
   }},
   // no aux_entries
@@ -4164,39 +4105,11 @@ const ::_pbi::TcParseTable<3, 5, 0, 0, 2> ope_fire_bullet::_table_ = {
   (void)cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  // required int32 startposx = 1;
+  // optional int32 fire = 1;
   if (cached_has_bits & 0x00000001u) {
     target = ::google::protobuf::internal::WireFormatLite::
         WriteInt32ToArrayWithField<1>(
-            stream, this->_internal_startposx(), target);
-  }
-
-  // required int32 startposy = 2;
-  if (cached_has_bits & 0x00000002u) {
-    target = ::google::protobuf::internal::WireFormatLite::
-        WriteInt32ToArrayWithField<2>(
-            stream, this->_internal_startposy(), target);
-  }
-
-  // required int32 directionx = 3;
-  if (cached_has_bits & 0x00000004u) {
-    target = ::google::protobuf::internal::WireFormatLite::
-        WriteInt32ToArrayWithField<3>(
-            stream, this->_internal_directionx(), target);
-  }
-
-  // required int32 directiony = 4;
-  if (cached_has_bits & 0x00000008u) {
-    target = ::google::protobuf::internal::WireFormatLite::
-        WriteInt32ToArrayWithField<4>(
-            stream, this->_internal_directiony(), target);
-  }
-
-  // required int32 rotation = 5;
-  if (cached_has_bits & 0x00000010u) {
-    target = ::google::protobuf::internal::WireFormatLite::
-        WriteInt32ToArrayWithField<5>(
-            stream, this->_internal_rotation(), target);
+            stream, this->_internal_fire(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -4216,39 +4129,13 @@ const ::_pbi::TcParseTable<3, 5, 0, 0, 2> ope_fire_bullet::_table_ = {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
+  // optional int32 fire = 1;
   cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x0000001fu) {
-    // required int32 startposx = 1;
-    if (cached_has_bits & 0x00000001u) {
-      total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-          this->_internal_startposx());
-    }
-
-    // required int32 startposy = 2;
-    if (cached_has_bits & 0x00000002u) {
-      total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-          this->_internal_startposy());
-    }
-
-    // required int32 directionx = 3;
-    if (cached_has_bits & 0x00000004u) {
-      total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-          this->_internal_directionx());
-    }
-
-    // required int32 directiony = 4;
-    if (cached_has_bits & 0x00000008u) {
-      total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-          this->_internal_directiony());
-    }
-
-    // required int32 rotation = 5;
-    if (cached_has_bits & 0x00000010u) {
-      total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-          this->_internal_rotation());
-    }
-
+  if (cached_has_bits & 0x00000001u) {
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+        this->_internal_fire());
   }
+
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
@@ -4268,24 +4155,8 @@ void ope_fire_bullet::MergeImpl(::google::protobuf::Message& to_msg, const ::goo
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  cached_has_bits = from._impl_._has_bits_[0];
-  if (cached_has_bits & 0x0000001fu) {
-    if (cached_has_bits & 0x00000001u) {
-      _this->_impl_.startposx_ = from._impl_.startposx_;
-    }
-    if (cached_has_bits & 0x00000002u) {
-      _this->_impl_.startposy_ = from._impl_.startposy_;
-    }
-    if (cached_has_bits & 0x00000004u) {
-      _this->_impl_.directionx_ = from._impl_.directionx_;
-    }
-    if (cached_has_bits & 0x00000008u) {
-      _this->_impl_.directiony_ = from._impl_.directiony_;
-    }
-    if (cached_has_bits & 0x00000010u) {
-      _this->_impl_.rotation_ = from._impl_.rotation_;
-    }
-    _this->_impl_._has_bits_[0] |= cached_has_bits;
+  if ((from._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    _this->_internal_set_fire(from._internal_fire());
   }
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -4298,9 +4169,6 @@ void ope_fire_bullet::CopyFrom(const ope_fire_bullet& from) {
 }
 
 PROTOBUF_NOINLINE bool ope_fire_bullet::IsInitialized() const {
-  if (_Internal::MissingRequiredFields(_impl_._has_bits_)) {
-    return false;
-  }
   return true;
 }
 
@@ -4311,12 +4179,7 @@ void ope_fire_bullet::InternalSwap(ope_fire_bullet* PROTOBUF_RESTRICT other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
-  ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(ope_fire_bullet, _impl_.rotation_)
-      + sizeof(ope_fire_bullet::_impl_.rotation_)
-      - PROTOBUF_FIELD_OFFSET(ope_fire_bullet, _impl_.startposx_)>(
-          reinterpret_cast<char*>(&_impl_.startposx_),
-          reinterpret_cast<char*>(&other->_impl_.startposx_));
+        swap(_impl_.fire_, other->_impl_.fire_);
 }
 
 ::google::protobuf::Metadata ope_fire_bullet::GetMetadata() const {
@@ -4868,6 +4731,9 @@ class data_frame::_Internal {
   static void set_has_frameid(HasBits* has_bits) {
     (*has_bits)[0] |= 2u;
   }
+  static void set_has_barrel_rotation(HasBits* has_bits) {
+    (*has_bits)[0] |= 4u;
+  }
 };
 
 data_frame::data_frame(::google::protobuf::Arena* arena)
@@ -4895,9 +4761,9 @@ data_frame::data_frame(
                offsetof(Impl_, userid_),
            reinterpret_cast<const char *>(&from._impl_) +
                offsetof(Impl_, userid_),
-           offsetof(Impl_, frameid_) -
+           offsetof(Impl_, barrel_rotation_) -
                offsetof(Impl_, userid_) +
-               sizeof(Impl_::frameid_));
+               sizeof(Impl_::barrel_rotation_));
 
   // @@protoc_insertion_point(copy_constructor:pb_common.data_frame)
 }
@@ -4912,9 +4778,9 @@ inline void data_frame::SharedCtor(::_pb::Arena* arena) {
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, userid_),
            0,
-           offsetof(Impl_, frameid_) -
+           offsetof(Impl_, barrel_rotation_) -
                offsetof(Impl_, userid_) +
-               sizeof(Impl_::frameid_));
+               sizeof(Impl_::barrel_rotation_));
 }
 data_frame::~data_frame() {
   // @@protoc_insertion_point(destructor:pb_common.data_frame)
@@ -4935,10 +4801,10 @@ PROTOBUF_NOINLINE void data_frame::Clear() {
 
   _impl_.opecode_.Clear();
   cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
+  if (cached_has_bits & 0x00000007u) {
     ::memset(&_impl_.userid_, 0, static_cast<::size_t>(
-        reinterpret_cast<char*>(&_impl_.frameid_) -
-        reinterpret_cast<char*>(&_impl_.userid_)) + sizeof(_impl_.frameid_));
+        reinterpret_cast<char*>(&_impl_.barrel_rotation_) -
+        reinterpret_cast<char*>(&_impl_.userid_)) + sizeof(_impl_.barrel_rotation_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -4952,21 +4818,23 @@ const char* data_frame::_InternalParse(
 
 
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 3, 1, 0, 2> data_frame::_table_ = {
+const ::_pbi::TcParseTable<2, 4, 1, 0, 2> data_frame::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(data_frame, _impl_._has_bits_),
     0, // no _extensions_
-    3, 24,  // max_field_number, fast_idx_mask
+    4, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967288,  // skipmap
+    4294967280,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    3,  // num_field_entries
+    4,  // num_field_entries
     1,  // num_aux_entries
     offsetof(decltype(_table_), aux_entries),
     &_data_frame_default_instance_._instance,
     ::_pbi::TcParser::GenericFallback,  // fallback
   }, {{
-    {::_pbi::TcParser::MiniParse, {}},
+    // optional int32 barrel_rotation = 4;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(data_frame, _impl_.barrel_rotation_), 2>(),
+     {32, 2, 0, PROTOBUF_FIELD_OFFSET(data_frame, _impl_.barrel_rotation_)}},
     // optional int32 userid = 1;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(data_frame, _impl_.userid_), 0>(),
      {8, 0, 0, PROTOBUF_FIELD_OFFSET(data_frame, _impl_.userid_)}},
@@ -4988,6 +4856,9 @@ const ::_pbi::TcParseTable<2, 3, 1, 0, 2> data_frame::_table_ = {
     // repeated .pb_common.ope_detail opecode = 3;
     {PROTOBUF_FIELD_OFFSET(data_frame, _impl_.opecode_), -1, 0,
     (0 | ::_fl::kFcRepeated | ::_fl::kMessage | ::_fl::kTvTable)},
+    // optional int32 barrel_rotation = 4;
+    {PROTOBUF_FIELD_OFFSET(data_frame, _impl_.barrel_rotation_), _Internal::kHasBitsOffset + 2, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
   }}, {{
     {::_pbi::TcParser::GetTable<::pb_common::ope_detail>()},
   }}, {{
@@ -5024,6 +4895,13 @@ const ::_pbi::TcParseTable<2, 3, 1, 0, 2> data_frame::_table_ = {
         InternalWriteMessage(3, repfield, repfield.GetCachedSize(), target, stream);
   }
 
+  // optional int32 barrel_rotation = 4;
+  if (cached_has_bits & 0x00000004u) {
+    target = ::google::protobuf::internal::WireFormatLite::
+        WriteInt32ToArrayWithField<4>(
+            stream, this->_internal_barrel_rotation(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target =
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
@@ -5048,7 +4926,7 @@ const ::_pbi::TcParseTable<2, 3, 1, 0, 2> data_frame::_table_ = {
       ::google::protobuf::internal::WireFormatLite::MessageSize(msg);
   }
   cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
+  if (cached_has_bits & 0x00000007u) {
     // optional int32 userid = 1;
     if (cached_has_bits & 0x00000001u) {
       total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
@@ -5059,6 +4937,12 @@ const ::_pbi::TcParseTable<2, 3, 1, 0, 2> data_frame::_table_ = {
     if (cached_has_bits & 0x00000002u) {
       total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
           this->_internal_frameid());
+    }
+
+    // optional int32 barrel_rotation = 4;
+    if (cached_has_bits & 0x00000004u) {
+      total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+          this->_internal_barrel_rotation());
     }
 
   }
@@ -5084,12 +4968,15 @@ void data_frame::MergeImpl(::google::protobuf::Message& to_msg, const ::google::
   _this->_internal_mutable_opecode()->MergeFrom(
       from._internal_opecode());
   cached_has_bits = from._impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
+  if (cached_has_bits & 0x00000007u) {
     if (cached_has_bits & 0x00000001u) {
       _this->_impl_.userid_ = from._impl_.userid_;
     }
     if (cached_has_bits & 0x00000002u) {
       _this->_impl_.frameid_ = from._impl_.frameid_;
+    }
+    if (cached_has_bits & 0x00000004u) {
+      _this->_impl_.barrel_rotation_ = from._impl_.barrel_rotation_;
     }
     _this->_impl_._has_bits_[0] |= cached_has_bits;
   }
@@ -5116,8 +5003,8 @@ void data_frame::InternalSwap(data_frame* PROTOBUF_RESTRICT other) {
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
   _impl_.opecode_.InternalSwap(&other->_impl_.opecode_);
   ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(data_frame, _impl_.frameid_)
-      + sizeof(data_frame::_impl_.frameid_)
+      PROTOBUF_FIELD_OFFSET(data_frame, _impl_.barrel_rotation_)
+      + sizeof(data_frame::_impl_.barrel_rotation_)
       - PROTOBUF_FIELD_OFFSET(data_frame, _impl_.userid_)>(
           reinterpret_cast<char*>(&_impl_.userid_),
           reinterpret_cast<char*>(&other->_impl_.userid_));
