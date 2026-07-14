@@ -12,6 +12,8 @@ function NodeBullet:ctor(INid,INuserid,INframeid,INoriginPos,INdir)
     self.owner = INuserid
     self.birthFrameId = INframeid
     self.birthPos = cc.p(INoriginPos.x, INoriginPos.y)
+    self.preLogicX = INoriginPos.x
+    self.preLogicY = INoriginPos.y
     self.vx = INdir.x
     self.vy = INdir.y
     self.destroy = false
@@ -34,10 +36,6 @@ function NodeBullet:getLogicBounds(INframeId)
         width = self.width,
         height = self.height
     }
-end
-
-function NodeBullet:onCollison(INbody,INlogicFrameId)
-    --print(string.format("[Collision] FrameID:%d logicPos:%d:%d", INlogicFrameId, self:getLogicPos(INlogicFrameId).x, self:getLogicPos(INlogicFrameId).y))
 end
 
 return NodeBullet

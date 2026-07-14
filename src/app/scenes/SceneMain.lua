@@ -110,33 +110,6 @@ function SceneMain:ctor()
     :setPosition(cc.p(0, display.top-15))
     :setAnchorPoint(cc.p(0, 0.5))
     :setVisible(self.begin)
-
-    local wallThickness = 100
-    self.colBodies = OrderedTable:new()
-    local FM = DetCollisionSystem.FixedMath
-    self.colSys = DetCollisionSystem.System.new({broadPhase = "quadtree", worldBounds = {0, 0, FM.fromFloat(display.width+wallThickness*2), FM.fromFloat(display.height+wallThickness*2)}})
-    local topWall = DetCollisionSystem.Shape.newAABB(FM.fromFloat(display.cx), FM.fromFloat(display.height+wallThickness/2), FM.fromFloat(display.cx), FM.fromFloat(wallThickness/2))
-    self.colSys:addBody(0, topWall, DetCollisionSystem.System.GROUP_WALL, DetCollisionSystem.System.MASK_ALL)
-    self.colBodies:set(0,self.layerMap)
-    local bottomWall = DetCollisionSystem.Shape.newAABB(FM.fromFloat(display.cx), FM.fromFloat(-wallThickness/2), FM.fromFloat(display.cx), FM.fromFloat(wallThickness/2))
-    self.colSys:addBody(1, bottomWall, DetCollisionSystem.System.GROUP_WALL, DetCollisionSystem.System.MASK_ALL)
-    self.colBodies:set(1,self.layerMap)
-    local leftWall = DetCollisionSystem.Shape.newAABB(FM.fromFloat(-wallThickness/2), FM.fromFloat(display.cy), FM.fromFloat(wallThickness/2), FM.fromFloat(display.cy))
-    self.colSys:addBody(2, leftWall, DetCollisionSystem.System.GROUP_WALL, DetCollisionSystem.System.MASK_ALL)
-    self.colBodies:set(2,self.layerMap)
-    local rightWall = DetCollisionSystem.Shape.newAABB(FM.fromFloat(display.width+wallThickness/2), FM.fromFloat(display.cy), FM.fromFloat(wallThickness/2), FM.fromFloat(display.cy))
-    self.colSys:addBody(3, rightWall, DetCollisionSystem.System.GROUP_WALL, DetCollisionSystem.System.MASK_ALL)
-    self.colBodies:set(3,self.layerMap)
-    self.colSys:onCollision(function(idA, idB, INlogicFrameId)
-        if not self.colBodies then return end
-        local bodyA = self.colBodies:get(idA)
-        local bodyB = self.colBodies:get(idB)
-        if bodyA and bodyB then
-            if bodyA.onCollison then bodyA:onCollison(bodyB,INlogicFrameId) end
-            if bodyB.onCollison then bodyB:onCollison(bodyA,INlogicFrameId) end
-        end
-        --print(string.format("[Collision] %s <-> %s  FrameID:%d", tostring(idA), tostring(idB), INlogicFrameId))
-    end)
 end
 
 function SceneMain:onEnter()
@@ -470,8 +443,8 @@ function SceneMain:convertOpeCode(INopeCode)
     end
     local resData = {}
     local ope_move = {
-        movex = HelpTools:toFixed(dir.x*1000),
-        movey = HelpTools:toFixed(dir.y*1000),
+        movex = math.floor(dir.x*NUMBER_SCALE),
+        movey = math.floor(dir.y*NUMBER_SCALE),
         turn = rotation,
         barrel_rotation = barrel_rotation
     }
@@ -492,7 +465,7 @@ end
 function SceneMain:createEntity(data)
     local HandlerEntity = require "src.app.modules.map.NodeEntity"
     local originPos = cc.p(ENTITY_ORIGIN_POS.x+data.index*100,ENTITY_ORIGIN_POS.y+data.index*100)
-    local entity = HandlerEntity.new(self,cc.p(HelpTools:toFixed(originPos.x*NUMBER_SCALE), HelpTools:toFixed(originPos.y*NUMBER_SCALE)))
+    local entity = HandlerEntity.new(self,cc.p(math.floor(originPos.x*NUMBER_SCALE), math.floor(originPos.y*NUMBER_SCALE)))
     entity:setToken(data.userid)
     entity:setIndex(data.index)
     entity:addTo(self)
@@ -501,43 +474,34 @@ function SceneMain:createEntity(data)
 end
 
 function SceneMain:createBullet(INuserid,INframeid,INpos,INbirPos,INdata)
-    local bulletId = INuserid*1000000+INframeid
+    local bulletId = INuserid*1000000+1+INframeid
     if not self.nodeBullets:get(bulletId) then
         local HandlerBullet = require "src.app.modules.map.NodeBullet"
         local bullet = HandlerBullet.new(bulletId,INuserid,INframeid,INpos,cc.p(INdata.directionx,INdata.directiony))
-        bullet:setPosition(cc.p(HelpTools:toFixed(INbirPos.x/NUMBER_SCALE), HelpTools:toFixed(INbirPos.y/NUMBER_SCALE)))
+        bullet:setPosition(cc.p(math.floor(INbirPos.x/NUMBER_SCALE), math.floor(INbirPos.y/NUMBER_SCALE)))
         bullet:setRotation(INdata.rotation)
         bullet:addTo(self)
         self.nodeBullets:set(bulletId,bullet)
-        local bShape = DetCollisionSystem.Shape.newAABB(
-            DetCollisionSystem.FixedMath.fromFloat(HelpTools:toFixed(INpos.x/NUMBER_SCALE)),
-            DetCollisionSystem.FixedMath.fromFloat(HelpTools:toFixed(INpos.y/NUMBER_SCALE)),
-            DetCollisionSystem.FixedMath.fromFloat(bullet.width/2),
-            DetCollisionSystem.FixedMath.fromFloat(bullet.height/2)
-        )
-        self.colSys:addBody(bulletId, bShape, DetCollisionSystem.System.GROUP_BULLET, DetCollisionSystem.System.GROUP_WALL)
-        bullet._colShape = bShape
-        self.colBodies:set(bulletId, bullet)
     end
 end
 
 function SceneMain:lerpConstantSpeed(currentPos, targetPos, speed, dt)
-    if not targetPos then return currentPos end
+    if not targetPos then return currentPos,false end
     local dx = targetPos.x - currentPos.x
     local dy = targetPos.y - currentPos.y
     local distance = math.sqrt(dx * dx + dy * dy)
 
     if distance <= 0.1 then
-        return targetPos
+        return targetPos,true
     end
 
     local moveDistance = speed * dt
     if moveDistance >= distance then
-        return targetPos
+        return targetPos,true
     end
 
     local ratio = moveDistance / distance
-    return cc.p(currentPos.x + dx * ratio, currentPos.y + dy * ratio)
+    return cc.p(currentPos.x + dx * ratio, currentPos.y + dy * ratio),false
 end
 
 function SceneMain:update(dt)
@@ -551,7 +515,7 @@ function SceneMain:update(dt)
     for k,v in self.entities:pairs() do
         if v then
             local currentPos = cc.p(v:getPosition())
-            local targetPos = cc.p(HelpTools:toFixed(v.logicInfo.pos.x/NUMBER_SCALE), HelpTools:toFixed(v.logicInfo.pos.y/NUMBER_SCALE))
+            local targetPos = cc.p(math.floor(v.logicInfo.pos.x/NUMBER_SCALE), math.floor(v.logicInfo.pos.y/NUMBER_SCALE))
             local newPos = self:lerpConstantSpeed(currentPos, targetPos, ENTITY_MOVE_SPEED*LOGIC_FPS, dt)
             v:setPosition(newPos)
             local rotation = v:getRotation()
@@ -564,13 +528,21 @@ function SceneMain:update(dt)
         end
     end
     for k,v in self.nodeBullets:pairs() do
-        if v and not v.destroy then
-            local frames = (self.frameId - v.birthFrameId)
-            if frames > 0 then
-                local currentPos = cc.p(v:getPosition())
-                local targetPos = cc.p(HelpTools:toFixed((v.birthPos.x +v.vx*frames)/NUMBER_SCALE), HelpTools:toFixed((v.birthPos.y+v.vy*frames)/NUMBER_SCALE))
-                local newPos = self:lerpConstantSpeed(currentPos, targetPos, BULLET_MOVE_SPEED*LOGIC_FPS, dt)
-                v:setPosition(newPos)
+        if v then
+            local targetPos = nil
+            local currentPos = cc.p(v:getPosition())
+            if not v.destroy then targetPos = v:getLogicPos(self.syncFrameId)
+            else
+                targetPos = v.hitPos
+            end
+            if targetPos then
+                targetPos = cc.p(math.floor(targetPos.x/NUMBER_SCALE), math.floor(targetPos.y/NUMBER_SCALE))
+            end
+            local newPos,ret = self:lerpConstantSpeed(currentPos, targetPos, BULLET_MOVE_SPEED*LOGIC_FPS, dt)
+            v:setPosition(newPos)
+            if v.destroy and ret then
+                self.nodeBullets:remove(v.id)
+                v:removeFromParent()
             end
         end
     end
@@ -607,6 +579,14 @@ function SceneMain:tickLogic(dt)
     end
 
     while(self.serverFrames:get(self.syncFrameId+1)) do
+        for k,v in self.entities:pairs() do
+            if v.token == self.token then v.preLogicX,v.preLogicY = v.syncState.pos.x,v.syncState.pos.y
+            else v.preLogicX,v.preLogicY = v.logicInfo.pos.x,v.logicInfo.pos.y end
+        end
+        for k,v in self.nodeBullets:pairs() do
+            local logicPos = v:getLogicPos(self.syncFrameId)
+            v.preLogicX,v.preLogicY = logicPos.x,logicPos.y
+        end
         local frames = self.serverFrames:get(self.syncFrameId+1)
         --if 0 == #frames then HLog:printf(string.format("frames empty frameid:%d",self.syncFrameId+1)) end
         for m=1,#frames do
@@ -625,13 +605,11 @@ function SceneMain:tickLogic(dt)
                     elseif 2 == vv.opetype and vv.fire == 1 then
                         local rotation = (self.entity.logicInfo.barrel_rotation + self.entity.logicInfo.rotation) % 360
                         local bdir = BulletRotationToSpeed[rotation]
-                        local nbdir = cc.pNormalize(bdir)
-                        --local originPos = cc.p(self.entity.logicInfo.pos.x, self.entity.logicInfo.pos.y+BULLET_INIT_OFFSET*NUMBER_SCALE)
                         local originPos = cc.pMul(cc.p(self.entity:getPosition()),NUMBER_SCALE)
-                        originPos = cc.pAdd(originPos,cc.pMul(nbdir,50*NUMBER_SCALE))
-                        local logicPos = cc.pAdd(self.entity.logicInfo.pos,cc.pMul(nbdir,50*NUMBER_SCALE))
-                        self:createBullet(v.userid,v.frameid,logicPos,originPos,{directionx = bdir.x*NUMBER_SCALE, directiony = bdir.y*NUMBER_SCALE, rotation = rotation})
-                        --HLog:printf(string.format("fire at frame %05d, pos %d:%d dir %d:%d", v.frameid, originPos.x, originPos.y, bdir.x, bdir.y))
+                        originPos = cc.pAdd(cc.p(math.floor(originPos.x),math.floor(originPos.y)),cc.pMul(bdir,NUMBER_SCALE))
+                        local logicPos = cc.pAdd(self.entity.logicInfo.pos,cc.pMul(bdir,NUMBER_SCALE))
+                        self:createBullet(v.userid,self.syncFrameId,logicPos,originPos,{directionx = bdir.x*NUMBER_SCALE, directiony = bdir.y*NUMBER_SCALE, rotation = rotation})
+                        HLog:printf(string.format("fire at frame %05d, logic pos %d:%d dir %d:%d", self.syncFrameId, logicPos.x, logicPos.y, bdir.x, bdir.y))
                     end
                 end
                 self.entity.syncState.pos = cc.p(self.entity.logicInfo.pos.x, self.entity.logicInfo.pos.y)
@@ -661,13 +639,11 @@ function SceneMain:tickLogic(dt)
                         elseif 2 == vv.opetype and vv.fire == 1 then
                             local rotation = (otherEntity.logicInfo.barrel_rotation + otherEntity.logicInfo.rotation) % 360
                             local bdir = BulletRotationToSpeed[rotation]
-                            local nbdir = cc.pNormalize(bdir)
-                            --local originPos = cc.p(otherEntity.logicInfo.pos.x, otherEntity.logicInfo.pos.y+BULLET_INIT_OFFSET*NUMBER_SCALE)
                             local originPos = cc.pMul(cc.p(otherEntity:getPosition()),NUMBER_SCALE)
-                            originPos = cc.pAdd(originPos,cc.pMul(nbdir,50*NUMBER_SCALE))
-                            local logicPos = cc.pAdd(otherEntity.logicInfo.pos,cc.pMul(nbdir,50*NUMBER_SCALE))
-                            self:createBullet(v.userid,v.frameid,logicPos,originPos,{directionx = bdir.x*NUMBER_SCALE, directiony = bdir.y*NUMBER_SCALE, rotation = rotation})
-                            --HLog:printf(string.format("fire at frame %05d, pos %d:%d dir %d:%d", v.frameid, originPos.x, originPos.y, bdir.x, bdir.y))
+                            originPos = cc.pAdd(cc.p(math.floor(originPos.x),math.floor(originPos.y)),cc.pMul(bdir,NUMBER_SCALE))
+                            local logicPos = cc.pAdd(otherEntity.logicInfo.pos,cc.pMul(bdir,NUMBER_SCALE))
+                            self:createBullet(v.userid,self.syncFrameId,logicPos,originPos,{directionx = bdir.x*NUMBER_SCALE, directiony = bdir.y*NUMBER_SCALE, rotation = rotation})
+                            HLog:printf(string.format("fire at frame %05d, logic pos %d:%d dir %d:%d", self.syncFrameId, logicPos.x, logicPos.y, bdir.x, bdir.y))
                         end
                     end
                     --HLog:printf(string.format("userid %d frame %d opecode %d logicPos %f:%f",v.userid,otherEntity.syncFrameId,v.opecode,otherEntity.logicInfo.pos.x,otherEntity.logicInfo.pos.y))
@@ -679,15 +655,45 @@ function SceneMain:tickLogic(dt)
         self.frameInfo:setVisible(self.begin)
         self.frameInfo:setString("frame:"..self.syncFrameId)
 
-        -- 更新所有子弹的碰撞形状到当前逻辑位置，更新碰撞检测
+        -- 碰撞检测
         for bulletId, v in self.nodeBullets:pairs() do
-            if v and not v.destroy and v._colShape then
+            if v and not v.destroy then
                 local logicPos = v:getLogicPos(self.syncFrameId)
-                v._colShape.cx = DetCollisionSystem.FixedMath.fromFloat(HelpTools:toFixed(logicPos.x/NUMBER_SCALE))
-                v._colShape.cy = DetCollisionSystem.FixedMath.fromFloat(HelpTools:toFixed(logicPos.y/NUMBER_SCALE))
+                if v.preLogicX > 0 and v.preLogicX < display.width*NUMBER_SCALE and v.preLogicY > 0 and v.preLogicY < display.height*NUMBER_SCALE then
+                    if logicPos.x < 0 or logicPos.x > display.width*NUMBER_SCALE or logicPos.y < 0 or logicPos.y > display.height*NUMBER_SCALE then
+                        v.destroy = true
+                        v.hitPos = cc.p(logicPos.x,logicPos.y)
+                    end
+                end
+            end
+            if v and not v.destroy then
+                for userid,vv in self.entities:pairs() do
+                    if v.owner ~= vv.token then
+                        local player = {
+                            prev_x= vv.preLogicX, prev_y=vv.preLogicY,
+                            curr_x=vv.logicInfo.pos.x, curr_y=vv.logicInfo.pos.y,
+                            hw=NUMBER_SCALE*vv.width/2, hh=NUMBER_SCALE*vv.height/2
+                        }
+                        if userid == self.token then
+                            player.curr_x=vv.syncState.pos.x
+                            player.curr_y=vv.syncState.pos.y
+                        end
+                        local logicPos = v:getLogicPos(self.syncFrameId)
+                        local bullet = {
+                            prev_x=v.preLogicX, prev_y=v.preLogicY,
+                            curr_x=logicPos.x, curr_y=logicPos.y,
+                            hw=NUMBER_SCALE*v.width/2, hh=NUMBER_SCALE*v.height/2
+                        }
+                        local ret,t1,t2,x,y = self:checkBulletPlayerCollision(player, bullet)
+                        if ret then
+                            v.destroy = true
+                            v.hitPos = cc.p(x,y)
+                            break
+                        end
+                    end
+                end
             end
         end
-        self.colSys:step(self.syncFrameId)
 
         -- 定期校验状态
         if self.syncFrameId % STATE_VERIFY_FRAME_INTERVAL == 0 and self.syncFrameId > self.lastVerifyFrameId then
@@ -696,6 +702,99 @@ function SceneMain:tickLogic(dt)
         end
     end
     --print(string.format("predict frame %d acked frameid %d syncPos %f:%f localPos %f:%f",self.frameId,self.syncFrameId,self.entity.syncState.pos.x,self.entity.syncState.pos.y,self.entity.logicInfo.pos.x,self.entity.logicInfo.pos.y))
+end
+
+-- 碰撞检测：连续检测，子弹使用相对运动，玩家固定在原点，将子弹和玩家尺寸拓展为一个
+-- 拓展的矩形，将子弹抽象成一个点，等价变换为子弹运动轨迹的线段和AABB包围盒求相交的问题
+-- 相交问题采用：Liang-Barsky 裁剪算法原理
+-- 整数向零取整除法（确定性）
+local function idiv(a, b)
+    if a >= 0 then return math.floor(a / b)
+    else return -math.floor((-a) / b) end
+end
+function SceneMain:checkBulletPlayerCollision(player, bullet)
+    -- 计算子弹相对于玩家的运动线段（起点和终点）
+    local rel_start_x = bullet.prev_x - player.prev_x
+    local rel_start_y = bullet.prev_y - player.prev_y
+    local rel_end_x   = bullet.curr_x - player.curr_x
+    local rel_end_y   = bullet.curr_y - player.curr_y
+
+    local dx = rel_end_x - rel_start_x
+    local dy = rel_end_y - rel_start_y
+
+    -- 扩展后的矩形半宽、半高（玩家 + 子弹）
+    local ext_hw = player.hw + bullet.hw
+    local ext_hh = player.hh + bullet.hh
+ 
+    -- 矩形边界（以原点为中心）
+    local left   = -ext_hw
+    local right  =  ext_hw
+    local bottom = -ext_hh
+    local top    =  ext_hh
+
+    -- 3. Liang-Barsky 线段裁剪，求入口参数 t_enter
+    local p = { -dx, dx, -dy, dy }
+    local q = { rel_start_x - left, right - rel_start_x, rel_start_y - bottom, top - rel_start_y }
+
+    -- t_enter 和 t_exit 表示为最简分数 (num/den)，den>0
+    local t_enter_num, t_enter_den = 0, 1   -- t=0
+    local t_exit_num,  t_exit_den  = 1, 1   -- t=1
+
+    for i = 1, 4 do
+        local pi = p[i]
+        local qi = q[i]
+
+        if pi == 0 then
+            -- 线段与边界平行，若在外侧则无碰撞
+            if qi < 0 then
+                return false, 0, 1, 0, 0
+            end
+        else
+            -- 将分数 qi/pi 标准化为分母为正
+            local num, den = qi, pi
+            if den < 0 then
+                num = -num
+                den = -den
+            end
+
+            if pi < 0 then   -- 进入边，更新 t_enter = max(t_enter, num/den)
+                -- 比较 num/den > t_enter_num/t_enter_den
+                if num * t_enter_den > t_enter_num * den then
+                    t_enter_num, t_enter_den = num, den
+                end
+            else             -- 离开边，更新 t_exit = min(t_exit, num/den)
+                -- 比较 num/den < t_exit_num/t_exit_den
+                if num * t_exit_den < t_exit_num * den then
+                    t_exit_num, t_exit_den = num, den
+                end
+            end
+        end
+    end
+
+    -- 4. 检查有效区间：t_enter <= t_exit 且 t_exit >= 0 且 t_enter <= 1
+    if t_exit_num < 0 then  -- t_exit < 0
+        return false, 0, 1, 0, 0
+    end
+    if t_enter_num > t_enter_den then  -- t_enter > 1
+        return false, 0, 1, 0, 0
+    end
+    -- t_enter <= t_exit ?
+    if t_enter_num * t_exit_den > t_exit_num * t_enter_den then
+        return false, 0, 1, 0, 0
+    end
+
+    -- 5. 钳位到 [0, 1]
+    if t_enter_num < 0 then
+        t_enter_num, t_enter_den = 0, 1
+    end
+    if t_enter_num > t_enter_den then
+        t_enter_num, t_enter_den = 1, 1
+    end
+
+    -- 6. 计算世界坐标系碰撞点（定点数）
+    local bullet_hit_x = bullet.prev_x + idiv(dx * t_enter_num, t_enter_den)
+    local bullet_hit_y = bullet.prev_y + idiv(dy * t_enter_num, t_enter_den)
+    return true, t_enter_num, t_enter_den, bullet_hit_x, bullet_hit_y
 end
 
 function SceneMain:simulateDisconnectAndReconnect()
@@ -734,13 +833,11 @@ function SceneMain:fastForwardFrames()
                     elseif 2 == cmd.opetype and cmd.fire == 1 then
                         local rotation = (entity.logicInfo.barrel_rotation + entity.logicInfo.rotation) % 360
                         local bdir = BulletRotationToSpeed[rotation]
-                        local nbdir = cc.pNormalize(bdir)
-                        --local originPos = cc.p(entity.logicInfo.pos.x, entity.logicInfo.pos.y+BULLET_INIT_OFFSET*NUMBER_SCALE)
                         local originPos = cc.pMul(cc.p(entity:getPosition()),NUMBER_SCALE)
-                        originPos = cc.pAdd(originPos,cc.pMul(nbdir,50*NUMBER_SCALE))
-                        local logicPos = cc.pAdd(entity.logicInfo.pos,cc.pMul(nbdir,50*NUMBER_SCALE))
+                        originPos = cc.pAdd(cc.p(math.floor(originPos.x),math.floor(originPos.y)),cc.pMul(bdir,NUMBER_SCALE))
+                        local logicPos = cc.pAdd(entity.logicInfo.pos,cc.pMul(bdir,NUMBER_SCALE))
                         self:createBullet(v.userid,v.frameid,logicPos,originPos,{directionx = bdir.x*NUMBER_SCALE, directiony = bdir.y*NUMBER_SCALE, rotation = rotation})
-                        --HLog:printf(string.format("fire at frame %05d, pos %d:%d dir %d:%d", v.frameid, originPos.x, originPos.y, bdir.x, bdir.y))
+                        HLog:printf(string.format("fire at frame %05d, logic pos %d:%d dir %d:%d", v.frameid, logicPos.x, logicPos.y, bdir.x, bdir.y))
                     end
                 end
                 -- 同步状态
@@ -760,7 +857,7 @@ function SceneMain:fastForwardFrames()
     -- 直接设置实体位置（跳过插值）
     for k, v in self.entities:pairs() do
         if v and not tolua.isnull(v) then
-            v:setPosition(cc.p(HelpTools:toFixed(v.logicInfo.pos.x/NUMBER_SCALE), HelpTools:toFixed(v.logicInfo.pos.y/NUMBER_SCALE)))
+            v:setPosition(cc.p(math.floor(v.logicInfo.pos.x/NUMBER_SCALE), math.floor(v.logicInfo.pos.y/NUMBER_SCALE)))
             v:setRotation(v.logicInfo.rotation)
             v:show()
         end

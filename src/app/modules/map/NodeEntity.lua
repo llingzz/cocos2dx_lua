@@ -28,6 +28,8 @@ function NodeEntity:ctor(INparent,INoriginPos)
         pos = cc.p(INoriginPos),
         rotation = 0
     }
+    self.preLogicX = INoriginPos.x
+    self.preLogicY = INoriginPos.y
     self.width = 30
     self.height = 40
     self.colliding = false

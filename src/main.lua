@@ -13,11 +13,11 @@ cc.exports.FPS = 60.0
 cc.exports.LOGIC_FPS = 15
 cc.exports.ENTITY_MOVE_SPEED = 15
 cc.exports.ENTITY_ROTATE_SPEED = 10
-cc.exports.BULLET_MOVE_SPEED = 80
+cc.exports.BULLET_MOVE_SPEED = 40
 cc.exports.ENTITY_RADIUS = 15
 cc.exports.BULLET_RADIUS = 2.5
 cc.exports.BULLET_INIT_OFFSET = 15
-cc.exports.NUMBER_SCALE = 1000
+cc.exports.NUMBER_SCALE = 10000
 cc.exports.MAX_PREDICT_FRAME_COUNT = 8
 cc.exports.FIRE_BULLET_FRAME_INTERVAL = 5
 cc.exports.STATE_VERIFY_FRAME_INTERVAL = 30
@@ -33,7 +33,6 @@ cc.exports.Scheduler = require "app.tools.Scheduler"
 cc.exports.HelpTools = require "app.tools.HelpTools"
 cc.exports.ResourceManager = require "app.tools.ResourceManager"
 cc.exports.BulletRotationToSpeed = require "app.tools.BulletRotationToSpeed"
-cc.exports.DetCollisionSystem = require("src.app.collision.DetCollision.init")
 require "app.common.CommonDef"
 
 cc.load('uiloader')
