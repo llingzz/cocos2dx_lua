@@ -1780,196 +1780,6 @@ class data_user_leave_room final :
   friend struct ::TableStruct_pb_5fcommon_2eproto;
 };// -------------------------------------------------------------------
 
-class data_user_join_room_response final :
-    public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pb_common.data_user_join_room_response) */ {
- public:
-  inline data_user_join_room_response() : data_user_join_room_response(nullptr) {}
-  ~data_user_join_room_response() override;
-  template<typename = void>
-  explicit PROTOBUF_CONSTEXPR data_user_join_room_response(::google::protobuf::internal::ConstantInitialized);
-
-  inline data_user_join_room_response(const data_user_join_room_response& from)
-      : data_user_join_room_response(nullptr, from) {}
-  data_user_join_room_response(data_user_join_room_response&& from) noexcept
-    : data_user_join_room_response() {
-    *this = ::std::move(from);
-  }
-
-  inline data_user_join_room_response& operator=(const data_user_join_room_response& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline data_user_join_room_response& operator=(data_user_join_room_response&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetArena() == from.GetArena()
-  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
-        && GetArena() != nullptr
-  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
-    ) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
-  }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::google::protobuf::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const data_user_join_room_response& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const data_user_join_room_response* internal_default_instance() {
-    return reinterpret_cast<const data_user_join_room_response*>(
-               &_data_user_join_room_response_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    6;
-
-  friend void swap(data_user_join_room_response& a, data_user_join_room_response& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(data_user_join_room_response* other) {
-    if (other == this) return;
-  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetArena() != nullptr &&
-        GetArena() == other->GetArena()) {
-   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetArena() == other->GetArena()) {
-  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
-      InternalSwap(other);
-    } else {
-      ::google::protobuf::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(data_user_join_room_response* other) {
-    if (other == this) return;
-    ABSL_DCHECK(GetArena() == other->GetArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  data_user_join_room_response* New(::google::protobuf::Arena* arena = nullptr) const final {
-    return CreateMaybeMessage<data_user_join_room_response>(arena);
-  }
-  using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const data_user_join_room_response& from);
-  using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom( const data_user_join_room_response& from) {
-    data_user_join_room_response::MergeImpl(*this, from);
-  }
-  private:
-  static void MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg);
-  public:
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  ::size_t ByteSizeLong() const final;
-  const char* _InternalParse(const char* ptr, ::google::protobuf::internal::ParseContext* ctx) final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target, ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
-  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
-
-  private:
-  ::google::protobuf::internal::CachedSize* AccessCachedSize() const final;
-  void SharedCtor(::google::protobuf::Arena* arena);
-  void SharedDtor();
-  void InternalSwap(data_user_join_room_response* other);
-
-  private:
-  friend class ::google::protobuf::internal::AnyMetadata;
-  static ::absl::string_view FullMessageName() {
-    return "pb_common.data_user_join_room_response";
-  }
-  protected:
-  explicit data_user_join_room_response(::google::protobuf::Arena* arena);
-  data_user_join_room_response(::google::protobuf::Arena* arena, const data_user_join_room_response& from);
-  public:
-
-  static const ClassData _class_data_;
-  const ::google::protobuf::Message::ClassData*GetClassData() const final;
-
-  ::google::protobuf::Metadata GetMetadata() const final;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  enum : int {
-    kUseridFieldNumber = 1,
-    kRoomidFieldNumber = 2,
-  };
-  // optional int32 userid = 1;
-  bool has_userid() const;
-  void clear_userid() ;
-  ::int32_t userid() const;
-  void set_userid(::int32_t value);
-
-  private:
-  ::int32_t _internal_userid() const;
-  void _internal_set_userid(::int32_t value);
-
-  public:
-  // optional int32 roomid = 2;
-  bool has_roomid() const;
-  void clear_roomid() ;
-  ::int32_t roomid() const;
-  void set_roomid(::int32_t value);
-
-  private:
-  ::int32_t _internal_roomid() const;
-  void _internal_set_roomid(::int32_t value);
-
-  public:
-  // @@protoc_insertion_point(class_scope:pb_common.data_user_join_room_response)
- private:
-  class _Internal;
-
-  friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      1, 2, 0,
-      0, 2>
-      _table_;
-  friend class ::google::protobuf::MessageLite;
-  friend class ::google::protobuf::Arena;
-  template <typename T>
-  friend class ::google::protobuf::Arena::InternalHelper;
-  using InternalArenaConstructable_ = void;
-  using DestructorSkippable_ = void;
-  struct Impl_ {
-
-        inline explicit constexpr Impl_(
-            ::google::protobuf::internal::ConstantInitialized) noexcept;
-        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                              ::google::protobuf::Arena* arena);
-        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                              ::google::protobuf::Arena* arena, const Impl_& from);
-    ::google::protobuf::internal::HasBits<1> _has_bits_;
-    mutable ::google::protobuf::internal::CachedSize _cached_size_;
-    ::int32_t userid_;
-    ::int32_t roomid_;
-    PROTOBUF_TSAN_DECLARE_MEMBER
-  };
-  union { Impl_ _impl_; };
-  friend struct ::TableStruct_pb_5fcommon_2eproto;
-};// -------------------------------------------------------------------
-
 class data_user_join_room final :
     public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pb_common.data_user_join_room) */ {
  public:
@@ -2103,6 +1913,8 @@ class data_user_join_room final :
 
   enum : int {
     kUseridFieldNumber = 1,
+    kRoomidFieldNumber = 2,
+    kFlagFieldNumber = 3,
   };
   // optional int32 userid = 1;
   bool has_userid() const;
@@ -2115,13 +1927,35 @@ class data_user_join_room final :
   void _internal_set_userid(::int32_t value);
 
   public:
+  // optional int32 roomid = 2;
+  bool has_roomid() const;
+  void clear_roomid() ;
+  ::int32_t roomid() const;
+  void set_roomid(::int32_t value);
+
+  private:
+  ::int32_t _internal_roomid() const;
+  void _internal_set_roomid(::int32_t value);
+
+  public:
+  // optional int32 flag = 3;
+  bool has_flag() const;
+  void clear_flag() ;
+  ::int32_t flag() const;
+  void set_flag(::int32_t value);
+
+  private:
+  ::int32_t _internal_flag() const;
+  void _internal_set_flag(::int32_t value);
+
+  public:
   // @@protoc_insertion_point(class_scope:pb_common.data_user_join_room)
  private:
   class _Internal;
 
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      0, 1, 0,
+      2, 3, 0,
       0, 2>
       _table_;
   friend class ::google::protobuf::MessageLite;
@@ -2141,6 +1975,8 @@ class data_user_join_room final :
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     mutable ::google::protobuf::internal::CachedSize _cached_size_;
     ::int32_t userid_;
+    ::int32_t roomid_;
+    ::int32_t flag_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -4810,6 +4646,226 @@ class data_user_login_response final :
   friend struct ::TableStruct_pb_5fcommon_2eproto;
 };// -------------------------------------------------------------------
 
+class data_user_join_room_response final :
+    public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pb_common.data_user_join_room_response) */ {
+ public:
+  inline data_user_join_room_response() : data_user_join_room_response(nullptr) {}
+  ~data_user_join_room_response() override;
+  template<typename = void>
+  explicit PROTOBUF_CONSTEXPR data_user_join_room_response(::google::protobuf::internal::ConstantInitialized);
+
+  inline data_user_join_room_response(const data_user_join_room_response& from)
+      : data_user_join_room_response(nullptr, from) {}
+  data_user_join_room_response(data_user_join_room_response&& from) noexcept
+    : data_user_join_room_response() {
+    *this = ::std::move(from);
+  }
+
+  inline data_user_join_room_response& operator=(const data_user_join_room_response& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline data_user_join_room_response& operator=(data_user_join_room_response&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetArena() == from.GetArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const data_user_join_room_response& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const data_user_join_room_response* internal_default_instance() {
+    return reinterpret_cast<const data_user_join_room_response*>(
+               &_data_user_join_room_response_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    6;
+
+  friend void swap(data_user_join_room_response& a, data_user_join_room_response& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(data_user_join_room_response* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() != nullptr &&
+        GetArena() == other->GetArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() == other->GetArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(data_user_join_room_response* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  data_user_join_room_response* New(::google::protobuf::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<data_user_join_room_response>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const data_user_join_room_response& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom( const data_user_join_room_response& from) {
+    data_user_join_room_response::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  ::size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::google::protobuf::internal::ParseContext* ctx) final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target, ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  ::google::protobuf::internal::CachedSize* AccessCachedSize() const final;
+  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedDtor();
+  void InternalSwap(data_user_join_room_response* other);
+
+  private:
+  friend class ::google::protobuf::internal::AnyMetadata;
+  static ::absl::string_view FullMessageName() {
+    return "pb_common.data_user_join_room_response";
+  }
+  protected:
+  explicit data_user_join_room_response(::google::protobuf::Arena* arena);
+  data_user_join_room_response(::google::protobuf::Arena* arena, const data_user_join_room_response& from);
+  public:
+
+  static const ClassData _class_data_;
+  const ::google::protobuf::Message::ClassData*GetClassData() const final;
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kBeginFieldNumber = 4,
+    kUseridFieldNumber = 1,
+    kRoomidFieldNumber = 2,
+    kFlagFieldNumber = 3,
+  };
+  // optional .pb_common.data_begin begin = 4;
+  bool has_begin() const;
+  void clear_begin() ;
+  const ::pb_common::data_begin& begin() const;
+  PROTOBUF_NODISCARD ::pb_common::data_begin* release_begin();
+  ::pb_common::data_begin* mutable_begin();
+  void set_allocated_begin(::pb_common::data_begin* value);
+  void unsafe_arena_set_allocated_begin(::pb_common::data_begin* value);
+  ::pb_common::data_begin* unsafe_arena_release_begin();
+
+  private:
+  const ::pb_common::data_begin& _internal_begin() const;
+  ::pb_common::data_begin* _internal_mutable_begin();
+
+  public:
+  // optional int32 userid = 1;
+  bool has_userid() const;
+  void clear_userid() ;
+  ::int32_t userid() const;
+  void set_userid(::int32_t value);
+
+  private:
+  ::int32_t _internal_userid() const;
+  void _internal_set_userid(::int32_t value);
+
+  public:
+  // optional int32 roomid = 2;
+  bool has_roomid() const;
+  void clear_roomid() ;
+  ::int32_t roomid() const;
+  void set_roomid(::int32_t value);
+
+  private:
+  ::int32_t _internal_roomid() const;
+  void _internal_set_roomid(::int32_t value);
+
+  public:
+  // optional int32 flag = 3;
+  bool has_flag() const;
+  void clear_flag() ;
+  ::int32_t flag() const;
+  void set_flag(::int32_t value);
+
+  private:
+  ::int32_t _internal_flag() const;
+  void _internal_set_flag(::int32_t value);
+
+  public:
+  // @@protoc_insertion_point(class_scope:pb_common.data_user_join_room_response)
+ private:
+  class _Internal;
+
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      2, 4, 1,
+      0, 2>
+      _table_;
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+
+        inline explicit constexpr Impl_(
+            ::google::protobuf::internal::ConstantInitialized) noexcept;
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena);
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena, const Impl_& from);
+    ::google::protobuf::internal::HasBits<1> _has_bits_;
+    mutable ::google::protobuf::internal::CachedSize _cached_size_;
+    ::pb_common::data_begin* begin_;
+    ::int32_t userid_;
+    ::int32_t roomid_;
+    ::int32_t flag_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_pb_5fcommon_2eproto;
+};// -------------------------------------------------------------------
+
 class data_ope_frames final :
     public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pb_common.data_ope_frames) */ {
  public:
@@ -5007,203 +5063,6 @@ class data_ope_frames final :
   friend struct ::TableStruct_pb_5fcommon_2eproto;
 };// -------------------------------------------------------------------
 
-class data_repair_frames_response final :
-    public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pb_common.data_repair_frames_response) */ {
- public:
-  inline data_repair_frames_response() : data_repair_frames_response(nullptr) {}
-  ~data_repair_frames_response() override;
-  template<typename = void>
-  explicit PROTOBUF_CONSTEXPR data_repair_frames_response(::google::protobuf::internal::ConstantInitialized);
-
-  inline data_repair_frames_response(const data_repair_frames_response& from)
-      : data_repair_frames_response(nullptr, from) {}
-  data_repair_frames_response(data_repair_frames_response&& from) noexcept
-    : data_repair_frames_response() {
-    *this = ::std::move(from);
-  }
-
-  inline data_repair_frames_response& operator=(const data_repair_frames_response& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline data_repair_frames_response& operator=(data_repair_frames_response&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetArena() == from.GetArena()
-  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
-        && GetArena() != nullptr
-  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
-    ) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
-  }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::google::protobuf::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const data_repair_frames_response& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const data_repair_frames_response* internal_default_instance() {
-    return reinterpret_cast<const data_repair_frames_response*>(
-               &_data_repair_frames_response_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    24;
-
-  friend void swap(data_repair_frames_response& a, data_repair_frames_response& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(data_repair_frames_response* other) {
-    if (other == this) return;
-  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetArena() != nullptr &&
-        GetArena() == other->GetArena()) {
-   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetArena() == other->GetArena()) {
-  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
-      InternalSwap(other);
-    } else {
-      ::google::protobuf::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(data_repair_frames_response* other) {
-    if (other == this) return;
-    ABSL_DCHECK(GetArena() == other->GetArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  data_repair_frames_response* New(::google::protobuf::Arena* arena = nullptr) const final {
-    return CreateMaybeMessage<data_repair_frames_response>(arena);
-  }
-  using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const data_repair_frames_response& from);
-  using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom( const data_repair_frames_response& from) {
-    data_repair_frames_response::MergeImpl(*this, from);
-  }
-  private:
-  static void MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg);
-  public:
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  ::size_t ByteSizeLong() const final;
-  const char* _InternalParse(const char* ptr, ::google::protobuf::internal::ParseContext* ctx) final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target, ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
-  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
-
-  private:
-  ::google::protobuf::internal::CachedSize* AccessCachedSize() const final;
-  void SharedCtor(::google::protobuf::Arena* arena);
-  void SharedDtor();
-  void InternalSwap(data_repair_frames_response* other);
-
-  private:
-  friend class ::google::protobuf::internal::AnyMetadata;
-  static ::absl::string_view FullMessageName() {
-    return "pb_common.data_repair_frames_response";
-  }
-  protected:
-  explicit data_repair_frames_response(::google::protobuf::Arena* arena);
-  data_repair_frames_response(::google::protobuf::Arena* arena, const data_repair_frames_response& from);
-  public:
-
-  static const ClassData _class_data_;
-  const ::google::protobuf::Message::ClassData*GetClassData() const final;
-
-  ::google::protobuf::Metadata GetMetadata() const final;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  enum : int {
-    kFramesFieldNumber = 2,
-    kFlagFieldNumber = 1,
-  };
-  // repeated .pb_common.data_ope_frames frames = 2;
-  int frames_size() const;
-  private:
-  int _internal_frames_size() const;
-
-  public:
-  void clear_frames() ;
-  ::pb_common::data_ope_frames* mutable_frames(int index);
-  ::google::protobuf::RepeatedPtrField< ::pb_common::data_ope_frames >*
-      mutable_frames();
-  private:
-  const ::google::protobuf::RepeatedPtrField<::pb_common::data_ope_frames>& _internal_frames() const;
-  ::google::protobuf::RepeatedPtrField<::pb_common::data_ope_frames>* _internal_mutable_frames();
-  public:
-  const ::pb_common::data_ope_frames& frames(int index) const;
-  ::pb_common::data_ope_frames* add_frames();
-  const ::google::protobuf::RepeatedPtrField< ::pb_common::data_ope_frames >&
-      frames() const;
-  // optional int32 flag = 1;
-  bool has_flag() const;
-  void clear_flag() ;
-  ::int32_t flag() const;
-  void set_flag(::int32_t value);
-
-  private:
-  ::int32_t _internal_flag() const;
-  void _internal_set_flag(::int32_t value);
-
-  public:
-  // @@protoc_insertion_point(class_scope:pb_common.data_repair_frames_response)
- private:
-  class _Internal;
-
-  friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      1, 2, 1,
-      0, 2>
-      _table_;
-  friend class ::google::protobuf::MessageLite;
-  friend class ::google::protobuf::Arena;
-  template <typename T>
-  friend class ::google::protobuf::Arena::InternalHelper;
-  using InternalArenaConstructable_ = void;
-  using DestructorSkippable_ = void;
-  struct Impl_ {
-
-        inline explicit constexpr Impl_(
-            ::google::protobuf::internal::ConstantInitialized) noexcept;
-        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                              ::google::protobuf::Arena* arena);
-        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                              ::google::protobuf::Arena* arena, const Impl_& from);
-    ::google::protobuf::internal::HasBits<1> _has_bits_;
-    mutable ::google::protobuf::internal::CachedSize _cached_size_;
-    ::google::protobuf::RepeatedPtrField< ::pb_common::data_ope_frames > frames_;
-    ::int32_t flag_;
-    PROTOBUF_TSAN_DECLARE_MEMBER
-  };
-  union { Impl_ _impl_; };
-  friend struct ::TableStruct_pb_5fcommon_2eproto;
-};// -------------------------------------------------------------------
-
 class data_frames final :
     public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pb_common.data_frames) */ {
  public:
@@ -5381,6 +5240,200 @@ class data_frames final :
                               ::google::protobuf::Arena* arena, const Impl_& from);
     ::google::protobuf::RepeatedPtrField< ::pb_common::data_ope_frames > frames_;
     mutable ::google::protobuf::internal::CachedSize _cached_size_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_pb_5fcommon_2eproto;
+};// -------------------------------------------------------------------
+
+class data_repair_frames_response final :
+    public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pb_common.data_repair_frames_response) */ {
+ public:
+  inline data_repair_frames_response() : data_repair_frames_response(nullptr) {}
+  ~data_repair_frames_response() override;
+  template<typename = void>
+  explicit PROTOBUF_CONSTEXPR data_repair_frames_response(::google::protobuf::internal::ConstantInitialized);
+
+  inline data_repair_frames_response(const data_repair_frames_response& from)
+      : data_repair_frames_response(nullptr, from) {}
+  data_repair_frames_response(data_repair_frames_response&& from) noexcept
+    : data_repair_frames_response() {
+    *this = ::std::move(from);
+  }
+
+  inline data_repair_frames_response& operator=(const data_repair_frames_response& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline data_repair_frames_response& operator=(data_repair_frames_response&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetArena() == from.GetArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const data_repair_frames_response& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const data_repair_frames_response* internal_default_instance() {
+    return reinterpret_cast<const data_repair_frames_response*>(
+               &_data_repair_frames_response_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    24;
+
+  friend void swap(data_repair_frames_response& a, data_repair_frames_response& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(data_repair_frames_response* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() != nullptr &&
+        GetArena() == other->GetArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() == other->GetArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(data_repair_frames_response* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  data_repair_frames_response* New(::google::protobuf::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<data_repair_frames_response>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const data_repair_frames_response& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom( const data_repair_frames_response& from) {
+    data_repair_frames_response::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  ::size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::google::protobuf::internal::ParseContext* ctx) final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target, ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  ::google::protobuf::internal::CachedSize* AccessCachedSize() const final;
+  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedDtor();
+  void InternalSwap(data_repair_frames_response* other);
+
+  private:
+  friend class ::google::protobuf::internal::AnyMetadata;
+  static ::absl::string_view FullMessageName() {
+    return "pb_common.data_repair_frames_response";
+  }
+  protected:
+  explicit data_repair_frames_response(::google::protobuf::Arena* arena);
+  data_repair_frames_response(::google::protobuf::Arena* arena, const data_repair_frames_response& from);
+  public:
+
+  static const ClassData _class_data_;
+  const ::google::protobuf::Message::ClassData*GetClassData() const final;
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kFramesFieldNumber = 2,
+    kFlagFieldNumber = 1,
+  };
+  // optional .pb_common.data_frames frames = 2;
+  bool has_frames() const;
+  void clear_frames() ;
+  const ::pb_common::data_frames& frames() const;
+  PROTOBUF_NODISCARD ::pb_common::data_frames* release_frames();
+  ::pb_common::data_frames* mutable_frames();
+  void set_allocated_frames(::pb_common::data_frames* value);
+  void unsafe_arena_set_allocated_frames(::pb_common::data_frames* value);
+  ::pb_common::data_frames* unsafe_arena_release_frames();
+
+  private:
+  const ::pb_common::data_frames& _internal_frames() const;
+  ::pb_common::data_frames* _internal_mutable_frames();
+
+  public:
+  // optional int32 flag = 1;
+  bool has_flag() const;
+  void clear_flag() ;
+  ::int32_t flag() const;
+  void set_flag(::int32_t value);
+
+  private:
+  ::int32_t _internal_flag() const;
+  void _internal_set_flag(::int32_t value);
+
+  public:
+  // @@protoc_insertion_point(class_scope:pb_common.data_repair_frames_response)
+ private:
+  class _Internal;
+
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      1, 2, 1,
+      0, 2>
+      _table_;
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+
+        inline explicit constexpr Impl_(
+            ::google::protobuf::internal::ConstantInitialized) noexcept;
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena);
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena, const Impl_& from);
+    ::google::protobuf::internal::HasBits<1> _has_bits_;
+    mutable ::google::protobuf::internal::CachedSize _cached_size_;
+    ::pb_common::data_frames* frames_;
+    ::int32_t flag_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -6083,19 +6136,75 @@ inline void data_user_join_room::_internal_set_userid(::int32_t value) {
   _impl_.userid_ = value;
 }
 
+// optional int32 roomid = 2;
+inline bool data_user_join_room::has_roomid() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
+  return value;
+}
+inline void data_user_join_room::clear_roomid() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.roomid_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000002u;
+}
+inline ::int32_t data_user_join_room::roomid() const {
+  // @@protoc_insertion_point(field_get:pb_common.data_user_join_room.roomid)
+  return _internal_roomid();
+}
+inline void data_user_join_room::set_roomid(::int32_t value) {
+  _internal_set_roomid(value);
+  // @@protoc_insertion_point(field_set:pb_common.data_user_join_room.roomid)
+}
+inline ::int32_t data_user_join_room::_internal_roomid() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.roomid_;
+}
+inline void data_user_join_room::_internal_set_roomid(::int32_t value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_._has_bits_[0] |= 0x00000002u;
+  _impl_.roomid_ = value;
+}
+
+// optional int32 flag = 3;
+inline bool data_user_join_room::has_flag() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000004u) != 0;
+  return value;
+}
+inline void data_user_join_room::clear_flag() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.flag_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000004u;
+}
+inline ::int32_t data_user_join_room::flag() const {
+  // @@protoc_insertion_point(field_get:pb_common.data_user_join_room.flag)
+  return _internal_flag();
+}
+inline void data_user_join_room::set_flag(::int32_t value) {
+  _internal_set_flag(value);
+  // @@protoc_insertion_point(field_set:pb_common.data_user_join_room.flag)
+}
+inline ::int32_t data_user_join_room::_internal_flag() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.flag_;
+}
+inline void data_user_join_room::_internal_set_flag(::int32_t value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_._has_bits_[0] |= 0x00000004u;
+  _impl_.flag_ = value;
+}
+
 // -------------------------------------------------------------------
 
 // data_user_join_room_response
 
 // optional int32 userid = 1;
 inline bool data_user_join_room_response::has_userid() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
+  bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
   return value;
 }
 inline void data_user_join_room_response::clear_userid() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   _impl_.userid_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::int32_t data_user_join_room_response::userid() const {
   // @@protoc_insertion_point(field_get:pb_common.data_user_join_room_response.userid)
@@ -6111,19 +6220,19 @@ inline ::int32_t data_user_join_room_response::_internal_userid() const {
 }
 inline void data_user_join_room_response::_internal_set_userid(::int32_t value) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_._has_bits_[0] |= 0x00000001u;
+  _impl_._has_bits_[0] |= 0x00000002u;
   _impl_.userid_ = value;
 }
 
 // optional int32 roomid = 2;
 inline bool data_user_join_room_response::has_roomid() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
+  bool value = (_impl_._has_bits_[0] & 0x00000004u) != 0;
   return value;
 }
 inline void data_user_join_room_response::clear_roomid() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   _impl_.roomid_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::int32_t data_user_join_room_response::roomid() const {
   // @@protoc_insertion_point(field_get:pb_common.data_user_join_room_response.roomid)
@@ -6139,8 +6248,132 @@ inline ::int32_t data_user_join_room_response::_internal_roomid() const {
 }
 inline void data_user_join_room_response::_internal_set_roomid(::int32_t value) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_._has_bits_[0] |= 0x00000002u;
+  _impl_._has_bits_[0] |= 0x00000004u;
   _impl_.roomid_ = value;
+}
+
+// optional int32 flag = 3;
+inline bool data_user_join_room_response::has_flag() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000008u) != 0;
+  return value;
+}
+inline void data_user_join_room_response::clear_flag() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.flag_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000008u;
+}
+inline ::int32_t data_user_join_room_response::flag() const {
+  // @@protoc_insertion_point(field_get:pb_common.data_user_join_room_response.flag)
+  return _internal_flag();
+}
+inline void data_user_join_room_response::set_flag(::int32_t value) {
+  _internal_set_flag(value);
+  // @@protoc_insertion_point(field_set:pb_common.data_user_join_room_response.flag)
+}
+inline ::int32_t data_user_join_room_response::_internal_flag() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return _impl_.flag_;
+}
+inline void data_user_join_room_response::_internal_set_flag(::int32_t value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_._has_bits_[0] |= 0x00000008u;
+  _impl_.flag_ = value;
+}
+
+// optional .pb_common.data_begin begin = 4;
+inline bool data_user_join_room_response::has_begin() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
+  PROTOBUF_ASSUME(!value || _impl_.begin_ != nullptr);
+  return value;
+}
+inline void data_user_join_room_response::clear_begin() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (_impl_.begin_ != nullptr) _impl_.begin_->Clear();
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline const ::pb_common::data_begin& data_user_join_room_response::_internal_begin() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  const ::pb_common::data_begin* p = _impl_.begin_;
+  return p != nullptr ? *p : reinterpret_cast<const ::pb_common::data_begin&>(::pb_common::_data_begin_default_instance_);
+}
+inline const ::pb_common::data_begin& data_user_join_room_response::begin() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:pb_common.data_user_join_room_response.begin)
+  return _internal_begin();
+}
+inline void data_user_join_room_response::unsafe_arena_set_allocated_begin(::pb_common::data_begin* value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (GetArena() == nullptr) {
+    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.begin_);
+  }
+  _impl_.begin_ = reinterpret_cast<::pb_common::data_begin*>(value);
+  if (value != nullptr) {
+    _impl_._has_bits_[0] |= 0x00000001u;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000001u;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:pb_common.data_user_join_room_response.begin)
+}
+inline ::pb_common::data_begin* data_user_join_room_response::release_begin() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+
+  _impl_._has_bits_[0] &= ~0x00000001u;
+  ::pb_common::data_begin* released = _impl_.begin_;
+  _impl_.begin_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old = reinterpret_cast<::google::protobuf::MessageLite*>(released);
+  released = ::google::protobuf::internal::DuplicateIfNonNull(released);
+  if (GetArena() == nullptr) {
+    delete old;
+  }
+#else   // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArena() != nullptr) {
+    released = ::google::protobuf::internal::DuplicateIfNonNull(released);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return released;
+}
+inline ::pb_common::data_begin* data_user_join_room_response::unsafe_arena_release_begin() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  // @@protoc_insertion_point(field_release:pb_common.data_user_join_room_response.begin)
+
+  _impl_._has_bits_[0] &= ~0x00000001u;
+  ::pb_common::data_begin* temp = _impl_.begin_;
+  _impl_.begin_ = nullptr;
+  return temp;
+}
+inline ::pb_common::data_begin* data_user_join_room_response::_internal_mutable_begin() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  if (_impl_.begin_ == nullptr) {
+    auto* p = CreateMaybeMessage<::pb_common::data_begin>(GetArena());
+    _impl_.begin_ = reinterpret_cast<::pb_common::data_begin*>(p);
+  }
+  return _impl_.begin_;
+}
+inline ::pb_common::data_begin* data_user_join_room_response::mutable_begin() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::pb_common::data_begin* _msg = _internal_mutable_begin();
+  // @@protoc_insertion_point(field_mutable:pb_common.data_user_join_room_response.begin)
+  return _msg;
+}
+inline void data_user_join_room_response::set_allocated_begin(::pb_common::data_begin* value) {
+  ::google::protobuf::Arena* message_arena = GetArena();
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (message_arena == nullptr) {
+    delete reinterpret_cast<::pb_common::data_begin*>(_impl_.begin_);
+  }
+
+  if (value != nullptr) {
+    ::google::protobuf::Arena* submessage_arena = reinterpret_cast<::pb_common::data_begin*>(value)->GetArena();
+    if (message_arena != submessage_arena) {
+      value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
+    }
+    _impl_._has_bits_[0] |= 0x00000001u;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000001u;
+  }
+
+  _impl_.begin_ = reinterpret_cast<::pb_common::data_begin*>(value);
+  // @@protoc_insertion_point(field_set_allocated:pb_common.data_user_join_room_response.begin)
 }
 
 // -------------------------------------------------------------------
@@ -7485,13 +7718,13 @@ inline void data_repair_frames::_internal_set_flag(::int32_t value) {
 
 // optional int32 flag = 1;
 inline bool data_repair_frames_response::has_flag() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
+  bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
   return value;
 }
 inline void data_repair_frames_response::clear_flag() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
   _impl_.flag_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::int32_t data_repair_frames_response::flag() const {
   // @@protoc_insertion_point(field_get:pb_common.data_repair_frames_response.flag)
@@ -7507,57 +7740,104 @@ inline ::int32_t data_repair_frames_response::_internal_flag() const {
 }
 inline void data_repair_frames_response::_internal_set_flag(::int32_t value) {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_._has_bits_[0] |= 0x00000001u;
+  _impl_._has_bits_[0] |= 0x00000002u;
   _impl_.flag_ = value;
 }
 
-// repeated .pb_common.data_ope_frames frames = 2;
-inline int data_repair_frames_response::_internal_frames_size() const {
-  return _internal_frames().size();
-}
-inline int data_repair_frames_response::frames_size() const {
-  return _internal_frames_size();
+// optional .pb_common.data_frames frames = 2;
+inline bool data_repair_frames_response::has_frames() const {
+  bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
+  PROTOBUF_ASSUME(!value || _impl_.frames_ != nullptr);
+  return value;
 }
 inline void data_repair_frames_response::clear_frames() {
   PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  _impl_.frames_.Clear();
+  if (_impl_.frames_ != nullptr) _impl_.frames_->Clear();
+  _impl_._has_bits_[0] &= ~0x00000001u;
 }
-inline ::pb_common::data_ope_frames* data_repair_frames_response::mutable_frames(int index)
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable:pb_common.data_repair_frames_response.frames)
-  return _internal_mutable_frames()->Mutable(index);
+inline const ::pb_common::data_frames& data_repair_frames_response::_internal_frames() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  const ::pb_common::data_frames* p = _impl_.frames_;
+  return p != nullptr ? *p : reinterpret_cast<const ::pb_common::data_frames&>(::pb_common::_data_frames_default_instance_);
 }
-inline ::google::protobuf::RepeatedPtrField<::pb_common::data_ope_frames>* data_repair_frames_response::mutable_frames()
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable_list:pb_common.data_repair_frames_response.frames)
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  return _internal_mutable_frames();
-}
-inline const ::pb_common::data_ope_frames& data_repair_frames_response::frames(int index) const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline const ::pb_common::data_frames& data_repair_frames_response::frames() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
   // @@protoc_insertion_point(field_get:pb_common.data_repair_frames_response.frames)
-  return _internal_frames().Get(index);
-}
-inline ::pb_common::data_ope_frames* data_repair_frames_response::add_frames() ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
-  ::pb_common::data_ope_frames* _add = _internal_mutable_frames()->Add();
-  // @@protoc_insertion_point(field_add:pb_common.data_repair_frames_response.frames)
-  return _add;
-}
-inline const ::google::protobuf::RepeatedPtrField<::pb_common::data_ope_frames>& data_repair_frames_response::frames() const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:pb_common.data_repair_frames_response.frames)
   return _internal_frames();
 }
-inline const ::google::protobuf::RepeatedPtrField<::pb_common::data_ope_frames>&
-data_repair_frames_response::_internal_frames() const {
-  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+inline void data_repair_frames_response::unsafe_arena_set_allocated_frames(::pb_common::data_frames* value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (GetArena() == nullptr) {
+    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.frames_);
+  }
+  _impl_.frames_ = reinterpret_cast<::pb_common::data_frames*>(value);
+  if (value != nullptr) {
+    _impl_._has_bits_[0] |= 0x00000001u;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000001u;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:pb_common.data_repair_frames_response.frames)
+}
+inline ::pb_common::data_frames* data_repair_frames_response::release_frames() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+
+  _impl_._has_bits_[0] &= ~0x00000001u;
+  ::pb_common::data_frames* released = _impl_.frames_;
+  _impl_.frames_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old = reinterpret_cast<::google::protobuf::MessageLite*>(released);
+  released = ::google::protobuf::internal::DuplicateIfNonNull(released);
+  if (GetArena() == nullptr) {
+    delete old;
+  }
+#else   // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArena() != nullptr) {
+    released = ::google::protobuf::internal::DuplicateIfNonNull(released);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return released;
+}
+inline ::pb_common::data_frames* data_repair_frames_response::unsafe_arena_release_frames() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  // @@protoc_insertion_point(field_release:pb_common.data_repair_frames_response.frames)
+
+  _impl_._has_bits_[0] &= ~0x00000001u;
+  ::pb_common::data_frames* temp = _impl_.frames_;
+  _impl_.frames_ = nullptr;
+  return temp;
+}
+inline ::pb_common::data_frames* data_repair_frames_response::_internal_mutable_frames() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  if (_impl_.frames_ == nullptr) {
+    auto* p = CreateMaybeMessage<::pb_common::data_frames>(GetArena());
+    _impl_.frames_ = reinterpret_cast<::pb_common::data_frames*>(p);
+  }
   return _impl_.frames_;
 }
-inline ::google::protobuf::RepeatedPtrField<::pb_common::data_ope_frames>*
-data_repair_frames_response::_internal_mutable_frames() {
-  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
-  return &_impl_.frames_;
+inline ::pb_common::data_frames* data_repair_frames_response::mutable_frames() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::pb_common::data_frames* _msg = _internal_mutable_frames();
+  // @@protoc_insertion_point(field_mutable:pb_common.data_repair_frames_response.frames)
+  return _msg;
+}
+inline void data_repair_frames_response::set_allocated_frames(::pb_common::data_frames* value) {
+  ::google::protobuf::Arena* message_arena = GetArena();
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (message_arena == nullptr) {
+    delete reinterpret_cast<::pb_common::data_frames*>(_impl_.frames_);
+  }
+
+  if (value != nullptr) {
+    ::google::protobuf::Arena* submessage_arena = reinterpret_cast<::pb_common::data_frames*>(value)->GetArena();
+    if (message_arena != submessage_arena) {
+      value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
+    }
+    _impl_._has_bits_[0] |= 0x00000001u;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000001u;
+  }
+
+  _impl_.frames_ = reinterpret_cast<::pb_common::data_frames*>(value);
+  // @@protoc_insertion_point(field_set_allocated:pb_common.data_repair_frames_response.frames)
 }
 
 // -------------------------------------------------------------------

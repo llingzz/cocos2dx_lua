@@ -191,30 +191,12 @@ struct data_user_leave_roomDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 data_user_leave_roomDefaultTypeInternal _data_user_leave_room_default_instance_;
 
-inline constexpr data_user_join_room_response::Impl_::Impl_(
-    ::_pbi::ConstantInitialized) noexcept
-      : _cached_size_{0},
-        userid_{0},
-        roomid_{0} {}
-
-template <typename>
-PROTOBUF_CONSTEXPR data_user_join_room_response::data_user_join_room_response(::_pbi::ConstantInitialized)
-    : _impl_(::_pbi::ConstantInitialized()) {}
-struct data_user_join_room_responseDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR data_user_join_room_responseDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
-  ~data_user_join_room_responseDefaultTypeInternal() {}
-  union {
-    data_user_join_room_response _instance;
-  };
-};
-
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
-    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 data_user_join_room_responseDefaultTypeInternal _data_user_join_room_response_default_instance_;
-
 inline constexpr data_user_join_room::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
-        userid_{0} {}
+        userid_{0},
+        roomid_{0},
+        flag_{0} {}
 
 template <typename>
 PROTOBUF_CONSTEXPR data_user_join_room::data_user_join_room(::_pbi::ConstantInitialized)
@@ -506,6 +488,28 @@ struct data_user_login_responseDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 data_user_login_responseDefaultTypeInternal _data_user_login_response_default_instance_;
 
+inline constexpr data_user_join_room_response::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : _cached_size_{0},
+        begin_{nullptr},
+        userid_{0},
+        roomid_{0},
+        flag_{0} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR data_user_join_room_response::data_user_join_room_response(::_pbi::ConstantInitialized)
+    : _impl_(::_pbi::ConstantInitialized()) {}
+struct data_user_join_room_responseDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR data_user_join_room_responseDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~data_user_join_room_responseDefaultTypeInternal() {}
+  union {
+    data_user_join_room_response _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 data_user_join_room_responseDefaultTypeInternal _data_user_join_room_response_default_instance_;
+
 inline constexpr data_ope_frames::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
@@ -526,26 +530,6 @@ struct data_ope_framesDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 data_ope_framesDefaultTypeInternal _data_ope_frames_default_instance_;
 
-inline constexpr data_repair_frames_response::Impl_::Impl_(
-    ::_pbi::ConstantInitialized) noexcept
-      : _cached_size_{0},
-        frames_{},
-        flag_{0} {}
-
-template <typename>
-PROTOBUF_CONSTEXPR data_repair_frames_response::data_repair_frames_response(::_pbi::ConstantInitialized)
-    : _impl_(::_pbi::ConstantInitialized()) {}
-struct data_repair_frames_responseDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR data_repair_frames_responseDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
-  ~data_repair_frames_responseDefaultTypeInternal() {}
-  union {
-    data_repair_frames_response _instance;
-  };
-};
-
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
-    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 data_repair_frames_responseDefaultTypeInternal _data_repair_frames_response_default_instance_;
-
 inline constexpr data_frames::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : frames_{},
@@ -564,6 +548,26 @@ struct data_framesDefaultTypeInternal {
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 data_framesDefaultTypeInternal _data_frames_default_instance_;
+
+inline constexpr data_repair_frames_response::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : _cached_size_{0},
+        frames_{nullptr},
+        flag_{0} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR data_repair_frames_response::data_repair_frames_response(::_pbi::ConstantInitialized)
+    : _impl_(::_pbi::ConstantInitialized()) {}
+struct data_repair_frames_responseDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR data_repair_frames_responseDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~data_repair_frames_responseDefaultTypeInternal() {}
+  union {
+    data_repair_frames_response _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 data_repair_frames_responseDefaultTypeInternal _data_repair_frames_response_default_instance_;
 }  // namespace pb_common
 static ::_pb::Metadata file_level_metadata_pb_5fcommon_2eproto[26];
 static const ::_pb::EnumDescriptor* file_level_enum_descriptors_pb_5fcommon_2eproto[2];
@@ -648,7 +652,11 @@ const ::uint32_t TableStruct_pb_5fcommon_2eproto::offsets[] PROTOBUF_SECTION_VAR
     ~0u,  // no _split_
     ~0u,  // no sizeof(Split)
     PROTOBUF_FIELD_OFFSET(::pb_common::data_user_join_room, _impl_.userid_),
+    PROTOBUF_FIELD_OFFSET(::pb_common::data_user_join_room, _impl_.roomid_),
+    PROTOBUF_FIELD_OFFSET(::pb_common::data_user_join_room, _impl_.flag_),
     0,
+    1,
+    2,
     PROTOBUF_FIELD_OFFSET(::pb_common::data_user_join_room_response, _impl_._has_bits_),
     PROTOBUF_FIELD_OFFSET(::pb_common::data_user_join_room_response, _internal_metadata_),
     ~0u,  // no _extensions_
@@ -659,8 +667,12 @@ const ::uint32_t TableStruct_pb_5fcommon_2eproto::offsets[] PROTOBUF_SECTION_VAR
     ~0u,  // no sizeof(Split)
     PROTOBUF_FIELD_OFFSET(::pb_common::data_user_join_room_response, _impl_.userid_),
     PROTOBUF_FIELD_OFFSET(::pb_common::data_user_join_room_response, _impl_.roomid_),
-    0,
+    PROTOBUF_FIELD_OFFSET(::pb_common::data_user_join_room_response, _impl_.flag_),
+    PROTOBUF_FIELD_OFFSET(::pb_common::data_user_join_room_response, _impl_.begin_),
     1,
+    2,
+    3,
+    0,
     PROTOBUF_FIELD_OFFSET(::pb_common::data_ready, _impl_._has_bits_),
     PROTOBUF_FIELD_OFFSET(::pb_common::data_ready, _internal_metadata_),
     ~0u,  // no _extensions_
@@ -886,8 +898,8 @@ const ::uint32_t TableStruct_pb_5fcommon_2eproto::offsets[] PROTOBUF_SECTION_VAR
     ~0u,  // no sizeof(Split)
     PROTOBUF_FIELD_OFFSET(::pb_common::data_repair_frames_response, _impl_.flag_),
     PROTOBUF_FIELD_OFFSET(::pb_common::data_repair_frames_response, _impl_.frames_),
+    1,
     0,
-    ~0u,
     PROTOBUF_FIELD_OFFSET(::pb_common::data_sync_verify, _impl_._has_bits_),
     PROTOBUF_FIELD_OFFSET(::pb_common::data_sync_verify, _internal_metadata_),
     ~0u,  // no _extensions_
@@ -913,27 +925,27 @@ static const ::_pbi::MigrationSchema
         {26, 36, -1, sizeof(::pb_common::data_user_register_response)},
         {38, 48, -1, sizeof(::pb_common::data_user_login)},
         {50, 63, -1, sizeof(::pb_common::data_user_login_response)},
-        {68, 77, -1, sizeof(::pb_common::data_user_join_room)},
-        {78, 88, -1, sizeof(::pb_common::data_user_join_room_response)},
-        {90, 100, -1, sizeof(::pb_common::data_ready)},
-        {102, 113, -1, sizeof(::pb_common::data_ready_response)},
-        {116, 126, -1, sizeof(::pb_common::data_player_info)},
-        {128, 138, -1, sizeof(::pb_common::data_begin)},
-        {140, 152, -1, sizeof(::pb_common::ope_move)},
-        {156, 165, -1, sizeof(::pb_common::ope_fire_bullet)},
-        {166, 176, -1, sizeof(::pb_common::ope_detail)},
-        {178, 190, -1, sizeof(::pb_common::data_ope)},
-        {194, 206, -1, sizeof(::pb_common::data_frame)},
-        {210, 220, -1, sizeof(::pb_common::data_ope_frames)},
-        {222, -1, -1, sizeof(::pb_common::data_frames)},
-        {231, 241, -1, sizeof(::pb_common::data_tcp_close)},
-        {243, 253, -1, sizeof(::pb_common::data_user_leave_room)},
-        {255, 265, -1, sizeof(::pb_common::data_user_leave_room_response)},
-        {267, 277, -1, sizeof(::pb_common::data_ping)},
-        {279, 289, -1, sizeof(::pb_common::data_pong)},
-        {291, 302, -1, sizeof(::pb_common::data_repair_frames)},
-        {305, 315, -1, sizeof(::pb_common::data_repair_frames_response)},
-        {317, 329, -1, sizeof(::pb_common::data_sync_verify)},
+        {68, 79, -1, sizeof(::pb_common::data_user_join_room)},
+        {82, 94, -1, sizeof(::pb_common::data_user_join_room_response)},
+        {98, 108, -1, sizeof(::pb_common::data_ready)},
+        {110, 121, -1, sizeof(::pb_common::data_ready_response)},
+        {124, 134, -1, sizeof(::pb_common::data_player_info)},
+        {136, 146, -1, sizeof(::pb_common::data_begin)},
+        {148, 160, -1, sizeof(::pb_common::ope_move)},
+        {164, 173, -1, sizeof(::pb_common::ope_fire_bullet)},
+        {174, 184, -1, sizeof(::pb_common::ope_detail)},
+        {186, 198, -1, sizeof(::pb_common::data_ope)},
+        {202, 214, -1, sizeof(::pb_common::data_frame)},
+        {218, 228, -1, sizeof(::pb_common::data_ope_frames)},
+        {230, -1, -1, sizeof(::pb_common::data_frames)},
+        {239, 249, -1, sizeof(::pb_common::data_tcp_close)},
+        {251, 261, -1, sizeof(::pb_common::data_user_leave_room)},
+        {263, 273, -1, sizeof(::pb_common::data_user_leave_room_response)},
+        {275, 285, -1, sizeof(::pb_common::data_ping)},
+        {287, 297, -1, sizeof(::pb_common::data_pong)},
+        {299, 310, -1, sizeof(::pb_common::data_repair_frames)},
+        {313, 323, -1, sizeof(::pb_common::data_repair_frames_response)},
+        {325, 337, -1, sizeof(::pb_common::data_sync_verify)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -975,61 +987,63 @@ const char descriptor_table_protodef_pb_5fcommon_2eproto[] PROTOBUF_SECTION_VARI
     "\002 \001(\014\"\201\001\n\030data_user_login_response\022\016\n\006us"
     "erid\030\001 \001(\005\022\016\n\006ingame\030\002 \001(\005\022\016\n\006roomid\030\003 \001"
     "(\005\022$\n\005begin\030\004 \001(\0132\025.pb_common.data_begin"
-    "\022\017\n\007frameid\030\005 \001(\005\"%\n\023data_user_join_room"
-    "\022\016\n\006userid\030\001 \001(\005\">\n\034data_user_join_room_"
-    "response\022\016\n\006userid\030\001 \001(\005\022\016\n\006roomid\030\002 \001(\005"
-    "\"2\n\ndata_ready\022\016\n\006userid\030\001 \001(\005\022\016\n\006roomid"
-    "\030\002 \001(\005J\004\010\003\020\t\"P\n\023data_ready_response\022\016\n\006u"
-    "serid\030\001 \001(\005\022\016\n\006roomid\030\002 \001(\005\022\023\n\013return_co"
-    "de\030\003 \001(\005J\004\010\004\020\t\"1\n\020data_player_info\022\016\n\006us"
-    "erid\030\001 \001(\005\022\r\n\005index\030\002 \001(\005\"Q\n\ndata_begin\022"
-    "\021\n\trand_seed\030\001 \001(\r\0220\n\013playerinfos\030\002 \003(\0132"
-    "\033.pb_common.data_player_info\"O\n\010ope_move"
-    "\022\r\n\005movex\030\001 \002(\005\022\r\n\005movey\030\002 \002(\005\022\014\n\004turn\030\003"
-    " \002(\005\022\027\n\017barrel_rotation\030\005 \001(\005\"\037\n\017ope_fir"
-    "e_bullet\022\014\n\004fire\030\001 \001(\005\"0\n\nope_detail\022\017\n\007"
-    "opetype\030\001 \001(\005\022\021\n\topestring\030\002 \001(\014\"g\n\010data"
-    "_ope\022\016\n\006userid\030\001 \001(\005\022\017\n\007frameid\030\002 \001(\005\022&\n"
-    "\007opecode\030\003 \003(\0132\025.pb_common.ope_detail\022\022\n"
-    "\nackframeid\030\004 \001(\005\"n\n\ndata_frame\022\016\n\006useri"
-    "d\030\001 \001(\005\022\017\n\007frameid\030\002 \001(\005\022&\n\007opecode\030\003 \003("
-    "\0132\025.pb_common.ope_detail\022\027\n\017barrel_rotat"
-    "ion\030\004 \001(\005\"I\n\017data_ope_frames\022\017\n\007frameid\030"
-    "\001 \001(\005\022%\n\006frames\030\002 \003(\0132\025.pb_common.data_f"
-    "rame\"9\n\013data_frames\022*\n\006frames\030\001 \003(\0132\032.pb"
-    "_common.data_ope_frames\"/\n\016data_tcp_clos"
-    "e\022\016\n\006userid\030\001 \001(\005\022\r\n\005token\030\002 \001(\005\"6\n\024data"
-    "_user_leave_room\022\016\n\006userid\030\001 \001(\005\022\016\n\006room"
-    "id\030\002 \001(\005\"\?\n\035data_user_leave_room_respons"
-    "e\022\016\n\006userid\030\001 \001(\005\022\016\n\006roomid\030\002 \001(\005\"(\n\tdat"
-    "a_ping\022\016\n\006userid\030\001 \001(\005\022\013\n\003idx\030\002 \001(\005\"(\n\td"
-    "ata_pong\022\016\n\006userid\030\001 \001(\005\022\013\n\003idx\030\002 \001(\005\"B\n"
-    "\022data_repair_frames\022\016\n\006userid\030\001 \001(\005\022\016\n\006r"
-    "oomid\030\002 \001(\005\022\014\n\004flag\030\003 \001(\005\"W\n\033data_repair"
-    "_frames_response\022\014\n\004flag\030\001 \001(\005\022*\n\006frames"
-    "\030\002 \003(\0132\032.pb_common.data_ope_frames\"V\n\020da"
-    "ta_sync_verify\022\017\n\007frameid\030\001 \001(\005\022\021\n\tstate"
-    "hash\030\002 \001(\014\022\016\n\006roomid\030\003 \001(\005\022\016\n\006userid\030\004 \001"
-    "(\005*\377\003\n\rprotocol_code\022\025\n\021protocol_registe"
-    "r\020\001\022\036\n\032protocol_register_response\020\002\022\026\n\022p"
-    "rotocol_join_room\020\003\022\037\n\033protocol_join_roo"
-    "m_response\020\004\022\022\n\016protocol_ready\020\005\022\033\n\027prot"
-    "ocol_ready_response\020\006\022\022\n\016protocol_begin\020"
-    "\007\022\022\n\016protocol_frame\020\010\022\026\n\022protocol_tcp_cl"
-    "ose\020\t\022\027\n\023protocol_leave_room\020\n\022 \n\034protoc"
-    "ol_leave_room_response\020\013\022\021\n\rprotocol_pin"
-    "g\020\014\022\021\n\rprotocol_pong\020\r\022\032\n\026protocol_repai"
-    "r_frames\020\016\022#\n\037protocol_repair_frames_res"
-    "ponse\020\017\022\022\n\016protocol_login\020\020\022\032\n\026protocol_"
-    "login_reponse\020\021\022\030\n\024protocol_sync_verify\020"
-    "\022\022!\n\035protocol_sync_verify_response\020\023**\n\010"
-    "ope_type\022\013\n\007opeMove\020\001\022\021\n\ropeFireBullet\020\002"
+    "\022\017\n\007frameid\030\005 \001(\005\"C\n\023data_user_join_room"
+    "\022\016\n\006userid\030\001 \001(\005\022\016\n\006roomid\030\002 \001(\005\022\014\n\004flag"
+    "\030\003 \001(\005\"r\n\034data_user_join_room_response\022\016"
+    "\n\006userid\030\001 \001(\005\022\016\n\006roomid\030\002 \001(\005\022\014\n\004flag\030\003"
+    " \001(\005\022$\n\005begin\030\004 \001(\0132\025.pb_common.data_beg"
+    "in\"2\n\ndata_ready\022\016\n\006userid\030\001 \001(\005\022\016\n\006room"
+    "id\030\002 \001(\005J\004\010\003\020\t\"P\n\023data_ready_response\022\016\n"
+    "\006userid\030\001 \001(\005\022\016\n\006roomid\030\002 \001(\005\022\023\n\013return_"
+    "code\030\003 \001(\005J\004\010\004\020\t\"1\n\020data_player_info\022\016\n\006"
+    "userid\030\001 \001(\005\022\r\n\005index\030\002 \001(\005\"Q\n\ndata_begi"
+    "n\022\021\n\trand_seed\030\001 \001(\r\0220\n\013playerinfos\030\002 \003("
+    "\0132\033.pb_common.data_player_info\"O\n\010ope_mo"
+    "ve\022\r\n\005movex\030\001 \002(\005\022\r\n\005movey\030\002 \002(\005\022\014\n\004turn"
+    "\030\003 \002(\005\022\027\n\017barrel_rotation\030\005 \001(\005\"\037\n\017ope_f"
+    "ire_bullet\022\014\n\004fire\030\001 \001(\005\"0\n\nope_detail\022\017"
+    "\n\007opetype\030\001 \001(\005\022\021\n\topestring\030\002 \001(\014\"g\n\010da"
+    "ta_ope\022\016\n\006userid\030\001 \001(\005\022\017\n\007frameid\030\002 \001(\005\022"
+    "&\n\007opecode\030\003 \003(\0132\025.pb_common.ope_detail\022"
+    "\022\n\nackframeid\030\004 \001(\005\"n\n\ndata_frame\022\016\n\006use"
+    "rid\030\001 \001(\005\022\017\n\007frameid\030\002 \001(\005\022&\n\007opecode\030\003 "
+    "\003(\0132\025.pb_common.ope_detail\022\027\n\017barrel_rot"
+    "ation\030\004 \001(\005\"I\n\017data_ope_frames\022\017\n\007framei"
+    "d\030\001 \001(\005\022%\n\006frames\030\002 \003(\0132\025.pb_common.data"
+    "_frame\"9\n\013data_frames\022*\n\006frames\030\001 \003(\0132\032."
+    "pb_common.data_ope_frames\"/\n\016data_tcp_cl"
+    "ose\022\016\n\006userid\030\001 \001(\005\022\r\n\005token\030\002 \001(\005\"6\n\024da"
+    "ta_user_leave_room\022\016\n\006userid\030\001 \001(\005\022\016\n\006ro"
+    "omid\030\002 \001(\005\"\?\n\035data_user_leave_room_respo"
+    "nse\022\016\n\006userid\030\001 \001(\005\022\016\n\006roomid\030\002 \001(\005\"(\n\td"
+    "ata_ping\022\016\n\006userid\030\001 \001(\005\022\013\n\003idx\030\002 \001(\005\"(\n"
+    "\tdata_pong\022\016\n\006userid\030\001 \001(\005\022\013\n\003idx\030\002 \001(\005\""
+    "B\n\022data_repair_frames\022\016\n\006userid\030\001 \001(\005\022\016\n"
+    "\006roomid\030\002 \001(\005\022\014\n\004flag\030\003 \001(\005\"S\n\033data_repa"
+    "ir_frames_response\022\014\n\004flag\030\001 \001(\005\022&\n\006fram"
+    "es\030\002 \001(\0132\026.pb_common.data_frames\"V\n\020data"
+    "_sync_verify\022\017\n\007frameid\030\001 \001(\005\022\021\n\tstateha"
+    "sh\030\002 \001(\014\022\016\n\006roomid\030\003 \001(\005\022\016\n\006userid\030\004 \001(\005"
+    "*\377\003\n\rprotocol_code\022\025\n\021protocol_register\020"
+    "\001\022\036\n\032protocol_register_response\020\002\022\026\n\022pro"
+    "tocol_join_room\020\003\022\037\n\033protocol_join_room_"
+    "response\020\004\022\022\n\016protocol_ready\020\005\022\033\n\027protoc"
+    "ol_ready_response\020\006\022\022\n\016protocol_begin\020\007\022"
+    "\022\n\016protocol_frame\020\010\022\026\n\022protocol_tcp_clos"
+    "e\020\t\022\027\n\023protocol_leave_room\020\n\022 \n\034protocol"
+    "_leave_room_response\020\013\022\021\n\rprotocol_ping\020"
+    "\014\022\021\n\rprotocol_pong\020\r\022\032\n\026protocol_repair_"
+    "frames\020\016\022#\n\037protocol_repair_frames_respo"
+    "nse\020\017\022\022\n\016protocol_login\020\020\022\032\n\026protocol_lo"
+    "gin_reponse\020\021\022\030\n\024protocol_sync_verify\020\022\022"
+    "!\n\035protocol_sync_verify_response\020\023**\n\010op"
+    "e_type\022\013\n\007opeMove\020\001\022\021\n\ropeFireBullet\020\002"
 };
 static ::absl::once_flag descriptor_table_pb_5fcommon_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_pb_5fcommon_2eproto = {
     false,
     false,
-    2360,
+    2438,
     descriptor_table_protodef_pb_5fcommon_2eproto,
     "pb_common.proto",
     &descriptor_table_pb_5fcommon_2eproto_once,
@@ -2401,6 +2415,12 @@ class data_user_join_room::_Internal {
   static void set_has_userid(HasBits* has_bits) {
     (*has_bits)[0] |= 1u;
   }
+  static void set_has_roomid(HasBits* has_bits) {
+    (*has_bits)[0] |= 2u;
+  }
+  static void set_has_flag(HasBits* has_bits) {
+    (*has_bits)[0] |= 4u;
+  }
 };
 
 data_user_join_room::data_user_join_room(::google::protobuf::Arena* arena)
@@ -2420,7 +2440,12 @@ inline PROTOBUF_NDEBUG_INLINE data_user_join_room::Impl_::Impl_(
 
 inline void data_user_join_room::SharedCtor(::_pb::Arena* arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
-  _impl_.userid_ = {};
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, userid_),
+           0,
+           offsetof(Impl_, flag_) -
+               offsetof(Impl_, userid_) +
+               sizeof(Impl_::flag_));
 }
 data_user_join_room::~data_user_join_room() {
   // @@protoc_insertion_point(destructor:pb_common.data_user_join_room)
@@ -2439,7 +2464,12 @@ PROTOBUF_NOINLINE void data_user_join_room::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.userid_ = 0;
+  cached_has_bits = _impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000007u) {
+    ::memset(&_impl_.userid_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.flag_) -
+        reinterpret_cast<char*>(&_impl_.userid_)) + sizeof(_impl_.flag_));
+  }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
@@ -2452,28 +2482,41 @@ const char* data_user_join_room::_InternalParse(
 
 
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 0, 0, 2> data_user_join_room::_table_ = {
+const ::_pbi::TcParseTable<2, 3, 0, 0, 2> data_user_join_room::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(data_user_join_room, _impl_._has_bits_),
     0, // no _extensions_
-    1, 0,  // max_field_number, fast_idx_mask
+    3, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967294,  // skipmap
+    4294967288,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    1,  // num_field_entries
+    3,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     &_data_user_join_room_default_instance_._instance,
     ::_pbi::TcParser::GenericFallback,  // fallback
   }, {{
+    {::_pbi::TcParser::MiniParse, {}},
     // optional int32 userid = 1;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(data_user_join_room, _impl_.userid_), 0>(),
      {8, 0, 0, PROTOBUF_FIELD_OFFSET(data_user_join_room, _impl_.userid_)}},
+    // optional int32 roomid = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(data_user_join_room, _impl_.roomid_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(data_user_join_room, _impl_.roomid_)}},
+    // optional int32 flag = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(data_user_join_room, _impl_.flag_), 2>(),
+     {24, 2, 0, PROTOBUF_FIELD_OFFSET(data_user_join_room, _impl_.flag_)}},
   }}, {{
     65535, 65535
   }}, {{
     // optional int32 userid = 1;
     {PROTOBUF_FIELD_OFFSET(data_user_join_room, _impl_.userid_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // optional int32 roomid = 2;
+    {PROTOBUF_FIELD_OFFSET(data_user_join_room, _impl_.roomid_), _Internal::kHasBitsOffset + 1, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // optional int32 flag = 3;
+    {PROTOBUF_FIELD_OFFSET(data_user_join_room, _impl_.flag_), _Internal::kHasBitsOffset + 2, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
   }},
   // no aux_entries
@@ -2496,6 +2539,20 @@ const ::_pbi::TcParseTable<0, 1, 0, 0, 2> data_user_join_room::_table_ = {
             stream, this->_internal_userid(), target);
   }
 
+  // optional int32 roomid = 2;
+  if (cached_has_bits & 0x00000002u) {
+    target = ::google::protobuf::internal::WireFormatLite::
+        WriteInt32ToArrayWithField<2>(
+            stream, this->_internal_roomid(), target);
+  }
+
+  // optional int32 flag = 3;
+  if (cached_has_bits & 0x00000004u) {
+    target = ::google::protobuf::internal::WireFormatLite::
+        WriteInt32ToArrayWithField<3>(
+            stream, this->_internal_flag(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target =
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
@@ -2513,13 +2570,27 @@ const ::_pbi::TcParseTable<0, 1, 0, 0, 2> data_user_join_room::_table_ = {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // optional int32 userid = 1;
   cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
-    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-        this->_internal_userid());
-  }
+  if (cached_has_bits & 0x00000007u) {
+    // optional int32 userid = 1;
+    if (cached_has_bits & 0x00000001u) {
+      total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+          this->_internal_userid());
+    }
 
+    // optional int32 roomid = 2;
+    if (cached_has_bits & 0x00000002u) {
+      total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+          this->_internal_roomid());
+    }
+
+    // optional int32 flag = 3;
+    if (cached_has_bits & 0x00000004u) {
+      total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+          this->_internal_flag());
+    }
+
+  }
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
@@ -2539,8 +2610,18 @@ void data_user_join_room::MergeImpl(::google::protobuf::Message& to_msg, const :
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if ((from._impl_._has_bits_[0] & 0x00000001u) != 0) {
-    _this->_internal_set_userid(from._internal_userid());
+  cached_has_bits = from._impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000007u) {
+    if (cached_has_bits & 0x00000001u) {
+      _this->_impl_.userid_ = from._impl_.userid_;
+    }
+    if (cached_has_bits & 0x00000002u) {
+      _this->_impl_.roomid_ = from._impl_.roomid_;
+    }
+    if (cached_has_bits & 0x00000004u) {
+      _this->_impl_.flag_ = from._impl_.flag_;
+    }
+    _this->_impl_._has_bits_[0] |= cached_has_bits;
   }
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -2563,7 +2644,12 @@ void data_user_join_room::InternalSwap(data_user_join_room* PROTOBUF_RESTRICT ot
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
-        swap(_impl_.userid_, other->_impl_.userid_);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(data_user_join_room, _impl_.flag_)
+      + sizeof(data_user_join_room::_impl_.flag_)
+      - PROTOBUF_FIELD_OFFSET(data_user_join_room, _impl_.userid_)>(
+          reinterpret_cast<char*>(&_impl_.userid_),
+          reinterpret_cast<char*>(&other->_impl_.userid_));
 }
 
 ::google::protobuf::Metadata data_user_join_room::GetMetadata() const {
@@ -2579,22 +2665,56 @@ class data_user_join_room_response::_Internal {
   static constexpr ::int32_t kHasBitsOffset =
     8 * PROTOBUF_FIELD_OFFSET(data_user_join_room_response, _impl_._has_bits_);
   static void set_has_userid(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
+    (*has_bits)[0] |= 2u;
   }
   static void set_has_roomid(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
+    (*has_bits)[0] |= 4u;
+  }
+  static void set_has_flag(HasBits* has_bits) {
+    (*has_bits)[0] |= 8u;
+  }
+  static const ::pb_common::data_begin& begin(const data_user_join_room_response* msg);
+  static void set_has_begin(HasBits* has_bits) {
+    (*has_bits)[0] |= 1u;
   }
 };
 
+const ::pb_common::data_begin& data_user_join_room_response::_Internal::begin(const data_user_join_room_response* msg) {
+  return *msg->_impl_.begin_;
+}
 data_user_join_room_response::data_user_join_room_response(::google::protobuf::Arena* arena)
     : ::google::protobuf::Message(arena) {
   SharedCtor(arena);
   // @@protoc_insertion_point(arena_constructor:pb_common.data_user_join_room_response)
 }
+inline PROTOBUF_NDEBUG_INLINE data_user_join_room_response::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
+    const Impl_& from)
+      : _has_bits_{from._has_bits_},
+        _cached_size_{0} {}
+
 data_user_join_room_response::data_user_join_room_response(
-    ::google::protobuf::Arena* arena, const data_user_join_room_response& from)
-    : data_user_join_room_response(arena) {
-  MergeFrom(from);
+    ::google::protobuf::Arena* arena,
+    const data_user_join_room_response& from)
+    : ::google::protobuf::Message(arena) {
+  data_user_join_room_response* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_);
+  ::uint32_t cached_has_bits = _impl_._has_bits_[0];
+  _impl_.begin_ = (cached_has_bits & 0x00000001u)
+                ? CreateMaybeMessage<::pb_common::data_begin>(arena, *from._impl_.begin_)
+                : nullptr;
+  ::memcpy(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, userid_),
+           reinterpret_cast<const char *>(&from._impl_) +
+               offsetof(Impl_, userid_),
+           offsetof(Impl_, flag_) -
+               offsetof(Impl_, userid_) +
+               sizeof(Impl_::flag_));
+
+  // @@protoc_insertion_point(copy_constructor:pb_common.data_user_join_room_response)
 }
 inline PROTOBUF_NDEBUG_INLINE data_user_join_room_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -2604,11 +2724,11 @@ inline PROTOBUF_NDEBUG_INLINE data_user_join_room_response::Impl_::Impl_(
 inline void data_user_join_room_response::SharedCtor(::_pb::Arena* arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char *>(&_impl_) +
-               offsetof(Impl_, userid_),
+               offsetof(Impl_, begin_),
            0,
-           offsetof(Impl_, roomid_) -
-               offsetof(Impl_, userid_) +
-               sizeof(Impl_::roomid_));
+           offsetof(Impl_, flag_) -
+               offsetof(Impl_, begin_) +
+               sizeof(Impl_::flag_));
 }
 data_user_join_room_response::~data_user_join_room_response() {
   // @@protoc_insertion_point(destructor:pb_common.data_user_join_room_response)
@@ -2617,6 +2737,7 @@ data_user_join_room_response::~data_user_join_room_response() {
 }
 inline void data_user_join_room_response::SharedDtor() {
   ABSL_DCHECK(GetArena() == nullptr);
+  delete _impl_.begin_;
   _impl_.~Impl_();
 }
 
@@ -2628,10 +2749,14 @@ PROTOBUF_NOINLINE void data_user_join_room_response::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
+  if (cached_has_bits & 0x00000001u) {
+    ABSL_DCHECK(_impl_.begin_ != nullptr);
+    _impl_.begin_->Clear();
+  }
+  if (cached_has_bits & 0x0000000eu) {
     ::memset(&_impl_.userid_, 0, static_cast<::size_t>(
-        reinterpret_cast<char*>(&_impl_.roomid_) -
-        reinterpret_cast<char*>(&_impl_.userid_)) + sizeof(_impl_.roomid_));
+        reinterpret_cast<char*>(&_impl_.flag_) -
+        reinterpret_cast<char*>(&_impl_.userid_)) + sizeof(_impl_.flag_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -2645,38 +2770,50 @@ const char* data_user_join_room_response::_InternalParse(
 
 
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 0, 0, 2> data_user_join_room_response::_table_ = {
+const ::_pbi::TcParseTable<2, 4, 1, 0, 2> data_user_join_room_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(data_user_join_room_response, _impl_._has_bits_),
     0, // no _extensions_
-    2, 8,  // max_field_number, fast_idx_mask
+    4, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967292,  // skipmap
+    4294967280,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    2,  // num_field_entries
-    0,  // num_aux_entries
-    offsetof(decltype(_table_), field_names),  // no aux_entries
+    4,  // num_field_entries
+    1,  // num_aux_entries
+    offsetof(decltype(_table_), aux_entries),
     &_data_user_join_room_response_default_instance_._instance,
     ::_pbi::TcParser::GenericFallback,  // fallback
   }, {{
-    // optional int32 roomid = 2;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(data_user_join_room_response, _impl_.roomid_), 1>(),
-     {16, 1, 0, PROTOBUF_FIELD_OFFSET(data_user_join_room_response, _impl_.roomid_)}},
+    // optional .pb_common.data_begin begin = 4;
+    {::_pbi::TcParser::FastMtS1,
+     {34, 0, 0, PROTOBUF_FIELD_OFFSET(data_user_join_room_response, _impl_.begin_)}},
     // optional int32 userid = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(data_user_join_room_response, _impl_.userid_), 0>(),
-     {8, 0, 0, PROTOBUF_FIELD_OFFSET(data_user_join_room_response, _impl_.userid_)}},
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(data_user_join_room_response, _impl_.userid_), 1>(),
+     {8, 1, 0, PROTOBUF_FIELD_OFFSET(data_user_join_room_response, _impl_.userid_)}},
+    // optional int32 roomid = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(data_user_join_room_response, _impl_.roomid_), 2>(),
+     {16, 2, 0, PROTOBUF_FIELD_OFFSET(data_user_join_room_response, _impl_.roomid_)}},
+    // optional int32 flag = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(data_user_join_room_response, _impl_.flag_), 3>(),
+     {24, 3, 0, PROTOBUF_FIELD_OFFSET(data_user_join_room_response, _impl_.flag_)}},
   }}, {{
     65535, 65535
   }}, {{
     // optional int32 userid = 1;
-    {PROTOBUF_FIELD_OFFSET(data_user_join_room_response, _impl_.userid_), _Internal::kHasBitsOffset + 0, 0,
+    {PROTOBUF_FIELD_OFFSET(data_user_join_room_response, _impl_.userid_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
     // optional int32 roomid = 2;
-    {PROTOBUF_FIELD_OFFSET(data_user_join_room_response, _impl_.roomid_), _Internal::kHasBitsOffset + 1, 0,
+    {PROTOBUF_FIELD_OFFSET(data_user_join_room_response, _impl_.roomid_), _Internal::kHasBitsOffset + 2, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
-  }},
-  // no aux_entries
-  {{
+    // optional int32 flag = 3;
+    {PROTOBUF_FIELD_OFFSET(data_user_join_room_response, _impl_.flag_), _Internal::kHasBitsOffset + 3, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // optional .pb_common.data_begin begin = 4;
+    {PROTOBUF_FIELD_OFFSET(data_user_join_room_response, _impl_.begin_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
+  }}, {{
+    {::_pbi::TcParser::GetTable<::pb_common::data_begin>()},
+  }}, {{
   }},
 };
 
@@ -2689,17 +2826,31 @@ const ::_pbi::TcParseTable<1, 2, 0, 0, 2> data_user_join_room_response::_table_ 
 
   cached_has_bits = _impl_._has_bits_[0];
   // optional int32 userid = 1;
-  if (cached_has_bits & 0x00000001u) {
+  if (cached_has_bits & 0x00000002u) {
     target = ::google::protobuf::internal::WireFormatLite::
         WriteInt32ToArrayWithField<1>(
             stream, this->_internal_userid(), target);
   }
 
   // optional int32 roomid = 2;
-  if (cached_has_bits & 0x00000002u) {
+  if (cached_has_bits & 0x00000004u) {
     target = ::google::protobuf::internal::WireFormatLite::
         WriteInt32ToArrayWithField<2>(
             stream, this->_internal_roomid(), target);
+  }
+
+  // optional int32 flag = 3;
+  if (cached_has_bits & 0x00000008u) {
+    target = ::google::protobuf::internal::WireFormatLite::
+        WriteInt32ToArrayWithField<3>(
+            stream, this->_internal_flag(), target);
+  }
+
+  // optional .pb_common.data_begin begin = 4;
+  if (cached_has_bits & 0x00000001u) {
+    target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+        4, _Internal::begin(this),
+        _Internal::begin(this).GetCachedSize(), target, stream);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -2720,17 +2871,29 @@ const ::_pbi::TcParseTable<1, 2, 0, 0, 2> data_user_join_room_response::_table_ 
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
-    // optional int32 userid = 1;
+  if (cached_has_bits & 0x0000000fu) {
+    // optional .pb_common.data_begin begin = 4;
     if (cached_has_bits & 0x00000001u) {
+      total_size +=
+          1 + ::google::protobuf::internal::WireFormatLite::MessageSize(*_impl_.begin_);
+    }
+
+    // optional int32 userid = 1;
+    if (cached_has_bits & 0x00000002u) {
       total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
           this->_internal_userid());
     }
 
     // optional int32 roomid = 2;
-    if (cached_has_bits & 0x00000002u) {
+    if (cached_has_bits & 0x00000004u) {
       total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
           this->_internal_roomid());
+    }
+
+    // optional int32 flag = 3;
+    if (cached_has_bits & 0x00000008u) {
+      total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+          this->_internal_flag());
     }
 
   }
@@ -2754,12 +2917,19 @@ void data_user_join_room_response::MergeImpl(::google::protobuf::Message& to_msg
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
+  if (cached_has_bits & 0x0000000fu) {
     if (cached_has_bits & 0x00000001u) {
-      _this->_impl_.userid_ = from._impl_.userid_;
+      _this->_internal_mutable_begin()->::pb_common::data_begin::MergeFrom(
+          from._internal_begin());
     }
     if (cached_has_bits & 0x00000002u) {
+      _this->_impl_.userid_ = from._impl_.userid_;
+    }
+    if (cached_has_bits & 0x00000004u) {
       _this->_impl_.roomid_ = from._impl_.roomid_;
+    }
+    if (cached_has_bits & 0x00000008u) {
+      _this->_impl_.flag_ = from._impl_.flag_;
     }
     _this->_impl_._has_bits_[0] |= cached_has_bits;
   }
@@ -2785,11 +2955,11 @@ void data_user_join_room_response::InternalSwap(data_user_join_room_response* PR
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
   ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(data_user_join_room_response, _impl_.roomid_)
-      + sizeof(data_user_join_room_response::_impl_.roomid_)
-      - PROTOBUF_FIELD_OFFSET(data_user_join_room_response, _impl_.userid_)>(
-          reinterpret_cast<char*>(&_impl_.userid_),
-          reinterpret_cast<char*>(&other->_impl_.userid_));
+      PROTOBUF_FIELD_OFFSET(data_user_join_room_response, _impl_.flag_)
+      + sizeof(data_user_join_room_response::_impl_.flag_)
+      - PROTOBUF_FIELD_OFFSET(data_user_join_room_response, _impl_.begin_)>(
+          reinterpret_cast<char*>(&_impl_.begin_),
+          reinterpret_cast<char*>(&other->_impl_.begin_));
 }
 
 ::google::protobuf::Metadata data_user_join_room_response::GetMetadata() const {
@@ -6808,10 +6978,17 @@ class data_repair_frames_response::_Internal {
   static constexpr ::int32_t kHasBitsOffset =
     8 * PROTOBUF_FIELD_OFFSET(data_repair_frames_response, _impl_._has_bits_);
   static void set_has_flag(HasBits* has_bits) {
+    (*has_bits)[0] |= 2u;
+  }
+  static const ::pb_common::data_frames& frames(const data_repair_frames_response* msg);
+  static void set_has_frames(HasBits* has_bits) {
     (*has_bits)[0] |= 1u;
   }
 };
 
+const ::pb_common::data_frames& data_repair_frames_response::_Internal::frames(const data_repair_frames_response* msg) {
+  return *msg->_impl_.frames_;
+}
 data_repair_frames_response::data_repair_frames_response(::google::protobuf::Arena* arena)
     : ::google::protobuf::Message(arena) {
   SharedCtor(arena);
@@ -6821,8 +6998,7 @@ inline PROTOBUF_NDEBUG_INLINE data_repair_frames_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
     const Impl_& from)
       : _has_bits_{from._has_bits_},
-        _cached_size_{0},
-        frames_{visibility, arena, from.frames_} {}
+        _cached_size_{0} {}
 
 data_repair_frames_response::data_repair_frames_response(
     ::google::protobuf::Arena* arena,
@@ -6833,6 +7009,10 @@ data_repair_frames_response::data_repair_frames_response(
   _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_);
+  ::uint32_t cached_has_bits = _impl_._has_bits_[0];
+  _impl_.frames_ = (cached_has_bits & 0x00000001u)
+                ? CreateMaybeMessage<::pb_common::data_frames>(arena, *from._impl_.frames_)
+                : nullptr;
   _impl_.flag_ = from._impl_.flag_;
 
   // @@protoc_insertion_point(copy_constructor:pb_common.data_repair_frames_response)
@@ -6840,12 +7020,16 @@ data_repair_frames_response::data_repair_frames_response(
 inline PROTOBUF_NDEBUG_INLINE data_repair_frames_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* arena)
-      : _cached_size_{0},
-        frames_{visibility, arena} {}
+      : _cached_size_{0} {}
 
 inline void data_repair_frames_response::SharedCtor(::_pb::Arena* arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
-  _impl_.flag_ = {};
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, frames_),
+           0,
+           offsetof(Impl_, flag_) -
+               offsetof(Impl_, frames_) +
+               sizeof(Impl_::flag_));
 }
 data_repair_frames_response::~data_repair_frames_response() {
   // @@protoc_insertion_point(destructor:pb_common.data_repair_frames_response)
@@ -6854,6 +7038,7 @@ data_repair_frames_response::~data_repair_frames_response() {
 }
 inline void data_repair_frames_response::SharedDtor() {
   ABSL_DCHECK(GetArena() == nullptr);
+  delete _impl_.frames_;
   _impl_.~Impl_();
 }
 
@@ -6864,7 +7049,11 @@ PROTOBUF_NOINLINE void data_repair_frames_response::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.frames_.Clear();
+  cached_has_bits = _impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000001u) {
+    ABSL_DCHECK(_impl_.frames_ != nullptr);
+    _impl_.frames_->Clear();
+  }
   _impl_.flag_ = 0;
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -6892,23 +7081,23 @@ const ::_pbi::TcParseTable<1, 2, 1, 0, 2> data_repair_frames_response::_table_ =
     &_data_repair_frames_response_default_instance_._instance,
     ::_pbi::TcParser::GenericFallback,  // fallback
   }, {{
-    // repeated .pb_common.data_ope_frames frames = 2;
-    {::_pbi::TcParser::FastMtR1,
-     {18, 63, 0, PROTOBUF_FIELD_OFFSET(data_repair_frames_response, _impl_.frames_)}},
+    // optional .pb_common.data_frames frames = 2;
+    {::_pbi::TcParser::FastMtS1,
+     {18, 0, 0, PROTOBUF_FIELD_OFFSET(data_repair_frames_response, _impl_.frames_)}},
     // optional int32 flag = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(data_repair_frames_response, _impl_.flag_), 0>(),
-     {8, 0, 0, PROTOBUF_FIELD_OFFSET(data_repair_frames_response, _impl_.flag_)}},
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(data_repair_frames_response, _impl_.flag_), 1>(),
+     {8, 1, 0, PROTOBUF_FIELD_OFFSET(data_repair_frames_response, _impl_.flag_)}},
   }}, {{
     65535, 65535
   }}, {{
     // optional int32 flag = 1;
-    {PROTOBUF_FIELD_OFFSET(data_repair_frames_response, _impl_.flag_), _Internal::kHasBitsOffset + 0, 0,
+    {PROTOBUF_FIELD_OFFSET(data_repair_frames_response, _impl_.flag_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
-    // repeated .pb_common.data_ope_frames frames = 2;
-    {PROTOBUF_FIELD_OFFSET(data_repair_frames_response, _impl_.frames_), -1, 0,
-    (0 | ::_fl::kFcRepeated | ::_fl::kMessage | ::_fl::kTvTable)},
+    // optional .pb_common.data_frames frames = 2;
+    {PROTOBUF_FIELD_OFFSET(data_repair_frames_response, _impl_.frames_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kMessage | ::_fl::kTvTable)},
   }}, {{
-    {::_pbi::TcParser::GetTable<::pb_common::data_ope_frames>()},
+    {::_pbi::TcParser::GetTable<::pb_common::data_frames>()},
   }}, {{
   }},
 };
@@ -6922,18 +7111,17 @@ const ::_pbi::TcParseTable<1, 2, 1, 0, 2> data_repair_frames_response::_table_ =
 
   cached_has_bits = _impl_._has_bits_[0];
   // optional int32 flag = 1;
-  if (cached_has_bits & 0x00000001u) {
+  if (cached_has_bits & 0x00000002u) {
     target = ::google::protobuf::internal::WireFormatLite::
         WriteInt32ToArrayWithField<1>(
             stream, this->_internal_flag(), target);
   }
 
-  // repeated .pb_common.data_ope_frames frames = 2;
-  for (unsigned i = 0,
-      n = static_cast<unsigned>(this->_internal_frames_size()); i < n; i++) {
-    const auto& repfield = this->_internal_frames().Get(i);
-    target = ::google::protobuf::internal::WireFormatLite::
-        InternalWriteMessage(2, repfield, repfield.GetCachedSize(), target, stream);
+  // optional .pb_common.data_frames frames = 2;
+  if (cached_has_bits & 0x00000001u) {
+    target = ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+        2, _Internal::frames(this),
+        _Internal::frames(this).GetCachedSize(), target, stream);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -6953,19 +7141,21 @@ const ::_pbi::TcParseTable<1, 2, 1, 0, 2> data_repair_frames_response::_table_ =
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated .pb_common.data_ope_frames frames = 2;
-  total_size += 1UL * this->_internal_frames_size();
-  for (const auto& msg : this->_internal_frames()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormatLite::MessageSize(msg);
-  }
-  // optional int32 flag = 1;
   cached_has_bits = _impl_._has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
-    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-        this->_internal_flag());
-  }
+  if (cached_has_bits & 0x00000003u) {
+    // optional .pb_common.data_frames frames = 2;
+    if (cached_has_bits & 0x00000001u) {
+      total_size +=
+          1 + ::google::protobuf::internal::WireFormatLite::MessageSize(*_impl_.frames_);
+    }
 
+    // optional int32 flag = 1;
+    if (cached_has_bits & 0x00000002u) {
+      total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+          this->_internal_flag());
+    }
+
+  }
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
@@ -6985,10 +7175,16 @@ void data_repair_frames_response::MergeImpl(::google::protobuf::Message& to_msg,
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  _this->_internal_mutable_frames()->MergeFrom(
-      from._internal_frames());
-  if ((from._impl_._has_bits_[0] & 0x00000001u) != 0) {
-    _this->_internal_set_flag(from._internal_flag());
+  cached_has_bits = from._impl_._has_bits_[0];
+  if (cached_has_bits & 0x00000003u) {
+    if (cached_has_bits & 0x00000001u) {
+      _this->_internal_mutable_frames()->::pb_common::data_frames::MergeFrom(
+          from._internal_frames());
+    }
+    if (cached_has_bits & 0x00000002u) {
+      _this->_impl_.flag_ = from._impl_.flag_;
+    }
+    _this->_impl_._has_bits_[0] |= cached_has_bits;
   }
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -7011,8 +7207,12 @@ void data_repair_frames_response::InternalSwap(data_repair_frames_response* PROT
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
-  _impl_.frames_.InternalSwap(&other->_impl_.frames_);
-        swap(_impl_.flag_, other->_impl_.flag_);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(data_repair_frames_response, _impl_.flag_)
+      + sizeof(data_repair_frames_response::_impl_.flag_)
+      - PROTOBUF_FIELD_OFFSET(data_repair_frames_response, _impl_.frames_)>(
+          reinterpret_cast<char*>(&_impl_.frames_),
+          reinterpret_cast<char*>(&other->_impl_.frames_));
 }
 
 ::google::protobuf::Metadata data_repair_frames_response::GetMetadata() const {

@@ -76,6 +76,8 @@ function SceneMain:ctor()
     self.begin = false
     self.roomid = 0
     self.isDisconnected = false
+    -- 是否是观战
+    self.spectate = false
 
     -- 服务端下发的帧数据
     self.serverFrames = OrderedTable:new()
@@ -199,8 +201,12 @@ function SceneMain:onEventData(INdata)
             self.token = dataInfo.userid
             self:ping()
             if dataInfo.ingame == 0 then
+                local flag = 0
+                if self.spectate then flag = 1 end
                 local pData = protobuf.encode('pb_common.data_user_join_room', {
-                    userid = self.token
+                    userid = self.token,
+                    flag = flag,
+                    roomid = 0
                 })
                 self:sendData(protobuf.enum_id("pb_common.protocol_code","protocol_join_room"),pData)
             else
@@ -223,11 +229,24 @@ function SceneMain:onEventData(INdata)
             local dataInfo = protobuf.decode("pb_common.data_user_join_room_response", INdata.data.data_str)
             protobuf.extract(dataInfo)
             self.roomid = dataInfo.roomid
-            local pData = protobuf.encode('pb_common.data_ready', {
-                userid = self.token,
-                roomid = self.roomid,
-            })
-            self:sendData(protobuf.enum_id("pb_common.protocol_code","protocol_ready"),pData)
+            if 0 == dataInfo.flag then
+                local pData = protobuf.encode('pb_common.data_ready', {
+                    userid = self.token,
+                    roomid = self.roomid,
+                })
+                self:sendData(protobuf.enum_id("pb_common.protocol_code","protocol_ready"),pData)
+            else
+                for k,v in ipairs(dataInfo.begin.playerinfos) do
+                    if not self.entities:get(v.userid) then self:createEntity(v) end
+                    local entity = self.entities:get(v.userid)
+                    entity:hide()
+                end
+                local pData = protobuf.encode('pb_common.data_ready', {
+                    userid = self.token,
+                    roomid = self.roomid,
+                })
+                self:sendData(protobuf.enum_id("pb_common.protocol_code","protocol_ready"),pData)
+            end
         elseif protobuf.enum_id("pb_common.protocol_code","protocol_ready_response") == INdata.data.protocol_code then
             local dataInfo = protobuf.decode("pb_common.data_ready_response", INdata.data.data_str)
             protobuf.extract(dataInfo)
@@ -254,10 +273,10 @@ function SceneMain:onEventData(INdata)
             if dataInfo.flag ~= 0 then
                 self.begin = true
             end
-            for i=1,#dataInfo.frames do
-                frameid = dataInfo.frames[i].frameid
+            for i=1,#dataInfo.frames.frames do
+                frameid = dataInfo.frames.frames[i].frameid
                 if self.syncFrameId < frameid then
-                    self.serverFrames:set(frameid,dataInfo.frames[i].frames)
+                    self.serverFrames:set(frameid,dataInfo.frames.frames[i].frames)
                     for k,v in ipairs(self.serverFrames:get(frameid)) do
                         v.cmds = {}
                         for kk,vv in ipairs(v.opecode) do
@@ -304,6 +323,18 @@ function SceneMain:onEventData(INdata)
                         end
                     end
                 end
+            end
+            if self.spectate then
+                if not self.begin then
+                    self.begin = true
+                    self:fastForwardFrames()
+                end
+                self:sendUdpData(8,protobuf.encode('pb_common.data_ope', {
+                    userid = self.token,
+                    frameid = 0,
+                    opecode = {},
+                    ackframeid = self.syncFrameId
+                }),false)
             end
         elseif 13 == INdata.data.protocol_code then
             local dataInfo = protobuf.decode("pb_common.data_pong", INdata.data.data_str)
@@ -395,6 +426,14 @@ function SceneMain:onKeyEventPressed(INkey,INrender)
         })
         self:sendData(protobuf.enum_id("pb_common.protocol_code","protocol_login"),pData)
     end
+    if cc.KeyCode.KEY_F3 == INkey then
+        self.spectate = true
+        local pData = protobuf.encode('pb_common.data_user_login', {
+            userid = 3,
+            password = ""
+        })
+        self:sendData(protobuf.enum_id("pb_common.protocol_code","protocol_login"),pData)
+    end
 end
 
 function SceneMain:onKeyEventReleased(INkey,INrender)
@@ -473,7 +512,7 @@ function SceneMain:createEntity(data)
     self.entities:set(data.userid,entity)
 end
 
-function SceneMain:createBullet(INuserid,INframeid,INpos,INbirPos,INdata)
+function SceneMain:createBullet(INuserid,INframeid,INpos,INbirPos,INdata,INinitShow)
     local bulletId = INuserid*1000000+1+INframeid
     if not self.nodeBullets:get(bulletId) then
         local HandlerBullet = require "src.app.modules.map.NodeBullet"
@@ -482,6 +521,9 @@ function SceneMain:createBullet(INuserid,INframeid,INpos,INbirPos,INdata)
         bullet:setRotation(INdata.rotation)
         bullet:addTo(self)
         self.nodeBullets:set(bulletId,bullet)
+        if INinitShow ~= nil then
+            bullet:setVisible(INinitShow)
+        end
     end
 end
 
@@ -554,7 +596,7 @@ function SceneMain:tickLogic(dt)
     if self.isDisconnected then return end
 
     -- 预输入
-    if self.frameId < MAX_PREDICT_FRAME_COUNT or self.frameId - self.syncFrameId < MAX_PREDICT_FRAME_COUNT then
+    if not self.spectate and (self.frameId < MAX_PREDICT_FRAME_COUNT or self.frameId - self.syncFrameId < MAX_PREDICT_FRAME_COUNT) then
         self.frameId = self.frameId + 1
         local opeCodes = self.entity:getOpeCode()
         local ope_move, data = self:convertOpeCode(opeCodes)
@@ -579,14 +621,7 @@ function SceneMain:tickLogic(dt)
     end
 
     while(self.serverFrames:get(self.syncFrameId+1)) do
-        for k,v in self.entities:pairs() do
-            if v.token == self.token then v.preLogicX,v.preLogicY = v.syncState.pos.x,v.syncState.pos.y
-            else v.preLogicX,v.preLogicY = v.logicInfo.pos.x,v.logicInfo.pos.y end
-        end
-        for k,v in self.nodeBullets:pairs() do
-            local logicPos = v:getLogicPos(self.syncFrameId)
-            v.preLogicX,v.preLogicY = logicPos.x,logicPos.y
-        end
+        self:updateCollisionData()
         local frames = self.serverFrames:get(self.syncFrameId+1)
         --if 0 == #frames then HLog:printf(string.format("frames empty frameid:%d",self.syncFrameId+1)) end
         for m=1,#frames do
@@ -609,7 +644,7 @@ function SceneMain:tickLogic(dt)
                         originPos = cc.pAdd(cc.p(math.floor(originPos.x),math.floor(originPos.y)),cc.pMul(bdir,NUMBER_SCALE))
                         local logicPos = cc.pAdd(self.entity.logicInfo.pos,cc.pMul(bdir,NUMBER_SCALE))
                         self:createBullet(v.userid,self.syncFrameId,logicPos,originPos,{directionx = bdir.x*NUMBER_SCALE, directiony = bdir.y*NUMBER_SCALE, rotation = rotation})
-                        HLog:printf(string.format("fire at frame %05d, logic pos %d:%d dir %d:%d", self.syncFrameId, logicPos.x, logicPos.y, bdir.x, bdir.y))
+                        --HLog:printf(string.format("fire at frame %05d, logic pos %d:%d dir %d:%d", self.syncFrameId, logicPos.x, logicPos.y, bdir.x, bdir.y))
                     end
                 end
                 self.entity.syncState.pos = cc.p(self.entity.logicInfo.pos.x, self.entity.logicInfo.pos.y)
@@ -643,7 +678,7 @@ function SceneMain:tickLogic(dt)
                             originPos = cc.pAdd(cc.p(math.floor(originPos.x),math.floor(originPos.y)),cc.pMul(bdir,NUMBER_SCALE))
                             local logicPos = cc.pAdd(otherEntity.logicInfo.pos,cc.pMul(bdir,NUMBER_SCALE))
                             self:createBullet(v.userid,self.syncFrameId,logicPos,originPos,{directionx = bdir.x*NUMBER_SCALE, directiony = bdir.y*NUMBER_SCALE, rotation = rotation})
-                            HLog:printf(string.format("fire at frame %05d, logic pos %d:%d dir %d:%d", self.syncFrameId, logicPos.x, logicPos.y, bdir.x, bdir.y))
+                            --HLog:printf(string.format("fire at frame %05d, logic pos %d:%d dir %d:%d", self.syncFrameId, logicPos.x, logicPos.y, bdir.x, bdir.y))
                         end
                     end
                     --HLog:printf(string.format("userid %d frame %d opecode %d logicPos %f:%f",v.userid,otherEntity.syncFrameId,v.opecode,otherEntity.logicInfo.pos.x,otherEntity.logicInfo.pos.y))
@@ -656,47 +691,10 @@ function SceneMain:tickLogic(dt)
         self.frameInfo:setString("frame:"..self.syncFrameId)
 
         -- 碰撞检测
-        for bulletId, v in self.nodeBullets:pairs() do
-            if v and not v.destroy then
-                local logicPos = v:getLogicPos(self.syncFrameId)
-                if v.preLogicX > 0 and v.preLogicX < display.width*NUMBER_SCALE and v.preLogicY > 0 and v.preLogicY < display.height*NUMBER_SCALE then
-                    if logicPos.x < 0 or logicPos.x > display.width*NUMBER_SCALE or logicPos.y < 0 or logicPos.y > display.height*NUMBER_SCALE then
-                        v.destroy = true
-                        v.hitPos = cc.p(logicPos.x,logicPos.y)
-                    end
-                end
-            end
-            if v and not v.destroy then
-                for userid,vv in self.entities:pairs() do
-                    if v.owner ~= vv.token then
-                        local player = {
-                            prev_x= vv.preLogicX, prev_y=vv.preLogicY,
-                            curr_x=vv.logicInfo.pos.x, curr_y=vv.logicInfo.pos.y,
-                            hw=NUMBER_SCALE*vv.width/2, hh=NUMBER_SCALE*vv.height/2
-                        }
-                        if userid == self.token then
-                            player.curr_x=vv.syncState.pos.x
-                            player.curr_y=vv.syncState.pos.y
-                        end
-                        local logicPos = v:getLogicPos(self.syncFrameId)
-                        local bullet = {
-                            prev_x=v.preLogicX, prev_y=v.preLogicY,
-                            curr_x=logicPos.x, curr_y=logicPos.y,
-                            hw=NUMBER_SCALE*v.width/2, hh=NUMBER_SCALE*v.height/2
-                        }
-                        local ret,t1,t2,x,y = self:checkBulletPlayerCollision(player, bullet)
-                        if ret then
-                            v.destroy = true
-                            v.hitPos = cc.p(x,y)
-                            break
-                        end
-                    end
-                end
-            end
-        end
+        self:checkCollision()
 
         -- 定期校验状态
-        if self.syncFrameId % STATE_VERIFY_FRAME_INTERVAL == 0 and self.syncFrameId > self.lastVerifyFrameId then
+        if not self.spectate and self.syncFrameId % STATE_VERIFY_FRAME_INTERVAL == 0 and self.syncFrameId > self.lastVerifyFrameId then
             self:sendStateVerify(self.syncFrameId)
             self.lastVerifyFrameId = self.syncFrameId
         end
@@ -707,11 +705,6 @@ end
 -- 碰撞检测：连续检测，子弹使用相对运动，玩家固定在原点，将子弹和玩家尺寸拓展为一个
 -- 拓展的矩形，将子弹抽象成一个点，等价变换为子弹运动轨迹的线段和AABB包围盒求相交的问题
 -- 相交问题采用：Liang-Barsky 裁剪算法原理
--- 整数向零取整除法（确定性）
-local function idiv(a, b)
-    if a >= 0 then return math.floor(a / b)
-    else return -math.floor((-a) / b) end
-end
 function SceneMain:checkBulletPlayerCollision(player, bullet)
     -- 计算子弹相对于玩家的运动线段（起点和终点）
     local rel_start_x = bullet.prev_x - player.prev_x
@@ -732,7 +725,7 @@ function SceneMain:checkBulletPlayerCollision(player, bullet)
     local bottom = -ext_hh
     local top    =  ext_hh
 
-    -- 3. Liang-Barsky 线段裁剪，求入口参数 t_enter
+    -- Liang-Barsky 线段裁剪，求入口参数 t_enter
     local p = { -dx, dx, -dy, dy }
     local q = { rel_start_x - left, right - rel_start_x, rel_start_y - bottom, top - rel_start_y }
 
@@ -771,7 +764,7 @@ function SceneMain:checkBulletPlayerCollision(player, bullet)
         end
     end
 
-    -- 4. 检查有效区间：t_enter <= t_exit 且 t_exit >= 0 且 t_enter <= 1
+    -- 检查有效区间：t_enter <= t_exit 且 t_exit >= 0 且 t_enter <= 1
     if t_exit_num < 0 then  -- t_exit < 0
         return false, 0, 1, 0, 0
     end
@@ -783,7 +776,7 @@ function SceneMain:checkBulletPlayerCollision(player, bullet)
         return false, 0, 1, 0, 0
     end
 
-    -- 5. 钳位到 [0, 1]
+    -- 钳位到 [0, 1]
     if t_enter_num < 0 then
         t_enter_num, t_enter_den = 0, 1
     end
@@ -791,10 +784,67 @@ function SceneMain:checkBulletPlayerCollision(player, bullet)
         t_enter_num, t_enter_den = 1, 1
     end
 
-    -- 6. 计算世界坐标系碰撞点（定点数）
+    -- 计算世界坐标系碰撞点（定点数）
+    -- 整数向零取整除法（确定性）
+    local function idiv(a, b)
+        if a >= 0 then return math.floor(a / b)
+        else return -math.floor((-a) / b) end
+    end
     local bullet_hit_x = bullet.prev_x + idiv(dx * t_enter_num, t_enter_den)
     local bullet_hit_y = bullet.prev_y + idiv(dy * t_enter_num, t_enter_den)
     return true, t_enter_num, t_enter_den, bullet_hit_x, bullet_hit_y
+end
+
+function SceneMain:updateCollisionData()
+    for k,v in self.entities:pairs() do
+        if v.token == self.token then v.preLogicX,v.preLogicY = v.syncState.pos.x,v.syncState.pos.y
+        else v.preLogicX,v.preLogicY = v.logicInfo.pos.x,v.logicInfo.pos.y end
+    end
+    for k,v in self.nodeBullets:pairs() do
+        local logicPos = v:getLogicPos(self.syncFrameId)
+        v.preLogicX,v.preLogicY = logicPos.x,logicPos.y
+    end
+end
+
+function SceneMain:checkCollision()
+    for bulletId, v in self.nodeBullets:pairs() do
+        if v and not v.destroy then
+            local logicPos = v:getLogicPos(self.syncFrameId)
+            if v.preLogicX > 0 and v.preLogicX < display.width*NUMBER_SCALE and v.preLogicY > 0 and v.preLogicY < display.height*NUMBER_SCALE then
+                if logicPos.x < 0 or logicPos.x > display.width*NUMBER_SCALE or logicPos.y < 0 or logicPos.y > display.height*NUMBER_SCALE then
+                    v.destroy = true
+                    v.hitPos = cc.p(logicPos.x,logicPos.y)
+                end
+            end
+        end
+        if v and not v.destroy then
+            for userid,vv in self.entities:pairs() do
+                if v.owner ~= vv.token then
+                    local player = {
+                        prev_x= vv.preLogicX, prev_y=vv.preLogicY,
+                        curr_x=vv.logicInfo.pos.x, curr_y=vv.logicInfo.pos.y,
+                        hw=NUMBER_SCALE*vv.width/2, hh=NUMBER_SCALE*vv.height/2
+                    }
+                    if userid == self.token then
+                        player.curr_x=vv.syncState.pos.x
+                        player.curr_y=vv.syncState.pos.y
+                    end
+                    local logicPos = v:getLogicPos(self.syncFrameId)
+                    local bullet = {
+                        prev_x=v.preLogicX, prev_y=v.preLogicY,
+                        curr_x=logicPos.x, curr_y=logicPos.y,
+                        hw=NUMBER_SCALE*v.width/2, hh=NUMBER_SCALE*v.height/2
+                    }
+                    local ret,t1,t2,x,y = self:checkBulletPlayerCollision(player, bullet)
+                    if ret then
+                        v.destroy = true
+                        v.hitPos = cc.p(x,y)
+                        break
+                    end
+                end
+            end
+        end
+    end
 end
 
 function SceneMain:simulateDisconnectAndReconnect()
@@ -815,6 +865,7 @@ function SceneMain:fastForwardFrames()
     -- 快速处理所有缓存的服务端帧数据
     print(string.format("[Reconnect] Start catching up from frame %d", self.syncFrameId + 1))
     while self.serverFrames:get(self.syncFrameId + 1) do
+        self:updateCollisionData()
         local frames = self.serverFrames:get(self.syncFrameId + 1)
         catchUpCount = catchUpCount + 1
         for m = 1, #frames do
@@ -825,7 +876,6 @@ function SceneMain:fastForwardFrames()
                 for n = 1, #v.cmds do
                     local cmd = v.cmds[n]
                     if 1 == cmd.opetype then
-                        -- 移动命令
                         entity.logicInfo.pos.x = entity.logicInfo.pos.x + ENTITY_MOVE_SPEED * cmd.movey
                         entity.logicInfo.pos.y = entity.logicInfo.pos.y + ENTITY_MOVE_SPEED * cmd.movex
                         entity.logicInfo.rotation = entity.logicInfo.rotation + cmd.turn * ENTITY_ROTATE_SPEED
@@ -836,8 +886,8 @@ function SceneMain:fastForwardFrames()
                         local originPos = cc.pMul(cc.p(entity:getPosition()),NUMBER_SCALE)
                         originPos = cc.pAdd(cc.p(math.floor(originPos.x),math.floor(originPos.y)),cc.pMul(bdir,NUMBER_SCALE))
                         local logicPos = cc.pAdd(entity.logicInfo.pos,cc.pMul(bdir,NUMBER_SCALE))
-                        self:createBullet(v.userid,v.frameid,logicPos,originPos,{directionx = bdir.x*NUMBER_SCALE, directiony = bdir.y*NUMBER_SCALE, rotation = rotation})
-                        HLog:printf(string.format("fire at frame %05d, logic pos %d:%d dir %d:%d", v.frameid, logicPos.x, logicPos.y, bdir.x, bdir.y))
+                        self:createBullet(v.userid,v.frameid,logicPos,originPos,{directionx = bdir.x*NUMBER_SCALE, directiony = bdir.y*NUMBER_SCALE, rotation = rotation},false)
+                        --HLog:printf(string.format("fire at frame %05d, logic pos %d:%d dir %d:%d", v.frameid, logicPos.x, logicPos.y, bdir.x, bdir.y))
                     end
                 end
                 -- 同步状态
@@ -849,6 +899,7 @@ function SceneMain:fastForwardFrames()
         end
         self.serverFrames:remove(self.syncFrameId + 1)
         self.syncFrameId = self.syncFrameId + 1
+        self:checkCollision()
     end
     -- 同步本地帧号到服务端帧号
     self.frameId = self.syncFrameId
@@ -859,10 +910,24 @@ function SceneMain:fastForwardFrames()
         if v and not tolua.isnull(v) then
             v:setPosition(cc.p(math.floor(v.logicInfo.pos.x/NUMBER_SCALE), math.floor(v.logicInfo.pos.y/NUMBER_SCALE)))
             v:setRotation(v.logicInfo.rotation)
+            v:updateNodeUI(v.logicInfo.rotation)
+            v.barrel:setRotation(v.logicInfo.barrel_rotation)
             v:show()
         end
     end
-    print(string.format("[FastForward] Caught up %d frames last syncFrameId %d", catchUpCount, self.syncFrameId))
+    for k,v in self.nodeBullets:pairs() do
+        if v and not tolua.isnull(v) then
+            if v.destroy then
+                self.nodeBullets:remove(v.id)
+                v:removeFromParent()
+            else
+                local logicPos = v:getLogicPos(self.syncFrameId-1)
+                v:setPosition(cc.p(math.floor(logicPos.x/NUMBER_SCALE), math.floor(logicPos.y/NUMBER_SCALE)))
+                v:show()
+            end
+        end
+    end
+    print(string.format("[FastForward] Caught up %d frames end with lastest syncFrameId %d", catchUpCount, self.syncFrameId))
 end
 
 function SceneMain:hashString(str)

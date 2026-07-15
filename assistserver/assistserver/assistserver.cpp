@@ -21,7 +21,7 @@ time_t getMs() {
     return tmp.count();
 }
 static
-int room_player_count = 1;
+int room_player_count = 2;
 
 using asio::ip::tcp;
 class session : public std::enable_shared_from_this<session> {
@@ -270,12 +270,16 @@ public:
             if (udp_sessions.find(token) == udp_sessions.end()) { return; }
             ed = udp_sessions[token];
         }
-        //socket_.send_to(asio::buffer(data.c_str(), data.size()), ed);
-        socket_.async_send_to(asio::buffer(data.c_str(), data.size()), ed,
-            [this](asio::error_code /*ec*/, std::size_t /*bytes_sent*/) {
-                // do nothing
-            }
-        );
+        // send too much data may fail!
+        socket_.send_to(asio::buffer(data.c_str(), data.size()), ed);
+        //socket_.async_send_to(asio::buffer(data.c_str(), data.size()), ed,
+        //    [this](asio::error_code ec, std::size_t bytes_sent) {
+        //        // do nothing
+        //        if (ec) {
+        //            int s = 1;
+        //        }
+        //    }
+        //);
     }
 
     void udp_send(LONG token, int protocal, int len, const std::string& data)
@@ -331,26 +335,21 @@ public:
         if (frame_sync[userid] < frame.ackframeid()) {
             frame_sync[userid] = frame.ackframeid();
         }
-        //std::string strLog = "";
-   //     for (const auto& iter : frame.opecode()) {
-   //         if (1 == iter.opetype()) {
-			//	pb_common::ope_move move;
-			//	move.ParseFromString(iter.opestring());
-			//}
-			//else if (2 == iter.opetype()) {
-   //             pb_common::ope_fire_bullet fire;
-   //             fire.ParseFromString(iter.opestring());
-   //         }
-   //         //strLog += std::to_string(iter.opetype());
-   //         //strLog += ":";
-   //     }
-        //spdlog::info("[recv] frameid_svr {} userid {} frameid:opecode {}:{} acked_frameid {}", currentFrame, userid, frameid, strLog.c_str(), frame.ackframeid());
         frames_[currentFrame][userid].insert(std::make_pair(frameid, frame));
     }
+    void input_frame_spectater(int userid, int frameid, const pb_common::data_ope& frame) {
+        std::lock_guard<std::mutex> lk(lock_frames);
+        if (frame_sync_spectater.find(userid) == frame_sync_spectater.end()) {
+            frame_sync_spectater.insert(std::make_pair(userid, frame.ackframeid()));
+        }
+        if (frame_sync_spectater[userid] < frame.ackframeid()) {
+            frame_sync_spectater[userid] = frame.ackframeid();
+        }
+    }
+    void pack_frames(int begin_frame, int frameid, pb_common::data_frames& frames);
     void broadcast_frames(gameserver* pServer, std::shared_ptr<gameplayer>& player, int frameid, LONG token, int flag);
     void verifyHash(int frameid) {
         auto& data = verify_[frameid];
-        // 检查所有哈希是否一致
         std::string firstHash = "";
         bool matched = true;
         std::vector<int> mismatchedUsers;
@@ -364,19 +363,9 @@ public:
             }
         }
         if (matched) {
-            // 广播校验通过
-            //broadcastVerifyResult(frameId, true, "");
             printf("frameid %04d hashcode %s verify success.\n", frameid, firstHash.c_str());
         }
         else {
-            //// 广播校验失败，触发重同步
-            //std::string info = "Mismatched users: ";
-            //for (int uid : mismatchedUsers) {
-            //    info += std::to_string(uid) + " ";
-            //}
-            //broadcastVerifyResult(frameId, false, info);
-            //// 可选：请求权威状态或踢出不一致的客户端
-            //requestResync(frameId);
             string strHashFailed = "";
             for (auto& iter : data) {
                 strHashFailed += to_string(iter.first);
@@ -384,6 +373,7 @@ public:
                 strHashFailed += std::string(iter.second);
                 strHashFailed += std::string(" ");
             }
+            //requestResync(frameId);
             printf("frameid %04d verify failed info %s.\n", frameid, strHashFailed.c_str());
         }
 
@@ -393,10 +383,12 @@ public:
     bool all_ready;
     bool game_start;
     std::map<int, std::shared_ptr<gameplayer>> m_mapPlayer;
+    std::map<int, std::shared_ptr<gameplayer>> m_mapSpectater;
     std::mutex lock_frames;
     int currentFrame;
     std::map<int, std::map<int, std::map<int, pb_common::data_ope>>> frames_;
     std::map<int, int> frame_sync;
+    std::map<int, int> frame_sync_spectater;
     time_t tTimeSeed;
     std::map<int, std::map<int, std::string>> verify_;
 };
@@ -502,7 +494,9 @@ public:
             if (!_room.ParseFromString(real_data)) { return; }
             pb_common::data_user_join_room_response rsp;
             rsp.set_userid(_room.userid());
-            {
+            rsp.set_flag(_room.flag());
+            auto flag = _room.flag();
+            if(0 == flag) {
                 std::lock_guard<std::mutex> lk(lock_room);
                 for (auto& iter : m_mapRoom) {
                     if (iter.second->game_start) { continue; }
@@ -513,9 +507,33 @@ public:
                     rsp.set_roomid(m_nIncrRoomId++);
                     m_mapRoom.insert(std::make_pair(rsp.roomid(), std::make_shared<gameroom>()));
                 }
-				auto index = m_mapRoom[rsp.roomid()]->m_mapPlayer.size() + 1;
+                auto index = m_mapRoom[rsp.roomid()]->m_mapPlayer.size() + 1;
                 auto player = std::make_shared<gameplayer>(_room.userid(), token, 0, index);
                 m_mapRoom[rsp.roomid()]->m_mapPlayer.insert(std::make_pair(_room.userid(), player));
+            }
+            else {
+                std::lock_guard<std::mutex> lk(lock_room);
+                for (auto& iter : m_mapRoom) {
+                    if (iter.second->game_start) {
+                        rsp.set_roomid(iter.first);
+                        if (iter.second->m_mapSpectater.find(_room.userid()) == iter.second->m_mapSpectater.end()) {
+                            auto index = m_mapRoom[rsp.roomid()]->m_mapSpectater.size() + 1;
+                            auto player = std::make_shared<gameplayer>(_room.userid(), token, 0, index);
+                            m_mapRoom[rsp.roomid()]->m_mapSpectater.insert(std::make_pair(_room.userid(), player));
+                        }
+                        auto begin = rsp.mutable_begin();
+                        begin->set_rand_seed(iter.second->tTimeSeed);
+                        for (auto& iter : iter.second->m_mapPlayer) {
+                            auto playerinfo = begin->add_playerinfos();
+                            auto player = iter.second.get();
+                            if (playerinfo && player) {
+                                playerinfo->set_userid(iter.second.get()->m_userid);
+                                playerinfo->set_index(iter.second.get()->m_index);
+                            }
+                        }
+                        break;
+                    }
+                }
             }
             tcp_send(token, pb_common::protocol_code::protocol_join_room_response, rsp.SerializeAsString());
         });
@@ -531,9 +549,16 @@ public:
                 if (m_mapRoom.find(_ready.roomid()) == m_mapRoom.end()) { break; }
                 else {
                     const auto& room = m_mapRoom[_ready.roomid()];
-                    if (room->m_mapPlayer.find(_ready.userid()) == room->m_mapPlayer.end()) { break; }
-                    auto& players = room->m_mapPlayer;
-                    players[_ready.userid()]->m_state = 1;
+                    if (room->m_mapPlayer.find(_ready.userid()) != room->m_mapPlayer.end()) {
+                        auto& players = room->m_mapPlayer;
+                        players[_ready.userid()]->m_state = 1;
+                        break;
+                    }
+                    if (room->m_mapSpectater.find(_ready.userid()) != room->m_mapSpectater.end()) {
+                        auto& players = room->m_mapSpectater;
+                        players[_ready.userid()]->m_state = 1;
+                        break;
+                    }
                 }
             } while (0);
             rsp.set_return_code(1);
@@ -601,10 +626,15 @@ public:
             pb_common::data_ope frame;
             if (!frame.ParseFromString(data)) { return; }
             auto userid = frame.userid();
+            //update_udp_session(userid, ed);
             std::lock_guard<std::mutex> lk(lock_room);
             for (auto& iter : m_mapRoom) {
                 if (iter.second->game_start && iter.second->m_mapPlayer.find(userid) != iter.second->m_mapPlayer.end()) {
                     iter.second->input_frame(userid, frame.frameid(), frame);
+                    break;
+                }
+                if (iter.second->game_start && iter.second->m_mapSpectater.find(userid) != iter.second->m_mapSpectater.end()) {
+                    iter.second->input_frame_spectater(userid, frame.frameid(), frame);
                     break;
                 }
             }
@@ -614,8 +644,8 @@ public:
             if (!ping.ParseFromString(data)) { return; }
             pb_common::data_pong pong;
             pong.set_userid(ping.userid());
-            udp_send(ping.userid(), pb_common::protocol_code::protocol_pong, ping.ByteSizeLong(), ping.SerializeAsString());
             update_udp_session(ping.userid(), ed);
+            udp_send(ping.userid(), pb_common::protocol_code::protocol_pong, ping.ByteSizeLong(), ping.SerializeAsString());
         });
     }
 
@@ -716,7 +746,7 @@ void gameroom::start_game(gameserver* pServer, int playercount) {
         tTimeSeed = (uint32_t)time(nullptr);
         begin.set_rand_seed(tTimeSeed);
         for (auto& iter : m_mapPlayer) {
-			auto playerinfo = begin.add_playerinfos();
+            auto playerinfo = begin.add_playerinfos();
             auto player = iter.second.get();
             if (playerinfo && player) {
                 playerinfo->set_userid(iter.second.get()->m_userid);
@@ -735,48 +765,33 @@ void gameroom::start_game(gameserver* pServer, int playercount) {
         std::lock_guard<std::mutex> lk(lock_frames);
         if (frame_sync.size() < playercount) { return; }
         int frameid = currentFrame++;
-        for (auto& it : m_mapPlayer) {
-            int userid = it.second->m_userid;
+        for (auto& itPlayer : m_mapPlayer) {
+            int userid = itPlayer.second->m_userid;
             pb_common::data_frames frames;
             auto begin_frame = frame_sync[userid] < 0 ? 0 : frame_sync[userid];
-            for (auto i = begin_frame+1; i <= frameid; ++i) {
-                auto frame = frames.add_frames();
-                frame->set_frameid(i);
-                if (frames_.find(i) != frames_.end()) {
-                    for (auto& iter : frames_[i]) {
-                        auto user_frame = frame->add_frames();
-                        if (user_frame) {
-                            for (auto& it : iter.second) {
-                                user_frame->set_userid(iter.first);
-                                user_frame->set_frameid(it.first);
-                                for (auto& itIn : it.second.opecode()) {
-                                    auto opecode = user_frame->add_opecode();
-                                    if (opecode) {
-                                        opecode->set_opetype(itIn.opetype());
-                                        opecode->set_opestring(itIn.opestring());
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            pack_frames(begin_frame, frameid, frames);
             bool pkLoss = (rand() % 5) == 0 && false;
             if (!pkLoss) {
                 pServer->udp_send(userid, pb_common::protocol_code::protocol_frame, frames.ByteSizeLong(), frames.SerializeAsString());
             }
         }
+        for (auto& iterSpectater : m_mapSpectater) {
+            if (iterSpectater.second->m_state != 0) {
+                pb_common::data_frames frames;
+                int userid = iterSpectater.second->m_userid;
+                auto begin_frame = frame_sync_spectater[userid] < 0 ? 0 : frame_sync_spectater[userid];
+                if (frameid - begin_frame > 100) { frameid = begin_frame + 100; }
+                pack_frames(begin_frame, frameid, frames);
+                bool pkLoss = (rand() % 5) == 0 && false;
+                if (!pkLoss) {
+                    pServer->udp_send(userid, pb_common::protocol_code::protocol_frame, frames.ByteSizeLong(), frames.SerializeAsString());
+                }
+            }
+        }
     }
 }
 
-void gameroom::broadcast_frames(gameserver* pServer, std::shared_ptr<gameplayer>& player, int frameid, LONG token, int flag) {
-    int userid = player->m_userid;
-    pb_common::data_repair_frames_response frames;
-    frames.set_flag(flag);
-    auto begin_frame = frame_sync[userid] < 0 ? 0 : frame_sync[userid];
-    if (flag != 0) {
-        begin_frame = 0;
-    }
+void gameroom::pack_frames(int begin_frame, int frameid, pb_common::data_frames& frames) {
     for (auto i = begin_frame + 1; i <= frameid; ++i) {
         auto frame = frames.add_frames();
         frame->set_frameid(i);
@@ -799,9 +814,22 @@ void gameroom::broadcast_frames(gameserver* pServer, std::shared_ptr<gameplayer>
             }
         }
     }
+}
+
+void gameroom::broadcast_frames(gameserver* pServer, std::shared_ptr<gameplayer>& player, int frameid, LONG token, int flag) {
+    int userid = player->m_userid;
+    pb_common::data_repair_frames_response repaire_frames;
+    repaire_frames.set_flag(flag);
+    auto& frames = *repaire_frames.mutable_frames();
+    std::lock_guard<std::mutex> lk(lock_frames);
+    auto begin_frame = frame_sync[userid] < 0 ? 0 : frame_sync[userid];
+    if (flag != 0) {
+        begin_frame = 0;
+    }
+    pack_frames(begin_frame, frameid, frames);
     bool pkLoss = (rand() % 5) == 0 && false;
     if (!pkLoss) {
-        pServer->tcp_send(token, pb_common::protocol_code::protocol_repair_frames_response, frames.SerializeAsString());
+        pServer->tcp_send(token, pb_common::protocol_code::protocol_repair_frames_response, repaire_frames.SerializeAsString());
     }
 }
 

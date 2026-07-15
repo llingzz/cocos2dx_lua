@@ -11,7 +11,7 @@ function LayerMap:ctor()
     edgeBoxBody:setCategoryBitmask(CollisionType.EdgeBox)
     edgeBoxBody:setCollisionBitmask(bit._or(CollisionType.Entity,CollisionType.EdgeBox))
     edgeBoxBody:setContactTestBitmask(bit._or(CollisionType.Entity,CollisionType.EdgeBox))
-    print(string.format("LayerMap CategoryBitmask:%d CollisionBitmask:%d ContactTestBitmask:%d",edgeBoxBody:getCategoryBitmask(),edgeBoxBody:getCollisionBitmask(),edgeBoxBody:getContactTestBitmask()))
+    --print(string.format("LayerMap CategoryBitmask:%d CollisionBitmask:%d ContactTestBitmask:%d",edgeBoxBody:getCategoryBitmask(),edgeBoxBody:getCollisionBitmask(),edgeBoxBody:getContactTestBitmask()))
     self:setPhysicsBody(edgeBoxBody)
 end
 

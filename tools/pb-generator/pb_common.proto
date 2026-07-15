@@ -62,12 +62,16 @@ message data_user_login_response
 message data_user_join_room
 {
 	optional int32 userid = 1;
+	optional int32 roomid = 2;
+	optional int32 flag = 3;
 }
 
 message data_user_join_room_response
 {
 	optional int32 userid = 1;
 	optional int32 roomid = 2;
+	optional int32 flag = 3;
+	optional data_begin begin = 4;
 }
 
 message data_ready
@@ -188,7 +192,7 @@ message data_repair_frames
 message data_repair_frames_response
 {
 	optional int32 flag = 1;
-	repeated data_ope_frames frames = 2;
+	optional data_frames frames = 2;
 }
 
 message data_sync_verify
