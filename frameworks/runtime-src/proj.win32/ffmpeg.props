@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--
+    FFmpeg (Win32 x86) 接入属性表
+    用法：在 cocos2dx_lua.vcxproj 的 ImportGroup 中，cocos2dx.props 之后加：
+        <Import Project="ffmpeg.props" />
+    默认使用 Release CRT 的 DLL（/MD），可在 vcxproj 里用 <FFmpegCRT>debug</FFmpegCRT> 切到 /MDd 那套。
+  -->
+  <PropertyGroup>
+    <FFmpegRoot Condition="'$(FFmpegRoot)'==''">$(ProjectDir)..\..\cocos2d-x\external\ffmpeg</FFmpegRoot>
+    <FFmpegCRT Condition="'$(FFmpegCRT)'==''">release</FFmpegCRT>
+
+    <FFmpegDir Condition="'$(FFmpegCRT)'=='debug'">$(FFmpegRoot)\prebuilt\win32\debug</FFmpegDir>
+    <FFmpegDir Condition="'$(FFmpegCRT)'!='debug'">$(FFmpegRoot)\prebuilt\win32</FFmpegDir>
+
+    <FFmpegRuntimeDir Condition="'$(Configuration)'=='Debug'">$(ProjectDir)..\..\..\simulator\win32</FFmpegRuntimeDir>
+    <FFmpegRuntimeDir Condition="'$(Configuration)'!='Debug'">$(ProjectDir)..\..\..\publish\win32</FFmpegRuntimeDir>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(FFmpegRoot)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(FFmpegDir)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>avformat.lib;avcodec.lib;avutil.lib;swscale.lib;swresample.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <Target Name="CopyFFmpegRuntime" AfterTargets="Build">
+    <ItemGroup>
+      <FFmpegRuntime Include="$(FFmpegDir)\bin\*.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(FFmpegRuntime)"
+          DestinationFolder="$(FFmpegRuntimeDir)"
+          SkipUnchangedFiles="true"
+          Condition="Exists('$(FFmpegRuntimeDir)')" />
+  </Target>
+</Project>

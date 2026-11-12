@@ -47,11 +47,13 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\cocos2d-x\cocos\2d\cocos2dx.props" />
     <Import Project="..\..\cocos2d-x\cocos\2d\cocos2d_headers.props" />
+    <Import Project="ffmpeg.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\cocos2d-x\cocos\2d\cocos2dx.props" />
     <Import Project="..\..\cocos2d-x\cocos\2d\cocos2d_headers.props" />
+    <Import Project="ffmpeg.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -101,7 +103,7 @@
     </Link>
     <ResourceCompile>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A\include;$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A\include;$(IntDir);$(ProjectDir)..\Classes\runtime;$(ProjectDir)..\Classes\protobuf-lite;$(EngineRoot)\plugin\libplugin;$(EngineRoot)cocos\editor-support\FairyGUI-cocos2dx-master\libfairygui\Classes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Midl>
@@ -142,7 +144,7 @@ xcopy /Y /Q "D:\Work\Client\Cocos2dx\cocos2dx_lua\frameworks\runtime-src\proj.wi
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\Classes;$(EngineRoot)external\win32-specific\zlib\include;$(EngineRoot)external;$(EngineRoot)external\lua\lua;$(EngineRoot)external\lua\tolua;$(EngineRoot)external\chipmunk\include\chipmunk;$(EngineRoot)extensions;$(EngineRoot)external\curl\include\win32;$(EngineRoot);$(EngineRoot)tools\simulator\libsimulator\lib;$(EngineRoot)tools\simulator\libsimulator\lib\protobuf-lite;%(AdditionalIncludeDirectories);$(_COCOS_HEADER_WIN32_BEGIN);$(_COCOS_HEADER_WIN32_END)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\Classes;$(EngineRoot)external\win32-specific\zlib\include;$(EngineRoot)external;$(EngineRoot)external\lua\lua;$(EngineRoot)external\lua\tolua;$(EngineRoot)external\chipmunk\include\chipmunk;$(EngineRoot)extensions;$(EngineRoot)external\curl\include\win32;$(EngineRoot);$(EngineRoot)tools\simulator\libsimulator\lib;$(EngineRoot)tools\simulator\libsimulator\lib\protobuf-lite;$(ProjectDir)..\Classes\runtime;$(ProjectDir)..\Classes\protobuf-lite;$(EngineRoot)\plugin\libplugin;$(EngineRoot)cocos\editor-support\FairyGUI-cocos2dx-master\libfairygui\Classes;%(AdditionalIncludeDirectories);$(_COCOS_HEADER_WIN32_BEGIN);$(_COCOS_HEADER_WIN32_END)</AdditionalIncludeDirectories>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
@@ -161,14 +163,14 @@ xcopy /Y /Q "D:\Work\Client\Cocos2dx\cocos2dx_lua\frameworks\runtime-src\proj.wi
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
       <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories);$(_COCOS_LIB_PATH_WIN32_BEGIN);$(_COCOS_LIB_PATH_WIN32_END)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libcurl.lib;%(AdditionalDependencies);$(_COCOS_LIB_WIN32_BEGIN);$(_COCOS_LIB_WIN32_END)</AdditionalDependencies>
+      <AdditionalDependencies>libcurl.lib;%(AdditionalDependencies);$(_COCOS_LIB_WIN32_BEGIN);$(_COCOS_LIB_WIN32_END);libfairygui.lib;libplugin.lib</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OutputFile>$(ProjectDir)../../../publish/win32/$(TargetName)$(TargetExt)</OutputFile>
     </Link>
     <ResourceCompile>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A\include;$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A\include;$(IntDir);$(ProjectDir)..\Classes\runtime;$(ProjectDir)..\Classes\protobuf-lite;$(EngineRoot)\plugin\libplugin;$(EngineRoot)cocos\editor-support\FairyGUI-cocos2dx-master\libfairygui\Classes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Midl>
@@ -198,6 +200,10 @@ xcopy /Y /Q "D:\Work\Client\Cocos2dx\cocos2dx_lua\frameworks\runtime-src\proj.wi
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\Classes\AppDelegate.h" />
+    <ClInclude Include="..\Classes\video\AudioSinkWin32.h" />
+    <ClInclude Include="..\Classes\video\VideoPlayerImpl.h" />
+    <ClInclude Include="..\Classes\video\VideoNode.h" />
+    <ClInclude Include="..\Classes\video\lua_video_binding.h" />
     <ClInclude Include="..\Classes\FairyGUI-Examples\BagScene.h" />
     <ClInclude Include="..\Classes\FairyGUI-Examples\BagWindow.h" />
     <ClInclude Include="..\Classes\FairyGUI-Examples\BasicsScene.h" />
@@ -229,6 +235,10 @@ xcopy /Y /Q "D:\Work\Client\Cocos2dx\cocos2dx_lua\frameworks\runtime-src\proj.wi
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Classes\AppDelegate.cpp" />
+    <ClCompile Include="..\Classes\video\AudioSinkWin32.cpp" />
+    <ClCompile Include="..\Classes\video\VideoPlayerImpl.cpp" />
+    <ClCompile Include="..\Classes\video\VideoNode.cpp" />
+    <ClCompile Include="..\Classes\video\lua_video_binding.cpp" />
     <ClCompile Include="..\Classes\FairyGUI-Examples\BagScene.cpp" />
     <ClCompile Include="..\Classes\FairyGUI-Examples\BagWindow.cpp" />
     <ClCompile Include="..\Classes\FairyGUI-Examples\BasicsScene.cpp" />
@@ -272,6 +282,10 @@ xcopy /Y /Q "D:\Work\Client\Cocos2dx\cocos2dx_lua\frameworks\runtime-src\proj.wi
     </ProjectReference>
     <ProjectReference Include="..\..\cocos2d-x\tools\simulator\libsimulator\proj.win32\libsimulator.vcxproj">
       <Project>{001b324a-bb91-4e83-875c-c92f75c40857}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\cocos2d-x\plugin\libplugin\libplugin.vcxproj">
+      <Project>{61db3b9d-f22d-42f7-a1e0-9a87df38e4ff}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

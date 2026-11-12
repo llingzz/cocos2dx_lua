@@ -7,6 +7,21 @@ local SceneMain = class("SceneMain", function()
 end)
 
 function SceneMain:ctor()
+    -- local video = cc.VideoNode:create("video/intro.mp4")   -- 文件放 res/video/intro.mp4
+    -- video:setPosition(display.cx, display.cy)
+    -- video:setLoop(true)
+    -- video:addEventListener(function(sender, event)         -- 0播放 1暂停 2停止 3完成 4错误
+    --     if event == 3 then sender:removeFromParent() end
+    -- end)
+    -- self:addChild(video)
+    -- video:play()
+    -- Scheduler:scheduleGlobal(function()
+    --     if video then
+    --         print(string.format("drops=%d writeFail=%d underruns=%d",
+    --             video:getAudioDrops(), video:getAudioWriteFailures(), video:getAudioUnderruns()))
+    --     end
+    -- end, 1.0)
+
     -- local uiloader = cc.load('uiloader')
     -- local layer = uiloader:load("res/modules/LayerTest.csb")
     -- local width = display.width
@@ -14,7 +29,7 @@ function SceneMain:ctor()
     -- layer:setContentSize(width, height)
     -- layer:enableNodeEvents()
     -- ccui.Helper:doLayout(layer)
-    -- layer:addTo(self)
+    -- layer:addTo(self,111)
 
     -- local touchLayer = require "src.app.modules.joysticks.TouchLayer"
     -- touchLayer:new():addTo(self)
@@ -84,6 +99,7 @@ function SceneMain:ctor()
     self.frameId = 0
     -- 客户端同步过的帧号
     self.syncFrameId = 0
+    self.lastConfirmedInputFrameId = 0
     self.inputsPending = OrderedTable:new()
     -- 上次发射子弹的帧号
     self.lastFireFrameId = 0
@@ -594,23 +610,23 @@ end
 function SceneMain:tickLogic(dt)
     if not self.begin then return end
     if self.isDisconnected then return end
+    self.frameId = self.frameId + 1
+    local opeCodes = self.entity:getOpeCode()
+    local ope_move, data = self:convertOpeCode(opeCodes)
+    local ret = self:sendUdpData(8,protobuf.encode('pb_common.data_ope', {
+        userid = self.token,
+        frameid = self.frameId,
+        opecode = data,
+        ackframeid = self.syncFrameId
+    }),false)
+    --if ret then HLog:printf(string.format("player packet loss frameid:%d opeCode:%d",self.frameId,opeCodes)) end
+    if not self.inputsPending:get(self.frameId) then self.inputsPending:set(self.frameId,{}) end
+    self.inputsPending:set(self.frameId,{
+        move=ope_move
+    })
 
     -- 预输入
-    if not self.spectate and (self.frameId < MAX_PREDICT_FRAME_COUNT or self.frameId - self.syncFrameId < MAX_PREDICT_FRAME_COUNT) then
-        self.frameId = self.frameId + 1
-        local opeCodes = self.entity:getOpeCode()
-        local ope_move, data = self:convertOpeCode(opeCodes)
-        local ret = self:sendUdpData(8,protobuf.encode('pb_common.data_ope', {
-            userid = self.token,
-            frameid = self.frameId,
-            opecode = data,
-            ackframeid = self.syncFrameId
-        }),false)
-        --if ret then HLog:printf(string.format("player packet loss frameid:%d opeCode:%d",self.frameId,opeCodes)) end
-        if not self.inputsPending:get(self.frameId) then self.inputsPending:set(self.frameId,{}) end
-        self.inputsPending:set(self.frameId,{
-            move=ope_move
-        })
+    --if not self.spectate and (self.frameId > self.lastConfirmedInputFrameId and self.frameId - self.lastConfirmedInputFrameId < MAX_PREDICT_FRAME_COUNT) then
         if ope_move.turn ~= 0 then
             self.entity.logicInfo.rotation = self.entity.logicInfo.rotation + ope_move.turn * ENTITY_ROTATE_SPEED
         end
@@ -618,7 +634,7 @@ function SceneMain:tickLogic(dt)
             self.entity.logicInfo.pos.x = self.entity.logicInfo.pos.x + ENTITY_MOVE_SPEED * ope_move.movey
             self.entity.logicInfo.pos.y = self.entity.logicInfo.pos.y + ENTITY_MOVE_SPEED * ope_move.movex
         end
-    end
+    --end
 
     while(self.serverFrames:get(self.syncFrameId+1)) do
         self:updateCollisionData()
@@ -659,6 +675,9 @@ function SceneMain:tickLogic(dt)
                             self.entity.logicInfo.rotation = self.entity.logicInfo.rotation + premove.turn * ENTITY_ROTATE_SPEED
                         end
                     end
+                end
+                if v.frameid < self.lastConfirmedInputFrameId then
+                    self.lastConfirmedInputFrameId = v.frameid
                 end
             else
                 local otherEntity = self.entities:get(v.userid)
