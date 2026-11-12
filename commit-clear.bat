@@ -22,4 +22,8 @@ rmdir /s /q %~dp0\frameworks\cocos2d-x\external\recast\proj.win32\Release.win32
 rmdir /s /q %~dp0\frameworks\cocos2d-x\tools\simulator\libsimulator\proj.win32\Release.win32
 rmdir /s /q %~dp0\frameworks\runtime-src\proj.win32\Release.win32
 rmdir /s /q %~dp0\frameworks\cocos2d-x\cocos\editor-support\FairyGUI-cocos2dx-master\libfairygui\proj.win32\Release.win32
+rmdir /s /q %~dp0\frameworks\cocos2d-x\plugin\libplugin\Debug.win32
+rmdir /s /q %~dp0\frameworks\cocos2d-x\plugin\libplugin\Debug
+rmdir /s /q %~dp0\frameworks\cocos2d-x\plugin\libplugin\Release.win32
+rmdir /s /q %~dp0\frameworks\cocos2d-x\plugin\libplugin\Release
 echo. & pause
