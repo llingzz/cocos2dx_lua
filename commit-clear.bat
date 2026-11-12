@@ -15,4 +15,11 @@ rmdir /s /q %~dp0\frameworks\cocos2d-x\tools\simulator\libsimulator\proj.win32\D
 rmdir /s /q %~dp0\frameworks\runtime-src\proj.win32\.vs
 rmdir /s /q %~dp0\frameworks\runtime-src\proj.win32\Debug.win32
 rmdir /s /q %~dp0\frameworks\cocos2d-x\cocos\editor-support\FairyGUI-cocos2dx-master\libfairygui\proj.win32\Debug.win32
+rmdir /s /q %~dp0\frameworks\cocos2d-x\cocos\2d\Release.win32
+rmdir /s /q %~dp0\frameworks\cocos2d-x\cocos\editor-support\spine\proj.win32\Release.win32
+rmdir /s /q %~dp0\frameworks\cocos2d-x\cocos\scripting\lua-bindings\proj.win32\Release.win32
+rmdir /s /q %~dp0\frameworks\cocos2d-x\external\recast\proj.win32\Release.win32
+rmdir /s /q %~dp0\frameworks\cocos2d-x\tools\simulator\libsimulator\proj.win32\Release.win32
+rmdir /s /q %~dp0\frameworks\runtime-src\proj.win32\Release.win32
+rmdir /s /q %~dp0\frameworks\cocos2d-x\cocos\editor-support\FairyGUI-cocos2dx-master\libfairygui\proj.win32\Release.win32
 echo. & pause
